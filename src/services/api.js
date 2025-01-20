@@ -13,7 +13,6 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token"); // ดึง Token จาก Local Storage
-    console.log("token:"+token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`; // เพิ่ม Authorization Header
     }

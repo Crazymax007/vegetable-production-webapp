@@ -1,0 +1,12 @@
+.bg-login {
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(to bottom right, #82B84D, #FFFFFF);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-button {
+    @apply w-1/2 py-3 mt-4 rounded-full text-white hover:text-gray-700 text-lg font-bold bg-gradient-to-r from-[#398568] to-[#12430C] hover:to-[#2e7258];
+}
