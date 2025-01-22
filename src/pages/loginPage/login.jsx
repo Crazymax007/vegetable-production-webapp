@@ -8,7 +8,6 @@ import { TextField, Typography } from "@mui/material";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false); // State สำหรับจดจำรหัสผ่าน
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
@@ -19,31 +18,26 @@ const Login = () => {
     try {
       const data = await login(username, password);
       localStorage.setItem("token", data.token);
-      localStorage.setItem("role", data.data.role);
-
-      // ถ้าติ๊ก "จดจำรหัสผ่าน" จะเก็บ username ไว้ใน localStorage
-      if (rememberMe) {
-        localStorage.setItem("rememberedUsername", username);
-      } else {
-        localStorage.removeItem("rememberedUsername");
-      }
+      localStorage.setItem("role", data.user.role);
 
       // Redirect ตาม Role
-      if (data.data.role === "admin") {
+      if (data.user.role === "admin") {
         navigate("/admin/dashboard");
-      } else if (data.data.role === "manager") {
-        navigate("/manager/dashboard");
-      } else if (data.data.role === "farmer") {
-        navigate("/user/dashboard");
+      } else if (data.user.role === "manager") {
+        navigate("/map");
+      } else if (data.user.role === "farmer") {
+        navigate("/map");
+      } else {
+        throw new Error("Invalid role");
       }
     } catch (err) {
-      setError(err.message || "Login failed");
+      setError(err.message || "Login failed"); // แสดงข้อความ error ใน UI
     }
   };
 
   return (
     <div className="bg-login">
-      <div className="bg-white w-[1306px] h-[600px] rounded-[36px] flex">
+      <div className="bg-white w-4/5 h-4/5 rounded-[36px] flex">
         {/* ส่วนข้อความ (ซ้าย) */}
         <div className="flex-1 flex justify-center items-center">
           <div className="flex flex-col items-center">
@@ -97,13 +91,15 @@ const Login = () => {
               {/* จดจำรหัสผ่าน */}
               <div className="flex items-center w-full mt-2">
                 <input
-                  type="checkbox"
                   id="rememberMe"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="mr-2 ml-4 w-4 h-4"
+                  type="checkbox"
+                  value=""
+                  className="ml-4 w-5 h-5 text-green-600 bg-gray-100 border-2 border-gray-300 rounded-full appearance-none checked:bg-[#12430cb9]"
                 />
-                <label htmlFor="rememberMe" className="text-gray-600">
+                <label
+                  htmlFor="rememberMe"
+                  className="ms-2 text-sm font-medium text-gray-900"
+                >
                   จดจำรหัสผ่าน
                 </label>
               </div>
@@ -121,7 +117,7 @@ const Login = () => {
           </div>
         </div>
         {/* ส่วนรูปภาพ (ขวา) */}
-        <div className="flex-1 flex justify-center items-center">
+        <div className="flex-1 flex justify-center items-center ">
           <img
             src={logoLogin}
             alt="Login"

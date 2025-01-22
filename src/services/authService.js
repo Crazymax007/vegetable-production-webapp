@@ -3,6 +3,7 @@ import api from "./api";
 // Login User
 export const login = async (username, password) => {
   const response = await api.post("/auth/login", { username, password });
+  console.log(response.data)
   return response.data; // ส่ง { token, user: { id, username, role } } กลับ
 };
 

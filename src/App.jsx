@@ -5,10 +5,11 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Login from "./pages/login/login";
+import Login from "./pages/loginPage/login";
 import AdminDashboard from "./pages/adminDashboard/AdminDashboard";
-import UserDashboard from "./pages/userDashboard/UserDashboard";
+import MapPage from "./pages/mapPage/MapPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import TopNavbar from "./components/TopNavbar";
 
 const App = () => {
   return (
@@ -26,18 +27,20 @@ const App = () => {
           }
         />
         <Route
-          path="/manager/dashboard"
+          path="/map"
           element={
             <ProtectedRoute allowedRoles={["manager", "admin"]}>
-              <UserDashboard />
+              <TopNavbar />
+              <MapPage />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/user/dashboard"
+          path="/map"
           element={
             <ProtectedRoute allowedRoles={["farmer"]}>
-              <UserDashboard />
+              <TopNavbar />
+              <MapPage />
             </ProtectedRoute>
           }
         />
