@@ -3,12 +3,16 @@ import api from "./api";
 // Login User
 export const login = async (username, password) => {
   const response = await api.post("/auth/login", { username, password });
-  console.log(response.data)
-  return response.data; // ส่ง { token, user: { id, username, role } } กลับ
+  return response.data; // ส่ง { message, user }
 };
 
 // Logout User
-export const logout = () => {
-  localStorage.removeItem("token"); // ลบ Token จาก Local Storage
-  localStorage.removeItem("role"); // ลบ Role (ถ้าเก็บไว้)
+export const logout = async () => {
+  await api.post("/auth/logout");
+};
+
+// ดึงข้อมูลผู้ใช้
+export const getUserInfo = async () => {
+  const response = await api.get("/auth/me");
+  return response.data; // ส่ง { id, username, role }
 };

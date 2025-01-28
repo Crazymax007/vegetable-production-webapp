@@ -10,6 +10,8 @@ import AdminDashboard from "./pages/adminDashboard/AdminDashboard";
 import MapPage from "./pages/mapPage/MapPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import TopNavbar from "./components/TopNavbar";
+import PlanPage from "./pages/planPage/PlanPage";
+import ManagePage from "./pages/managePage/ManagePage";
 
 const App = () => {
   return (
@@ -29,18 +31,27 @@ const App = () => {
         <Route
           path="/map"
           element={
-            <ProtectedRoute allowedRoles={["manager", "admin"]}>
+            <ProtectedRoute allowedRoles={["farmer", "manager", "admin"]}>
               <TopNavbar />
               <MapPage />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/map"
+          path="/plan"
           element={
-            <ProtectedRoute allowedRoles={["farmer"]}>
+            <ProtectedRoute allowedRoles={["manager", "admin"]}>
               <TopNavbar />
-              <MapPage />
+              <PlanPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/management"
+          element={
+            <ProtectedRoute allowedRoles={["manager", "admin"]}>
+              <TopNavbar />
+              <ManagePage />
             </ProtectedRoute>
           }
         />

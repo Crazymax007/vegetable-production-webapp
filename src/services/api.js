@@ -7,19 +7,8 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json", // กำหนดว่า API ใช้ JSON
   },
+  withCredentials: true, // ให้ส่ง Cookie ในทุกคำขอ
 });
-
-// Interceptor สำหรับเพิ่ม Token ลงใน Headers
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token"); // ดึง Token จาก Local Storage
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`; // เพิ่ม Authorization Header
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
 
 // Interceptor สำหรับจัดการ Error
 api.interceptors.response.use(
@@ -27,9 +16,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       console.error("Unauthorized: Please log in again.");
-      // สามารถเพิ่ม Redirect หรือ Logout Logic ได้
-      localStorage.removeItem("token"); // ลบ Token เมื่อไม่ได้รับอนุญาต
-      window.location.href = "/login"; // Redirect ไปหน้า Login
+      window.location.href = "/login"; 
     }
     return Promise.reject(error.response ? error.response.data : error.message);
   }
