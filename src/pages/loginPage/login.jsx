@@ -37,9 +37,7 @@ const Login = () => {
         {/* ส่วนข้อความ (ซ้าย) */}
         <div className="flex-1 flex justify-center items-center">
           <div className="flex flex-col items-center">
-            <Typography variant="h4" fontWeight="bold" gutterBottom>
-              เข้าสู่ระบบ
-            </Typography>
+            <span className="text-4xl pb-3">เข้าสู่ระบบ</span>
             {/* ฟอร์ม */}
             <form
               className="flex flex-col items-center w-[450px] max-w-[450px]"
