@@ -19,7 +19,6 @@ const LoadingSpinner = () => (
   </div>
 );
 
-
 const ProtectedRoute = ({ allowedRoles, children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -32,7 +31,7 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
       } catch (error) {
         console.error("Failed to fetch user info:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
         // setTimeout(() => setLoading(false), 1000);
       }
     };

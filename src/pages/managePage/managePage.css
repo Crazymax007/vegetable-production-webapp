@@ -1,0 +1,14 @@
+.css-1b1fjlj-MuiFormControl-root-MuiTextField-root {
+    background-color: white;
+    border-radius: 10px;
+}
+
+.css-jupps9-MuiInputBase-root-MuiOutlinedInput-root {
+    height: 45px;
+    width: 200px;
+    border-radius: 10px !important;
+}
+
+.css-19qnlrw-MuiFormLabel-root-MuiInputLabel-root {
+    top: -5px !important;
+}

@@ -9,6 +9,9 @@ export default {
       colors: {
         "Green-Custom": "#c8e29c",
       },
+      fontSize: {
+        xl: "20px",
+      },
     },
   },
   plugins: [],

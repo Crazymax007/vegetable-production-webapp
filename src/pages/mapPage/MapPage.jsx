@@ -8,7 +8,7 @@ import { getTopVegetables } from "../../services/orderService";
 // 🔹 สร้างไอคอน Marker แบบกำหนดเอง
 const customIcon = L.icon({
   // iconUrl: "https://cdn-icons-png.flaticon.com/128/684/684908.png",
-  iconUrl: "   https://cdn-icons-png.flaticon.com/512/8587/8587894.png ",
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/8587/8587894.png ",
   iconSize: [40, 40], // ขนาดไอคอน (กว้าง x สูง)
   iconAnchor: [20, 40], // จุดยึดของไอคอน (ทำให้หมุดตรงจุด)
   popupAnchor: [0, -40], // จุดที่ Popup จะแสดง
@@ -65,11 +65,16 @@ const MapPage = () => {
 
   return (
     <div className="flex justify-center gap-6 mx-20">
-      <div className="bg-red-400 rounded-3xl shadow-lg overflow-hidden w-[65%]">
+      <div className="rounded-3xl shadow-lg overflow-hidden w-[65%]">
         <MapContainer
           center={[9.08598, 99.229071]}
           zoom={13}
-          style={{ height: "500px", width: "100%" }}
+          style={{
+            height: "65vh", // สูง 50% ของหน้าจอ
+            width: "100%",
+            minHeight: "300px", // ป้องกันไม่ให้เล็กเกินไป
+            maxHeight: "600px", // ป้องกันไม่ให้สูงเกินไป
+          }}
           scrollWheelZoom={true}
           dragging={true}
         >
@@ -129,21 +134,21 @@ const MapPage = () => {
       </div>
       <div className="bg-Green-Custom w-[35%] flex flex-col p-6 rounded-3xl">
         <div className="flex flex-col">
-          <span className="text-center p-2 text-lg">รายละเอียด</span>
+          <span className="text-center p-2 text-2xl">รายละเอียด</span>
           {selectedFarmer ? (
-            <span className="py-3">
+            <span className="p-4 text-lg">
               ลูกสวน : {selectedFarmer.firstName} {selectedFarmer.lastName}
             </span>
           ) : (
-            <span className="py-3">ลูกสวน : </span>
+            <span className="p-4 text-lg">ลูกสวน : </span>
           )}
         </div>
-        <div className="bg-white rounded-3xl p-4">
+        <div className="bg-white rounded-3xl p-4 flex-grow">
           <div className="flex flex-col">
-            <span className="text-center  p-2 text-lg">
+            <span className="text-center pb-4 text-lg">
               ผักที่ปลูกได้เยอะที่สุด 3 อันดับแรก (2024)
             </span>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-4">
               {topVegetables.length > 0 ? (
                 topVegetables.map((vegetable, index) => (
                   <div key={index} className="flex items-center">
@@ -155,12 +160,16 @@ const MapPage = () => {
                     />
                     <div className="flex flex-col">
                       <div className="text-[#096518]">{vegetable.name}</div>
-                      <div>ปลูกได้:{vegetable.quantity} KG</div>
+                      <div className="text-sm">
+                        ปลูกได้ : {vegetable.quantity} KG
+                      </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center">- - - -</div>
+                <div className="flex items-center justify-center text-[#096518] font-normal">
+                  - เลือกข้อมูลลูกสวน -
+                </div>
               )}
             </div>
           </div>
