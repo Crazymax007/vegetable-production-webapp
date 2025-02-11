@@ -34,7 +34,7 @@ const TopNavbar = () => {
 
   return (
     <nav className="border-gray-200">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto pt-5 pb-8 px-20">
+      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-[2%] pt-5 pb-8 px-20">
         <a href="/map" className="">
           <img src="/favicon.png" className="h-[39px]" alt="Logo" />
         </a>

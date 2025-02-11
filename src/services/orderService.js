@@ -23,27 +23,9 @@ export const getTopVegetables = async (farmerId) => {
 // };
 
 // 📌 เรียกดูข้อมูลOrderด้วยการค้นหา && เรียกดูข้อมูลOrderทั้งหมด
-export const getOrders = async ({
-  search,
-  season,
-  farmerId,
-  quantity,
-  actualKg,
-  status,
-  orderDate,
-}) => {
+export const getOrders = async () => {
   try {
-    const response = await api.get("/orders", {
-      params: {
-        search,
-        season,
-        farmerId,
-        quantity,
-        actualKg,
-        status,
-        orderDate,
-      },
-    });
+    const response = await api.get("/orders");
     return response;
   } catch (error) {
     console.error("Failed to search orders:", error);

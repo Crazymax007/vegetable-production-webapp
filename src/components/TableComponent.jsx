@@ -1,125 +1,83 @@
 import React, { useState } from "react";
 
-const TableComponent = () => {
-  const data = [
-    {
-      name: 'Apple MacBook Pro 17"',
-      color: "Silver",
-      category: "Laptop",
-      price: "$2999",
-    },
-    {
-      name: "Microsoft Surface Pro",
-      color: "White",
-      category: "Laptop PC",
-      price: "$1999",
-    },
-    {
-      name: "Magic Mouse 2",
-      color: "Black",
-      category: "Accessories",
-      price: "$99",
-    },
-    { name: "Dell XPS 13", color: "Gold", category: "Laptop", price: "$1399" },
-    { name: "iPhone 12", color: "Blue", category: "Phone", price: "$799" },
-    {
-      name: "Samsung Galaxy S21",
-      color: "Gray",
-      category: "Phone",
-      price: "$999",
-    },
-    {
-      name: "Google Pixel 5",
-      color: "Green",
-      category: "Phone",
-      price: "$699",
-    },
-    {
-      name: "Sony WH-1000XM4",
-      color: "Black",
-      category: "Headphones",
-      price: "$349",
-    },
-    {
-      name: "Bose QuietComfort 35",
-      color: "Silver",
-      category: "Headphones",
-      price: "$299",
-    },
-    {
-      name: "Logitech MX Master 3",
-      color: "Black",
-      category: "Mouse",
-      price: "$99",
-    },
-  ];
-
+const TableComponent = ({ columns, data }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const itemsPerPage = 5;
 
-  // หาค่าช่วงของข้อมูลที่จะแสดงในแต่ละหน้า
+  const sortedData = React.useMemo(() => {
+    let sortableItems = [...data];
+    if (sortConfig.key) {
+      sortableItems.sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === "asc" ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === "asc" ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [data, sortConfig]);
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = sortedData.slice(indexOfFirstItem, indexOfLastItem);
 
-  // เปลี่ยนหน้า
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // คำนวณจำนวนหน้าทั้งหมด
   const pageNumbers = [];
   for (let i = 1; i <= Math.ceil(data.length / itemsPerPage); i++) {
     pageNumbers.push(i);
   }
 
+  const handleSort = (column) => {
+    const newDirection = sortConfig.direction === "asc" ? "desc" : "asc";
+    setSortConfig({ key: column.accessor, direction: newDirection });
+  };
+
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg bg-white">
-      <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+    <div className="relative overflow-x-auto">
+      <table
+        className="w-full text-sm text-left rtl:text-right text-gray-500"
+        style={{ borderCollapse: "collapse", border: "1px solid #ddd" }}
+      >
+        <thead
+          className="text-sm text-gray-700 uppercase bg-gray-300"
+          style={{ borderBottom: "1px solid #ddd" }}
+        >
           <tr>
-            <th scope="col" className="px-6 py-3">
-              Product name
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Color
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Category
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Price
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Action
-            </th>
+            {columns.map((col, index) => (
+              <th
+                key={index}
+                scope="col"
+                className="px-6 py-3"
+                onClick={() => handleSort(col)}
+              >
+                {col.header}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {currentItems.map((item, index) => (
             <tr
               key={index}
-              className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200"
+              className="bg-white"
+              style={{ borderBottom: "1px solid #ddd" }}
             >
-              <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                {item.name}
-              </td>
-              <td className="px-6 py-4">{item.color}</td>
-              <td className="px-6 py-4">{item.category}</td>
-              <td className="px-6 py-4">{item.price}</td>
-              <td className="px-6 py-4">
-                <a
-                  href="#"
-                  className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                >
-                  Edit
-                </a>
-              </td>
+              {columns.map((col, colIndex) => (
+                <td key={colIndex} className="px-6 py-4 ">
+                  {col.Cell ? col.Cell({ row: item }) : item[col.accessor]}
+                </td>
+              ))}
             </tr>
           ))}
         </tbody>
       </table>
 
-      {/* Pagination controls */}
-      <div className="flex justify-center mt-4">
+      <div className="flex justify-end p-2">
         <nav className="inline-flex items-center">
           <button
             onClick={() => paginate(currentPage - 1)}
