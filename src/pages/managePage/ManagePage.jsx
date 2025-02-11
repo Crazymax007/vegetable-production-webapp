@@ -6,7 +6,7 @@ const ManagePage = () => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    getOrders()
+    getOrders(0)
       .then((response) => {
         let uniqueId = 1; // เริ่มต้นลำดับที่ 1
         const orders = response.data.data
@@ -56,10 +56,10 @@ const ManagePage = () => {
   ];
 
   return (
-    <div className="flex flex-col mx-20 bg-Green-Custom rounded-3xl p-6">
+    <div className="flex flex-col mx-20 bg-Green-Custom rounded-3xl p-6 mb-6">
       <div className="text-xl">จัดการข้อมูล</div>
       <div className="flex flex-col mt-6 px-4">
-        <TableComponent columns={columns} data={data} />
+        <TableComponent columns={columns} data={data} numPerPage={7}/>
       </div>
     </div>
   );

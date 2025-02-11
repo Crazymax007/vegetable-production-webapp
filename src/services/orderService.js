@@ -23,9 +23,9 @@ export const getTopVegetables = async (farmerId) => {
 // };
 
 // 📌 เรียกดูข้อมูลOrderด้วยการค้นหา && เรียกดูข้อมูลOrderทั้งหมด
-export const getOrders = async () => {
+export const getOrders = async (limit = 0) => {
   try {
-    const response = await api.get("/orders");
+    const response = await api.get("/orders?limit=${limit}");
     return response;
   } catch (error) {
     console.error("Failed to search orders:", error);
