@@ -5,6 +5,15 @@ import { getOrders } from "../../services/orderService";
 const ManagePage = () => {
   const [data, setData] = useState([]);
 
+  // ? ฟังก์ชันต่างๆ
+  const handleEdit = (id) => {
+    alert("Edit ID:" + id);
+  };
+
+  const handleDelete = (id) => {
+    alert("Delete ID:" + id);
+  };
+
   useEffect(() => {
     getOrders(0)
       .then((response) => {
@@ -44,10 +53,16 @@ const ManagePage = () => {
       accessor: "actions",
       Cell: ({ row }) => (
         <div>
-          <button className="bg-blue-500 text-black px-2 py-1 rounded mr-2 w-14">
+          <button
+            className="bg-blue-500 text-black px-2 py-1 rounded mr-2 w-14"
+            onClick={() => handleEdit(row.id)}
+          >
             แก้ไข
           </button>
-          <button className="bg-red-500 text-white px-2 py-1 rounded w-14">
+          <button
+            className="bg-red-500 text-white px-2 py-1 rounded w-14"
+            onClick={() => handleDelete(row.id)}
+          >
             ลบ
           </button>
         </div>
@@ -59,7 +74,7 @@ const ManagePage = () => {
     <div className="flex flex-col mx-20 bg-Green-Custom rounded-3xl p-6 mb-6">
       <div className="text-xl">จัดการข้อมูล</div>
       <div className="flex flex-col mt-6 px-4">
-        <TableComponent columns={columns} data={data} numPerPage={7}/>
+        <TableComponent columns={columns} data={data}/>
       </div>
     </div>
   );

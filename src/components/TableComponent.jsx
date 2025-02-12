@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 
-const TableComponent = ({ columns, data, numPerPage }) => {
+const TableComponent = ({ columns, data }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10); // จำนวนรายการต่อหน้า
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
-  const itemsPerPage = numPerPage; // แสดงทีละ 10 รายการ
 
   const sortedData = React.useMemo(() => {
     let sortableItems = [...data];
@@ -66,8 +66,32 @@ const TableComponent = ({ columns, data, numPerPage }) => {
     return pageNumbers;
   };
 
+  // จำนวนรายการที่แสดง
+  const startIndex = indexOfFirstItem + 1;
+  const endIndex =
+    indexOfLastItem < data.length ? indexOfLastItem : data.length;
+
   return (
     <div className="relative overflow-x-auto">
+      {/* Show Entries */}
+      <div className="flex items-center gap-2 m-4">
+        <span className="text-sm">แสดง</span>
+        <select
+          className="px-2 py-1 text-sm rounded-lg"
+          value={itemsPerPage}
+          onChange={(e) => {
+            setItemsPerPage(Number(e.target.value));
+            setCurrentPage(1); // reset to first page after changing items per page
+          }}
+        >
+          <option value={10}>10</option>
+          <option value={25}>25</option>
+          <option value={50}>50</option>
+          <option value={100}>100</option>
+        </select>
+        <span className="text-sm">รายการ</span>
+      </div>
+
       <table
         className="w-full text-sm text-left text-gray-500"
         style={{ borderCollapse: "collapse", border: "1px solid #ddd" }}
@@ -81,7 +105,7 @@ const TableComponent = ({ columns, data, numPerPage }) => {
               <th
                 key={index}
                 scope="col"
-                className="px-6 py-3"
+                className="px-6 py-3 cursor-pointer"
                 onClick={() =>
                   setSortConfig({
                     key: col.accessor,
@@ -90,6 +114,13 @@ const TableComponent = ({ columns, data, numPerPage }) => {
                 }
               >
                 {col.header}
+                <span className="ml-1">
+                  {sortConfig.key === col.accessor
+                    ? sortConfig.direction === "asc"
+                      ? "↑"
+                      : "↓"
+                    : ""}
+                </span>
               </th>
             ))}
           </tr>
@@ -111,22 +142,28 @@ const TableComponent = ({ columns, data, numPerPage }) => {
         </tbody>
       </table>
 
-      {/* Pagination */}
-      <div className="flex justify-end p-2">
+      {/* Pagination and Show Entries */}
+      <div className="flex justify-between items-center p-2">
+        {/* Showing X to Y of Z */}
+        <div className="text-sm">
+          แสดงรายการ {startIndex} ถึง {endIndex} จาก {data.length} รายการ
+        </div>
+
+        {/* Pagination */}
         <nav className="inline-flex items-center">
           <button
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-l-lg"
+            className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-l-lg"
           >
-            Previous
+            ก่อนหน้า
           </button>
 
           {generatePagination().map((number, index) =>
             number === "..." ? (
               <span
                 key={index}
-                className="px-4 py-2 text-sm font-medium bg-white text-gray-500"
+                className="px-4 py-2 text-sm font-semibold bg-white text-gray-500"
               >
                 ...
               </span>
@@ -134,10 +171,8 @@ const TableComponent = ({ columns, data, numPerPage }) => {
               <button
                 key={index}
                 onClick={() => paginate(number)}
-                className={`px-4 py-2 text-sm font-medium ${
-                  currentPage === number
-                    ? "bg-blue-600 text-white"
-                    : "bg-white"
+                className={`px-4 py-2 text-sm font-semibold ${
+                  currentPage === number ? "bg-blue-600 text-white" : "bg-white"
                 } border`}
               >
                 {number}
@@ -150,7 +185,7 @@ const TableComponent = ({ columns, data, numPerPage }) => {
             disabled={currentPage === totalPages}
             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-r-lg"
           >
-            Next
+            ถัดไป
           </button>
         </nav>
       </div>
