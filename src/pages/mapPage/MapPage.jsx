@@ -140,7 +140,10 @@ const MapPage = () => {
               ลูกสวน : {selectedFarmer.firstName} {selectedFarmer.lastName}
             </span>
           ) : (
-            <span className="p-4 text-lg">ลูกสวน : </span>
+            <span className="p-4 text-lg">
+              ลูกสวน :{" "}
+              <span className="font-light opacity-50">กรุณาเลือกลูกสวน...</span>{" "}
+            </span>
           )}
         </div>
         <div className="bg-white rounded-3xl p-4 flex-grow">

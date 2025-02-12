@@ -94,7 +94,11 @@ const TableComponent = ({ columns, data }) => {
 
       <table
         className="w-full text-sm text-left text-gray-500"
-        style={{ borderCollapse: "collapse", border: "1px solid #ddd" }}
+        style={{
+          borderCollapse: "collapse",
+          border: "1px solid #ddd",
+          tableLayout: "fixed", // เพิ่มบรรทัดนี้
+        }}
       >
         <thead
           className="text-sm text-gray-700 uppercase bg-gray-300"
@@ -106,6 +110,7 @@ const TableComponent = ({ columns, data }) => {
                 key={index}
                 scope="col"
                 className="px-6 py-3 cursor-pointer"
+                style={{ width: col.width }}
                 onClick={() =>
                   setSortConfig({
                     key: col.accessor,
