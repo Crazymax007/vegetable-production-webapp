@@ -8,6 +8,7 @@ export default {
     extend: {
       colors: {
         "Green-Custom": "#c8e29c",
+        "Green-button": "#218F33",
       },
       fontSize: {
         xl: "20px",
