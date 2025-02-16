@@ -47,17 +47,29 @@ const MapPage = () => {
   }, []);
 
   const handleMarkerClick = async (farmer) => {
-    const vegetables = await getTopVegetables(farmer._id);
+    try {
+      const response = await getTopVegetables(farmer._id);
 
-    const updatedVegetables = vegetables.topVegetables.map((veg) => ({
-      ...veg,
-      imageUrl: veg.imageUrl
-        ? `${API_BASE_URL}${veg.imageUrl}`
-        : "/uploads/default.png",
-    }));
+      if (response.status === 404) {
+        setSelectedFarmer(farmer);
+        setTopVegetables([]);
+        return;
+      }
 
-    setSelectedFarmer(farmer);
-    setTopVegetables(updatedVegetables);
+      const updatedVegetables = response.topVegetables.map((veg) => ({
+        ...veg,
+        imageUrl: veg.imageUrl
+          ? `${API_BASE_URL}${veg.imageUrl}`
+          : "/uploads/default.png",
+      }));
+
+      setSelectedFarmer(farmer);
+      setTopVegetables(updatedVegetables);
+    } catch (error) {
+      console.error("Failed to fetch vegetables:", error);
+      setSelectedFarmer(farmer);
+      setTopVegetables([]);
+    }
   };
 
   // สร้าง Map เพื่อตรวจจับตำแหน่งที่ซ้ำกัน
@@ -171,7 +183,7 @@ const MapPage = () => {
                 ))
               ) : (
                 <div className="flex items-center justify-center text-[#096518] font-normal">
-                  - เลือกข้อมูลลูกสวน -
+                  - ไม่มีรายการในปีนี้ -
                 </div>
               )}
             </div>
