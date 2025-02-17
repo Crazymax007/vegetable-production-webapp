@@ -11,24 +11,47 @@ export const getTopVegetables = async (farmerId) => {
   }
 };
 
-// 📌 เรียกดูข้อมูลOrderทั้งหมด
-// export const getOrders = async () => {
-//   try {
-//     const response = await api.get("/orders");
-//     return response.data;
-//   } catch (error) {
-//     console.error("Failed to fetch orders:", error);
-//     return [];
-//   }
-// };
-
 // 📌 เรียกดูข้อมูลOrderด้วยการค้นหา && เรียกดูข้อมูลOrderทั้งหมด
-export const getOrders = async (limit = 0) => {
+export const getOrders = async ({
+  limit = 0,
+  search = "",
+  season = "",
+  farmerId = "",
+  quantity = "",
+  actualKg = "",
+  status = "",
+  orderDate = "",
+} = {}) => {
   try {
-    const response = await api.get("/orders?limit=${limit}");
+    // สร้าง query string สำหรับการค้นหา
+    const params = new URLSearchParams();
+
+    if (limit) params.append("limit", limit);
+    if (search) params.append("search", search);
+    if (season) params.append("season", season);
+    if (farmerId) params.append("farmerId", farmerId);
+    if (quantity) params.append("quantity", quantity);
+    if (actualKg) params.append("actualKg", actualKg);
+    if (status) params.append("status", status);
+    if (orderDate) params.append("orderDate", orderDate);
+
+    // ส่ง request พร้อม query parameters
+    const response = await api.get(`/orders?${params.toString()}`);
+
     return response;
   } catch (error) {
     console.error("Failed to search orders:", error);
+    return [];
+  }
+};
+
+// 📌  สร้างOrder
+export const createOrder = async (orderData) => {
+  try {
+    const response = await api.post("/orders", orderData); // ส่งข้อมูลไปใน body
+    return response;
+  } catch (error) {
+    console.error("Failed to create order:", error);
     return [];
   }
 };

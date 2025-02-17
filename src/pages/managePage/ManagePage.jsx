@@ -37,9 +37,10 @@ const ManagePage = () => {
                 vegetableName: order.vegetable.name,
                 orderDate: new Date(order.orderDate).toLocaleDateString(),
                 quantityOrdered: detail.quantityKg,
-                deliveryDate: new Date(
-                  detail.delivery.deliveredDate
-                ).toLocaleDateString(),
+                // ตรวจสอบว่า deliveryDate เป็น null หรือไม่
+                deliveryDate: detail.delivery.deliveredDate
+                  ? new Date(detail.delivery.deliveredDate).toLocaleDateString()
+                  : "--", // ถ้าเป็น null ให้แสดง "--"
                 quantityDelivered: detail.delivery.actualKg,
                 status: detail.delivery.status,
               };
@@ -76,7 +77,7 @@ const ManagePage = () => {
     { header: "ชื่อผัก", accessor: "vegetableName", width: "15%" },
     { header: "วันที่สั่งปลูก", accessor: "orderDate", width: "12%" },
     { header: "จำนวนที่สั่ง (กก.)", accessor: "quantityOrdered", width: "10%" },
-    { header: "วันที่ส่งปลูก", accessor: "deliveryDate", width: "12%" },
+    { header: "วันที่ส่งผลิต", accessor: "deliveryDate", width: "12%" },
     {
       header: "จำนวนที่ส่ง (กก.)",
       accessor: "quantityDelivered",

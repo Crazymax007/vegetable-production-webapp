@@ -3,7 +3,7 @@ import PlantOrderComponent from "../../components/PlantOrderComponent";
 import ProductDeliveryComponent from "../../components/ProductDeliveryComponent";
 
 const PlanPage = () => {
-  const [selectedComponent, setSelectedComponent] = useState("plantOrder");
+  const [selectedComponent, setSelectedComponent] = useState("productDelivery");
 
   return (
     <div className="flex flex-col mx-20">
