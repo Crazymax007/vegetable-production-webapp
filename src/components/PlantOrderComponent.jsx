@@ -4,14 +4,21 @@ import { getVegetables } from "../services/vegatableService";
 import { getFarmers } from "../services/farmerService";
 import { createOrder } from "../services/orderService";
 import Swal from "sweetalert2"; // นำเข้า SweetAlert2
+import { DatePicker } from "@mui/x-date-pickers"; // ใช้ MUI DatePicker
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { th } from "date-fns/locale";
+import { format } from "date-fns";
+import "../pages/planPage/PlanPage.css";
 
 const PlantOrderComponent = () => {
   const [vegetable, setVegetable] = useState(null);
   const [vegetableList, setVegetableList] = useState([]);
   const [farmerList, setFarmerList] = useState([]);
   const [selectedFarmers, setSelectedFarmers] = useState([
-    { farmer: null, amount: "", date: "" },
+    { farmer: null, amount: "" },
   ]);
+  const [selectedDate, setSelectedDate] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const fetchVegetables = async () => {
@@ -44,10 +51,7 @@ const PlantOrderComponent = () => {
   }, []);
 
   const handleAddFarmer = () => {
-    setSelectedFarmers([
-      ...selectedFarmers,
-      { farmer: null, amount: "", date: "" },
-    ]);
+    setSelectedFarmers([...selectedFarmers, { farmer: null, amount: "" }]);
   };
 
   const handleFarmerChange = (index, newValue) => {
@@ -72,10 +76,10 @@ const PlantOrderComponent = () => {
   };
 
   const handleSave = async () => {
-    // ตรวจสอบว่าเลือกผักและกรอกข้อมูลทุกอย่างครบถ้วนหรือไม่
     if (!vegetable) {
       return Swal.fire("ผิดพลาด", "กรุณาเลือกผัก", "error");
     }
+
     for (let i = 0; i < selectedFarmers.length; i++) {
       const farmer = selectedFarmers[i];
       if (!farmer.farmer) {
@@ -90,8 +94,11 @@ const PlantOrderComponent = () => {
       }
     }
 
-    const currentDate = new Date().toISOString(); // ใช้เวลาปัจจุบันในรูปแบบ UTC
-    const formattedDate = currentDate.split("T")[0] + "T00:00:00.000+00:00"; // เปลี่ยนเป็นรูปแบบที่ต้องการ
+    // หากเลือกวันที่แล้วใช้วันที่ที่เลือก หากไม่เลือกให้ใช้วันที่ปัจจุบัน
+    const currentDate = selectedDate || new Date();
+    // แปลงวันที่เป็น 'yyyy-MM-dd' (ไม่ต้องการเวลา)
+    const formattedDate = format(currentDate, "yyyy-MM-dd");
+
     const orderData = {
       orderDate: formattedDate,
       vegetableId: vegetable?._id,
@@ -101,7 +108,6 @@ const PlantOrderComponent = () => {
       })),
     };
 
-    // แสดง SweetAlert2 เพื่อยืนยันการบันทึก
     const result = await Swal.fire({
       title: "คุณแน่ใจที่จะบันทึกข้อมูลนี้?",
       text: "โปรดยืนยันการบันทึกข้อมูลการมอบหมายการปลูก",
@@ -113,13 +119,12 @@ const PlantOrderComponent = () => {
 
     if (result.isConfirmed) {
       try {
-        const response = await createOrder(orderData); // เรียกใช้ createOrder
+        const response = await createOrder(orderData);
         Swal.fire("สำเร็จ!", "ข้อมูลการบันทึกสำเร็จ.", "success");
-        console.log("Order created successfully:", response);
 
-        // ล้างค่า (reset states) หลังบันทึกสำเร็จ
         setVegetable(null);
-        setSelectedFarmers([{ farmer: null, amount: "", date: "" }]);
+        setSelectedFarmers([{ farmer: null, amount: "" }]);
+        setSelectedDate(null); // รีเซ็ตวันที่หลังการบันทึก
       } catch (error) {
         console.error("Error creating order:", error);
         Swal.fire("เกิดข้อผิดพลาด!", "ไม่สามารถบันทึกข้อมูลได้.", "error");
@@ -132,33 +137,54 @@ const PlantOrderComponent = () => {
       <div className="text-xl mb-6">มอบหมายการปลูก</div>
       <div className="flex flex-col">
         <div className="flex justify-between mx-[5%] mb-6">
-          <div className="flex items-center space-x-2 w-[20%]">
-            <span className="text-lg">ผัก:</span>
-            <Autocomplete
-              options={vegetableList}
-              getOptionLabel={(option) => option.name}
-              value={vegetable}
-              onChange={(event, newValue) => setVegetable(newValue)}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="เลือกผัก"
-                  variant="outlined"
-                  size="small"
-                  className="bg-white rounded-lg"
-                  InputProps={{
-                    ...params.InputProps,
-                    sx: { height: "40px", padding: "4px" },
-                  }}
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 w-[50%]">
+              <span className="text-lg">ผัก:</span>
+              <Autocomplete
+                options={vegetableList}
+                getOptionLabel={(option) => option.name}
+                value={vegetable}
+                onChange={(event, newValue) => setVegetable(newValue)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="เลือกผัก"
+                    variant="outlined"
+                    size="small"
+                    className="bg-white rounded-lg"
+                    InputProps={{
+                      ...params.InputProps,
+                      sx: { height: "40px", padding: "4px" },
+                    }}
+                  />
+                )}
+                className="w-full rounded-lg"
+                loading={loading} // เพิ่มสถานะโหลด
+                disableClearable
+                noOptionsText={
+                  loading ? <CircularProgress size={24} /> : "ไม่พบผัก"
+                }
+              />
+            </div>
+            <div className="flex items-center space-x-2 w-[60%]">
+              <span className="w-[20%]">วันที่: </span>
+              <LocalizationProvider dateAdapter={AdapterDateFns} locale={th}>
+                <DatePicker
+                  value={selectedDate} // ใช้ค่า selectedDate เป็นค่าปัจจุบัน
+                  onChange={(newValue) => setSelectedDate(newValue)} // อัพเดตวันที่เมื่อมีการเลือก
+                  className="bg-white rounded-lg h-10 text-center"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      size="small"
+                      className="  h-10"
+                    />
+                  )}
+                  format="dd/MM/yyyy"
                 />
-              )}
-              className="w-full rounded-lg"
-              loading={loading} // เพิ่มสถานะโหลด
-              disableClearable
-              noOptionsText={
-                loading ? <CircularProgress size={24} /> : "ไม่พบผัก"
-              }
-            />
+              </LocalizationProvider>
+            </div>
           </div>
           <button
             className="bg-Green-button text-white rounded-lg w-24 text-base p-2"
@@ -208,15 +234,6 @@ const PlantOrderComponent = () => {
                   onChange={(e) => handleAmountChange(index, e.target.value)}
                   className="border p-1 w-32 text-center rounded-lg"
                   placeholder="กรอกจำนวน"
-                />
-              </div>
-              <div>
-                <span>วันที่: </span>
-                <input
-                  type="date"
-                  className="border p-1 bg-white rounded-lg text-center"
-                  value={new Date().toISOString().split("T")[0]} // แสดงวันที่ปัจจุบัน
-                  disabled // ป้องกันไม่ให้แก้ไขหรือเลือกวันที่
                 />
               </div>
 

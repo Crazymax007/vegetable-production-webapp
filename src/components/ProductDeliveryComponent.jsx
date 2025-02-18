@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { Autocomplete, TextField, CircularProgress } from "@mui/material";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { registerLocale } from "react-datepicker";
-import th from "date-fns/locale/th";
+import { DatePicker } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { th } from "date-fns/locale";
 import { getVegetables } from "../services/vegatableService";
-import { getOrders } from "../services/orderService";
-import Swal from "sweetalert2"; // นำเข้า SweetAlert2
-
-registerLocale("th", th);
+import { getOrders, updateOrder } from "../services/orderService";
+import Swal from "sweetalert2";
+import { format } from "date-fns";
 
 const ProductDeliveryComponent = () => {
   const [vegetable, setVegetable] = useState(null);
   const [vegetableList, setVegetableList] = useState([]);
-  const [deliveryDate, setDeliveryDate] = useState(null); // สถานะวันที่ส่งผลิต
+  const [deliveryDate, setDeliveryDate] = useState(null);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
 
   const fetchVegetables = async () => {
     setLoading(true);
@@ -31,16 +32,91 @@ const ProductDeliveryComponent = () => {
   const fetchOrders = async () => {
     setLoading(true);
     try {
+      const formattedDate = selectedDate
+        ? format(selectedDate, "yyyy-MM-dd")
+        : null;
       const response = await getOrders({
         search: vegetable?._id,
-        orderDate: deliveryDate ? deliveryDate.toISOString().split("T")[0] : null,
+        orderDate: formattedDate,
         status: "Pending",
       });
-      console.log(response.data);
+      setOrders(response.data.data);
     } catch (error) {
       console.error("Failed to fetch orders:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleInputChange = (orderIndex, detailIndex, value) => {
+    const updatedOrders = [...orders];
+
+    // เปลี่ยนค่าเป็นตัวเลข (parse float เพื่อให้เป็น number)
+    updatedOrders[orderIndex].details[detailIndex].delivery.actualKg =
+      parseFloat(value);
+
+    // แปลงวันที่ปัจจุบันให้เป็นฟอร์แมตเดียวกับวันที่สั่งปลูก
+    const today = format(new Date(), "yyyy-MM-dd");
+    updatedOrders[orderIndex].details[detailIndex].delivery.deliveredDate =
+      today;
+
+    setOrders(updatedOrders);
+  };
+
+  const handleSave = async () => {
+    // ตรวจสอบว่ามีการกรอก actualKg หรือไม่
+    for (let i = 0; i < orders.length; i++) {
+      for (let j = 0; j < orders[i].details.length; j++) {
+        const detail = orders[i].details[j];
+        if (!detail.delivery.actualKg || detail.delivery.actualKg <= 0) {
+          return Swal.fire(
+            "ผิดพลาด",
+            `กรุณากรอกจำนวนที่ส่ง (kg) สำหรับลูกสวนที่ ${i + 1}, รายการที่ ${
+              j + 1
+            }`,
+            "error"
+          );
+        }
+      }
+    }
+
+    // หากผ่านการตรวจสอบแล้วจะทำการสร้าง payload และบันทึก
+    const payload = {
+      orderDate: orders[0]?.orderDate,
+      season: "Summer",
+      details: orders.flatMap((order) =>
+        order.details.map((detail) => ({
+          _id: detail._id,
+          farmerId: detail.farmerId._id,
+          quantityKg: detail.quantityKg,
+          delivery: {
+            actualKg: parseFloat(detail.delivery.actualKg) || 0,
+            deliveredDate: detail.delivery.deliveredDate || null,
+            status: "Complete",
+          },
+        }))
+      ),
+    };
+
+    const result = await Swal.fire({
+      title: "คุณแน่ใจที่จะบันทึกข้อมูลนี้?",
+      text: "โปรดยืนยันการบันทึกข้อมูลการมอบหมายการปลูก",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "บันทึก",
+      cancelButtonText: "ยกเลิก",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await updateOrder(orders[0]._id, payload);
+        Swal.fire("สำเร็จ!", "ข้อมูลการบันทึกสำเร็จ.", "success");
+        setOrders([]); // รีเซ็ตค่าหลังจากบันทึกสำเร็จ
+        setSelectedDate(null); // รีเซ็ตค่า selectedDate
+      } catch (error) {
+        console.error("Error updating order:", error);
+        Swal.fire("เกิดข้อผิดพลาด!", "ไม่สามารถบันทึกข้อมูลได้.", "error");
+      }
     }
   };
 
@@ -49,10 +125,10 @@ const ProductDeliveryComponent = () => {
   }, []);
 
   useEffect(() => {
-    if (vegetable || deliveryDate) {
+    if (vegetable || selectedDate) {
       fetchOrders();
     }
-  }, [vegetable, deliveryDate]); // เพิ่ม vegetable และ deliveryDate ใน dependency array
+  }, [vegetable, selectedDate]);
 
   return (
     <div className="bg-Green-Custom rounded-3xl flex flex-col p-6">
@@ -80,7 +156,7 @@ const ProductDeliveryComponent = () => {
                 />
               )}
               className="w-full rounded-lg"
-              loading={loading} // เพิ่มสถานะโหลด
+              loading={loading}
               disableClearable
               noOptionsText={
                 loading ? <CircularProgress size={24} /> : "ไม่พบผัก"
@@ -89,18 +165,92 @@ const ProductDeliveryComponent = () => {
           </div>
           <div className="flex items-center space-x-2">
             <span className="text-lg">วันที่สั่งปลูก:</span>
-            <DatePicker
-              selected={deliveryDate}
-              onChange={(date) => setDeliveryDate(date)}
-              dateFormat="dd/MM/yyyy"
-              locale="th"
-              className="border p-1 rounded-lg text-center"
-            />
+            <LocalizationProvider dateAdapter={AdapterDateFns} locale={th}>
+              <DatePicker
+                value={selectedDate} // ใช้ค่า selectedDate เป็นค่าปัจจุบัน
+                onChange={(newValue) => setSelectedDate(newValue)}
+                className="bg-white rounded-lg"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    size="small"
+                    className="bg-white rounded-lg"
+                  />
+                )}
+                format="dd/MM/yyyy"
+              />
+            </LocalizationProvider>
           </div>
         </div>
-        <div className="bg-gray-200 rounded-3xl overflow-auto max-h-44 mx-[5%] p-4 flex flex-col space-y-4 mb-6">
-          Hello
+
+        <div className="relative overflow-x-auto shadow-md sm:rounded-lg mx-[5%] mb-6">
+          <table className="w-full text-sm text-left text-gray-500">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-200">
+              <tr>
+                <th className="px-6 py-3">ลำดับ</th>
+                <th className="px-6 py-3">ลูกสวน</th>
+                <th className="px-6 py-3">ชนิดผัก</th>{" "}
+                {/* เพิ่มคอลัมน์ชนิดผัก */}
+                <th className="px-6 py-3">จำนวนที่สั่ง (กก.)</th>
+                <th className="px-6 py-3">วันที่สั่ง</th>
+                <th className="px-6 py-3">จำนวนที่ส่ง (กก.)</th>
+                <th className="px-6 py-3">วันที่ส่ง</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="text-center bg-white py-4">
+                    ไม่พบข้อมูล
+                  </td>
+                </tr>
+              ) : (
+                orders.map((order, index) =>
+                  order.details.map((detail, subIndex) => (
+                    <tr
+                      key={detail._id}
+                      className="odd:bg-white even:bg-gray-50 border-b"
+                    >
+                      <td className="px-6 py-4">{subIndex + 1}</td>
+                      <td className="px-6 py-4">
+                        {detail.farmerId.firstName} {detail.farmerId.lastName}
+                      </td>
+                      <td className="px-6 py-4">
+                        {order.vegetable?.name || "ไม่ระบุ"}
+                      </td>{" "}
+                      {/* แสดงชนิดผักจาก order.vegetable.name */}
+                      <td className="px-6 py-4">{detail.quantityKg}</td>
+                      <td className="px-6 py-4">
+                        {new Date(order.orderDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4">
+                        <input
+                          type="number"
+                          className="border rounded-lg p-1 text-center w-20"
+                          value={detail.delivery.actualKg || ""}
+                          onChange={(e) =>
+                            handleInputChange(index, subIndex, e.target.value)
+                          }
+                        />
+                      </td>
+                      <td className="px-6 py-4">
+                        {new Date().toLocaleDateString("th-TH")}
+                      </td>
+                    </tr>
+                  ))
+                )
+              )}
+            </tbody>
+          </table>
         </div>
+
+        <button
+          onClick={handleSave}
+          className="bg-Green-button text-white rounded-lg w-24 text-base p-2 mx-[5%]"
+        >
+          บันทึก
+        </button>
       </div>
     </div>
   );

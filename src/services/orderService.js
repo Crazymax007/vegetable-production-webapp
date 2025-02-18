@@ -55,3 +55,12 @@ export const createOrder = async (orderData) => {
     return [];
   }
 };
+
+export const updateOrder = async (id, orderData) => {
+  try {
+    const response = await api.put(`/orders/${id}`, orderData); 
+    return response;
+  } catch (error) {
+    console.error("Failed to update order:", error);
+  }
+};
