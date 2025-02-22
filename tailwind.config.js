@@ -9,6 +9,7 @@ export default {
       colors: {
         "Green-Custom": "#c8e29c",
         "Green-button": "#218F33",
+        "white-notReal": "f9fafb",
       },
       fontSize: {
         xl: "20px",

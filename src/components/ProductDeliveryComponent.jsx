@@ -4,10 +4,10 @@ import { DatePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { th } from "date-fns/locale";
+import { format } from "date-fns";
 import { getVegetables } from "../services/vegatableService";
 import { getOrders, updateOrder } from "../services/orderService";
 import Swal from "sweetalert2";
-import { format } from "date-fns";
 
 const ProductDeliveryComponent = () => {
   const [vegetable, setVegetable] = useState(null);
@@ -190,8 +190,7 @@ const ProductDeliveryComponent = () => {
               <tr>
                 <th className="px-6 py-3">ลำดับ</th>
                 <th className="px-6 py-3">ลูกสวน</th>
-                <th className="px-6 py-3">ชนิดผัก</th>{" "}
-                {/* เพิ่มคอลัมน์ชนิดผัก */}
+                <th className="px-6 py-3">ชนิดผัก</th>
                 <th className="px-6 py-3">จำนวนที่สั่ง (กก.)</th>
                 <th className="px-6 py-3">วันที่สั่ง</th>
                 <th className="px-6 py-3">จำนวนที่ส่ง (กก.)</th>
@@ -218,7 +217,7 @@ const ProductDeliveryComponent = () => {
                       </td>
                       <td className="px-6 py-4">
                         {order.vegetable?.name || "ไม่ระบุ"}
-                      </td>{" "}
+                      </td>
                       {/* แสดงชนิดผักจาก order.vegetable.name */}
                       <td className="px-6 py-4">{detail.quantityKg}</td>
                       <td className="px-6 py-4">

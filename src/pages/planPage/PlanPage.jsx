@@ -1,16 +1,15 @@
 import React, { useState } from "react";
 import PlantOrderComponent from "../../components/PlantOrderComponent";
 import ProductDeliveryComponent from "../../components/ProductDeliveryComponent";
+import PredictComponent from "../../components/PredictComponent";
 
 const PlanPage = () => {
-  const [selectedComponent, setSelectedComponent] = useState("productDelivery");
+  const [selectedComponent, setSelectedComponent] = useState("plantOrder");
 
   return (
     <div className="flex flex-col mx-20">
       {/* ทำนาย */}
-      <div className="flex flex-col bg-Green-Custom rounded-3xl p-6">
-        <div className="text-xl">ทำนาย</div>
-      </div>
+      <PredictComponent />
       {/* สั่งปลูก */}
       <div className="flex flex-col">
         <div className="flex gap-3 m-4">

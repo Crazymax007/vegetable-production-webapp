@@ -92,13 +92,13 @@ const ManagePage = () => {
         <div className="flex">
           <button
             className="bg-blue-500 text-black px-2 py-1 rounded mr-2 w-14"
-            onClick={() => handleEdit(row.id)}
+            onClick={() => handleEdit(row)}
           >
             แก้ไข
           </button>
           <button
             className="bg-red-500 text-white px-2 py-1 rounded w-14"
-            onClick={() => handleDelete(row.id)}
+            onClick={() => handleDelete(row)}
           >
             ลบ
           </button>

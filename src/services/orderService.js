@@ -48,19 +48,29 @@ export const getOrders = async ({
 // 📌  สร้างOrder
 export const createOrder = async (orderData) => {
   try {
-    const response = await api.post("/orders", orderData); // ส่งข้อมูลไปใน body
+    const response = await api.post("/orders", orderData); 
     return response;
   } catch (error) {
     console.error("Failed to create order:", error);
-    return [];
   }
 };
 
 export const updateOrder = async (id, orderData) => {
   try {
-    const response = await api.put(`/orders/${id}`, orderData); 
+    const response = await api.put(`/orders/${id}`, orderData);
     return response;
   } catch (error) {
     console.error("Failed to update order:", error);
   }
 };
+
+export const predictOrder = async (orderData) => {
+  try {
+    const response = await api.post("/predict", orderData);
+    return response;
+  } catch (error) {
+    console.error("Failed to create order:", error);
+  }
+};
+
+

@@ -33,8 +33,8 @@ const TopNavbar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="border-gray-200">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-[2%] pt-5 pb-8 px-20">
+    <nav className="bg-white shadow-sm border-gay-200 border-solid border mb-[2%] sticky top-0 z-50">
+      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-[2%] py-5 px-20">
         <a href="/map" className="">
           <img src="/favicon.png" className="h-[39px]" alt="Logo" />
         </a>
