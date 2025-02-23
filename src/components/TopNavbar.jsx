@@ -102,15 +102,17 @@ const TopNavbar = () => {
 
           {isProfileMenuOpen && (
             <div className="absolute top-full right-0 mt-2 w-36 bg-gray-200 rounded-lg shadow-lg">
-              <a
-                href="/settings"
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-400 hover:rounded-lg"
-              >
-                การตั้งค่า
-              </a>
+              {role == "admin" && (
+                <a
+                  href="/admin/dashboard"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-400"
+                >
+                  จัดการระบบ
+                </a>
+              )}
               <button
                 onClick={handleLogout}
-                className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-400 hover:rounded-lg"
+                className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-400"
               >
                 ออกจากระบบ
               </button>
