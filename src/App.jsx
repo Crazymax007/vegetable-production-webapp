@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import TopNavbar from "./components/TopNavbar";
 import PlanPage from "./pages/planPage/PlanPage";
 import ManagePage from "./pages/managePage/ManagePage";
+import "../public/css/style.css";
 
 const App = () => {
   return (
