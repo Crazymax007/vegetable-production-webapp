@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from "react";
 
 import Sidebar from "../../partials/Sidebar";
@@ -54,8 +55,28 @@ function Dashboard() {
           </div>
         </main>
       </div>
+=======
+import React from "react";
+import { logout } from "../../services/authService";
+
+const AdminDashboard = () => {
+  
+  const handleLogout = () => {
+    logout();
+    window.location.reload();
+  };
+
+  return (
+    <div>
+      <h1>Welcome to Admin Dashboard</h1>
+      <button onClick={handleLogout}>Logout</button>
+>>>>>>> parent of 07c01cd (before merge admin)
     </div>
   );
-}
+};
 
+<<<<<<< HEAD
 export default Dashboard;
+=======
+export default AdminDashboard;
+>>>>>>> parent of 07c01cd (before merge admin)

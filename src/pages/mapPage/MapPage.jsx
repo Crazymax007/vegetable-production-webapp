@@ -5,11 +5,6 @@ import L from "leaflet";
 import { getFarmers } from "../../services/farmerService";
 import { getTopVegetables } from "../../services/orderService";
 import { FooterComponent } from "../../components/FooterComponent";
-import pik1 from "../../assets/images/pik1.jpg";
-import ma2 from "../../assets/images/ma2.jpg";
-import she3 from "../../assets/images/she3.jpg";
-import horapa4 from "../../assets/images/horapa4.jpg";
-import bob5 from "../../assets/images/bob5.jpg";
 
 // 🔹 สร้างไอคอน Marker แบบกำหนดเอง
 const customIcon = L.icon({
@@ -28,15 +23,6 @@ const ChangeView = ({ center, zoom }) => {
   }, [center, zoom, map]);
   return null;
 };
-
-// เพิ่ม array ของข้อมูลผัก (ใส่ไว้ด้านบนของ component)
-const popularVegetables = [
-  { id: 1, name: "พริก", amount: "1,000 KG", image: pik1 },
-  { id: 2, name: "มะเขือ", amount: "900 KG", image: ma2 },
-  { id: 3, name: "ผักชี", amount: "800 KG", image: she3 },
-  { id: 4, name: "โหระพา", amount: "700 KG", image: horapa4 },
-  { id: 5, name: "บวบ", amount: "700 KG", image: bob5 },
-];
 
 const MapPage = () => {
   const [farmers, setFarmers] = useState([]);
@@ -59,7 +45,6 @@ const MapPage = () => {
       }
     };
     fetchData();
-    fetchVegetablesData();
   }, []);
 
   const handleMarkerClick = async (farmer) => {
@@ -90,22 +75,6 @@ const MapPage = () => {
 
   // สร้าง Map เพื่อตรวจจับตำแหน่งที่ซ้ำกัน
   const positionMap = new Map();
-
-  const fetchVegetablesData = async () => {
-    try {
-      const response = await fetch("/data/vetables.json");
-      if (!response.ok) {
-        throw new Error("ไม่สามารถโหลดข้อมูลได้");
-      }
-      const data = await response.json(); // แปลงข้อมูลจาก JSON
-      console.log(data); // แสดงข้อมูลในคอนโซล
-      // นำข้อมูลไปใช้งาน
-      return data;
-    } catch (error) {
-      console.error("เกิดข้อผิดพลาดในการโหลดข้อมูล:", error);
-      return [];
-    }
-  };
 
   return (
     <div className="flex flex-col">
@@ -164,7 +133,7 @@ const MapPage = () => {
                     position={[latitude, longitude]}
                     icon={customIcon}
                     eventHandlers={{
-                      click: () => handleMarkerClick(farmer),
+                      click: () => handleMarkerClick(farmer), // ✅ ใช้ handleMarkerClick
                     }}
                   >
                     <Popup>
@@ -229,34 +198,10 @@ const MapPage = () => {
           </div>
         </div>
       </div>
-      {/* ผลผลิตยอดนิยมในปี 2024 */}
-      <div className="bg-Green-button mb-[2%] p-4 flex items-center justify-center gap-8">
-        <div className="flex flex-col items-center mb-4">
-          <h2 className="text-white text-2xl text-center">
-            จำนวนผลผลิต
-            <br />
-            แต่ละชนิดของกลุ่มวิสาหกิจ
-            <br />
-            ในปี 2024
-          </h2>
-        </div>
-        <div className="flex justify-around items-center gap-10">
-          {popularVegetables.map((vegetable) => (
-            <div key={vegetable.id} className="flex flex-col items-center">
-              <img
-                src={vegetable.image}
-                alt={vegetable.name}
-                className="w-32 h-36 rounded-lg object-cover"
-              />
-              <p className="text-white mt-2">
-                {vegetable.id}. {vegetable.name}
-              </p>
-              <p className="text-white">{vegetable.amount}</p>
-            </div>
-          ))}
-        </div>
+      <div className="bg-Green-button shadow-md h-40 mb-[2%] flex justify-center items-center">
+        ผักที่ปลูกเยอะ
       </div>
-      <FooterComponent />
+      <FooterComponent/>
     </div>
   );
 };
