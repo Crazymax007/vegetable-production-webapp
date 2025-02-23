@@ -6,8 +6,8 @@ import logoLogin from "../../assets/images/test1.webp";
 import { TextField, Typography } from "@mui/material";
 
 const Login = () => {
-  const [username, setUsername] = useState("manager");
-  const [password, setPassword] = useState("manager");
+  const [username, setUsername] = useState("admin");
+  const [password, setPassword] = useState("admin");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
@@ -20,8 +20,9 @@ const Login = () => {
 
       // Redirect ตาม Role
       if (data.user.role === "admin") {
-        navigate("/admin/dashboard");
-      } else if (["manager", "farmer"].includes(data.user.role)) {
+        // navigate("/admin/dashboard");
+        navigate("/map");
+      } else if (["manager", "farmer","admin"].includes(data.user.role)) {
         navigate("/map");
       } else {
         throw new Error("Invalid role");
