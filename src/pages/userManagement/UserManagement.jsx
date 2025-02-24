@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { getFarmers, addFarmer } from "../../services/farmerService";
+import {
+  getFarmers,
+  addFarmer,
+  deleteFarmer,
+  updateFarmer,
+} from "../../services/farmerService";
 import Swal from "sweetalert2";
 
 const UserManagement = () => {
@@ -18,6 +23,8 @@ const UserManagement = () => {
       longitude: "",
     },
   });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredFarmers, setFilteredFarmers] = useState([]);
 
   // ✅ เรียกข้อมูลลูกสวนจากระบบ
   const fetchFarmers = async () => {
@@ -40,14 +47,57 @@ const UserManagement = () => {
     }
   };
 
+  // ❌ ลบลูกสวน
+  const handleDeleteFarmer = async (farmerId) => {
+    const result = await Swal.fire({
+      title: "คุณแน่ใจหรือไม่?",
+      text: "คุณต้องการลบลูกสวนคนนี้ใช่หรือไม่?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "ใช่, ลบเลย",
+      cancelButtonText: "ยกเลิก",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteFarmer(farmerId);
+        await Swal.fire("ลบสำเร็จ!", "ลบข้อมูลลูกสวนเรียบร้อยแล้ว", "success");
+        fetchFarmers(); // รีเฟรชข้อมูล
+      } catch (error) {
+        console.error("Error deleting farmer:", error);
+        await Swal.fire(
+          "เกิดข้อผิดพลาด!",
+          "ไม่สามารถลบลูกสวนได้ กรุณาลองใหม่อีกครั้ง",
+          "error"
+        );
+      }
+    }
+  };
+
   useEffect(() => {
     fetchFarmers();
   }, []);
 
+  // เพิ่มฟังก์ชันสำหรับการค้นหา
+  useEffect(() => {
+    const results = farmers.filter((farmer) =>
+      Object.values(farmer).some((value) =>
+        String(value).toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+    setFilteredFarmers(results);
+    setTotalFarmers(results.length);
+  }, [searchTerm, farmers]);
+
   // คำนวณข้อมูลสำหรับหน้าปัจจุบัน
   const indexOfLastFarmer = currentPage * farmersPerPage;
   const indexOfFirstFarmer = indexOfLastFarmer - farmersPerPage;
-  const currentFarmers = farmers.slice(indexOfFirstFarmer, indexOfLastFarmer);
+  const currentFarmers = filteredFarmers.slice(
+    indexOfFirstFarmer,
+    indexOfLastFarmer
+  );
   const totalPages = Math.ceil(totalFarmers / farmersPerPage);
 
   // ฟังก์ชันสำหรับเปลี่ยนหน้า
@@ -76,7 +126,6 @@ const UserManagement = () => {
       }));
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -93,14 +142,16 @@ const UserManagement = () => {
           longitude: "",
         },
       });
-      Swal.fire({
+
+      await Swal.fire({
         icon: "success",
-        title: "เพิ่มลูกสวนสำเร็จ!",
-        showConfirmButton: false,
+        title: "สำเร็จ!",
+        text: "เพิ่มลูกสวนเรียบร้อยแล้ว",
         timer: 1500,
+        showConfirmButton: false,
       });
     } catch (error) {
-      Swal.fire({
+      await Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด!",
         text: "ไม่สามารถเพิ่มลูกสวนได้ กรุณาลองใหม่อีกครั้ง",
@@ -110,7 +161,33 @@ const UserManagement = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
+      <div className="flex justify-between items-center">
+        <div className="relative">
+          <span className="absolute -translate-y-1/2 pointer-events-none left-4 top-1/2">
+            <svg
+              className="fill-gray-500"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
+                fill=""
+              />
+            </svg>
+          </span>
+          <input
+            type="text"
+            placeholder="ค้นหาลูกสวน..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 xl:w-[430px]"
+          />
+        </div>
         <button
           onClick={() => setIsModalOpen(true)}
           className="bg-Green-button hover:bg-green-600 shadow-md text-white text-sm px-3 py-2 rounded-lg transition-colors"
@@ -291,7 +368,10 @@ const UserManagement = () => {
                         <button className="bg-Green-button hover:bg-green-600 text-white shadow-md px-4 py-2 rounded-lg transition-colors">
                           แก้ไข
                         </button>
-                        <button className="bg-red-600 hover:bg-red-700 text-white shadow-md px-4 py-2 rounded-lg transition-colors">
+                        <button
+                          onClick={() => handleDeleteFarmer(item._id)}
+                          className="bg-red-600 hover:bg-red-700 text-white shadow-md px-4 py-2 rounded-lg transition-colors"
+                        >
                           ลบ
                         </button>
                       </div>
