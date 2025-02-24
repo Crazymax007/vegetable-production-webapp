@@ -14,11 +14,21 @@ const Sidebar = ({ isSidebarOpen }) => {
     <div
       className={`${
         isSidebarOpen ? "w-64" : "w-20 hover:w-64"
-      } bg-white text-black p-6 border-r border-gray-200 transition-all duration-300 md:block group`}
+      } fixed top-0 left-0 h-screen bg-white text-black p-6 border-r border-gray-200 transition-all duration-300 md:block group`}
     >
-      <div className={`flex justify-center items-center mb-8 ${!isSidebarOpen && "justify-center group-hover:justify-start"}`}>
+      <div
+        className={`flex justify-center items-center mb-8 ${
+          !isSidebarOpen && "justify-center group-hover:justify-start"
+        }`}
+      >
         <img src="/favicon.png" alt="Admin Icon" className="w-10 h-10" />
-        <span className={`text-2xl font-semibold ml-2 ${!isSidebarOpen && "hidden group-hover:inline"}`}>Admin</span>
+        <span
+          className={`text-2xl font-semibold ml-2 ${
+            !isSidebarOpen && "hidden group-hover:inline"
+          }`}
+        >
+          Admin
+        </span>
       </div>
       <ul>
         <Link to="/admin">
@@ -36,10 +46,14 @@ const Sidebar = ({ isSidebarOpen }) => {
                 isActive("/admin") ? "text-Green-button" : ""
               }`}
             />
-            <span className={`${!isSidebarOpen && "hidden group-hover:inline"}`}>หน้าหลัก</span>
+            <span
+              className={`${!isSidebarOpen && "hidden group-hover:inline"}`}
+            >
+              หน้าหลัก
+            </span>
           </li>
         </Link>
-        
+
         <Link to="/admin/users">
           <li
             className={`mb-4 p-2 rounded-lg cursor-pointer transition-all duration-200 flex items-center ${
@@ -55,7 +69,11 @@ const Sidebar = ({ isSidebarOpen }) => {
                 isActive("/admin/users") ? "text-Green-button" : ""
               }`}
             />
-            <span className={`${!isSidebarOpen && "hidden group-hover:inline"}`}>จัดการผู้ใช้</span>
+            <span
+              className={`${!isSidebarOpen && "hidden group-hover:inline"}`}
+            >
+              จัดการผู้ใช้
+            </span>
           </li>
         </Link>
 
@@ -74,7 +92,11 @@ const Sidebar = ({ isSidebarOpen }) => {
                 isActive("/admin/plants") ? "text-Green-button" : ""
               }`}
             />
-            <span className={`${!isSidebarOpen && "hidden group-hover:inline"}`}>จัดการผัก</span>
+            <span
+              className={`${!isSidebarOpen && "hidden group-hover:inline"}`}
+            >
+              จัดการผัก
+            </span>
           </li>
         </Link>
       </ul>
