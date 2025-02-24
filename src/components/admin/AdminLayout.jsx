@@ -6,6 +6,7 @@ import { logout } from "../../services/authService";
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -18,10 +19,17 @@ const AdminLayout = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50 relative">
-      <Sidebar isSidebarOpen={isSidebarOpen} />
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${
-        isSidebarOpen ? "ml-64" : "ml-20"
-      }`}>
+      <div 
+        onMouseEnter={() => !isSidebarOpen && setIsHovered(true)}
+        onMouseLeave={() => !isSidebarOpen && setIsHovered(false)}
+      >
+        <Sidebar isSidebarOpen={isSidebarOpen} />
+      </div>
+      <div 
+        className={`flex-1 flex flex-col transition-all duration-300 ${
+          isSidebarOpen || isHovered ? "ml-64" : "ml-20"
+        }`}
+      >
         <Header
           isSidebarOpen={isSidebarOpen}
           toggleSidebar={toggleSidebar}
