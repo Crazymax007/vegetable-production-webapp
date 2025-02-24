@@ -1,24 +1,82 @@
+import { RxDashboard } from "react-icons/rx";
+import { BsPeople } from "react-icons/bs";
+import { GiPlantSeed } from "react-icons/gi";
+import { Link, useLocation } from "react-router-dom";
+
 const Sidebar = ({ isSidebarOpen }) => {
+  const location = useLocation();
+
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+
   return (
     <div
-      className={`w-64 bg-white text-black p-6 border-r border-gray-200 ${
-        isSidebarOpen ? "block" : "hidden"
-      } md:block`}
+      className={`${
+        isSidebarOpen ? "w-64" : "w-20 hover:w-64"
+      } bg-white text-black p-6 border-r border-gray-200 transition-all duration-300 md:block group`}
     >
-      <h2 className="text-2xl font-semibold text-center mb-8">Admin Sidebar</h2>
+      <div className={`flex justify-center items-center mb-8 ${!isSidebarOpen && "justify-center group-hover:justify-start"}`}>
+        <img src="/favicon.png" alt="Admin Icon" className="w-10 h-10" />
+        <span className={`text-2xl font-semibold ml-2 ${!isSidebarOpen && "hidden group-hover:inline"}`}>Admin</span>
+      </div>
       <ul>
-        <li className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer">
-          Dashboard
-        </li>
-        <li className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer">
-          Users
-        </li>
-        <li className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer">
-          Settings
-        </li>
-        <li className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer">
-          Logout
-        </li>
+        <Link to="/admin">
+          <li
+            className={`mb-4 p-2 rounded-lg cursor-pointer transition-all duration-200 flex items-center ${
+              !isSidebarOpen && "justify-center group-hover:justify-start"
+            } gap-2 ${
+              isActive("/admin")
+                ? "text-Green-button bg-[#e0ffd7]"
+                : "hover:bg-gray-200"
+            }`}
+          >
+            <RxDashboard
+              className={`text-xl ${
+                isActive("/admin") ? "text-Green-button" : ""
+              }`}
+            />
+            <span className={`${!isSidebarOpen && "hidden group-hover:inline"}`}>หน้าหลัก</span>
+          </li>
+        </Link>
+        
+        <Link to="/admin/users">
+          <li
+            className={`mb-4 p-2 rounded-lg cursor-pointer transition-all duration-200 flex items-center ${
+              !isSidebarOpen && "justify-center group-hover:justify-start"
+            } gap-2 ${
+              isActive("/admin/users")
+                ? "text-Green-button bg-[#e0ffd7]"
+                : "hover:bg-gray-200"
+            }`}
+          >
+            <BsPeople
+              className={`text-xl ${
+                isActive("/admin/users") ? "text-Green-button" : ""
+              }`}
+            />
+            <span className={`${!isSidebarOpen && "hidden group-hover:inline"}`}>จัดการผู้ใช้</span>
+          </li>
+        </Link>
+
+        <Link to="/admin/plants">
+          <li
+            className={`mb-4 p-2 rounded-lg cursor-pointer transition-all duration-200 flex items-center ${
+              !isSidebarOpen && "justify-center group-hover:justify-start"
+            } gap-2 ${
+              isActive("/admin/plants")
+                ? "text-Green-button bg-[#e0ffd7]"
+                : "hover:bg-gray-200"
+            }`}
+          >
+            <GiPlantSeed
+              className={`text-xl ${
+                isActive("/admin/plants") ? "text-Green-button" : ""
+              }`}
+            />
+            <span className={`${!isSidebarOpen && "hidden group-hover:inline"}`}>จัดการผัก</span>
+          </li>
+        </Link>
       </ul>
     </div>
   );

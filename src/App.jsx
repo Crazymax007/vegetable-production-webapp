@@ -12,6 +12,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import TopNavbar from "./components/TopNavbar";
 import PlanPage from "./pages/planPage/PlanPage";
 import ManagePage from "./pages/managePage/ManagePage";
+import AdminLayout from "./components/admin/AdminLayout";
+import UserManagement from "./pages/UserManagement/UserManagement";
+import PlantManagement from "./pages/plantManagement/PlantManagement";
 
 const App = () => {
   return (
@@ -21,13 +24,17 @@ const App = () => {
 
         {/* Protected Routes */}
         <Route
-          path="/admin/dashboard"
+          path="/admin"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminDashboard />
+              <AdminLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<UserManagement />} />
+          <Route path="plants" element={<PlantManagement />} />
+        </Route>
         <Route
           path="/map"
           element={
