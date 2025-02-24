@@ -25,6 +25,8 @@ const UserManagement = () => {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredFarmers, setFilteredFarmers] = useState([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingFarmer, setEditingFarmer] = useState(null);
 
   // ✅ เรียกข้อมูลลูกสวนจากระบบ
   const fetchFarmers = async () => {
@@ -155,6 +157,57 @@ const UserManagement = () => {
         icon: "error",
         title: "เกิดข้อผิดพลาด!",
         text: "ไม่สามารถเพิ่มลูกสวนได้ กรุณาลองใหม่อีกครั้ง",
+      });
+    }
+  };
+
+  // เพิ่มฟังก์ชันสำหรับเปิด modal แก้ไข
+  const handleEditClick = (farmer) => {
+    setEditingFarmer(farmer);
+    setFormData({
+      firstName: farmer.firstName || "",
+      lastName: farmer.lastName || "",
+      nickname: farmer.nickname || "",
+      phone: farmer.phone || "",
+      location: {
+        latitude: farmer.location?.latitude || "",
+        longitude: farmer.location?.longitude || "",
+      },
+    });
+    setIsEditModalOpen(true);
+  };
+
+  // เพิ่มฟังก์ชันสำหรับบันทึกการแก้ไข
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await updateFarmer(editingFarmer._id, formData);
+      await fetchFarmers();
+      setIsEditModalOpen(false);
+      setEditingFarmer(null);
+      setFormData({
+        firstName: "",
+        lastName: "",
+        nickname: "",
+        phone: "",
+        location: {
+          latitude: "",
+          longitude: "",
+        },
+      });
+
+      await Swal.fire({
+        icon: "success",
+        title: "สำเร็จ!",
+        text: "แก้ไขข้อมูลลูกสวนเรียบร้อยแล้ว",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      await Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด!",
+        text: "ไม่สามารถแก้ไขข้อมูลลูกสวนได้ กรุณาลองใหม่อีกครั้ง",
       });
     }
   };
@@ -365,7 +418,10 @@ const UserManagement = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-2">
-                        <button className="bg-Green-button hover:bg-green-600 text-white shadow-md px-4 py-2 rounded-lg transition-colors">
+                        <button 
+                          onClick={() => handleEditClick(item)}
+                          className="bg-Green-button hover:bg-green-600 text-white shadow-md px-4 py-2 rounded-lg transition-colors"
+                        >
                           แก้ไข
                         </button>
                         <button
@@ -415,6 +471,107 @@ const UserManagement = () => {
           </div>
         </div>
       </div>
+
+      {/* เพิ่ม Modal สำหรับแก้ไขข้อมูล */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[70]">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">แก้ไขข้อมูลลูกสวน</h2>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  ชื่อ
+                </label>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  นามสกุล
+                </label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  ชื่อเล่น
+                </label>
+                <input
+                  type="text"
+                  name="nickname"
+                  value={formData.nickname}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  เบอร์โทรศัพท์
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  ละติจูด
+                </label>
+                <input
+                  type="number"
+                  name="latitude"
+                  value={formData.location.latitude}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  ลองจิจูด
+                </label>
+                <input
+                  type="number"
+                  name="longitude"
+                  value={formData.location.longitude}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                />
+              </div>
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditModalOpen(false);
+                    setEditingFarmer(null);
+                  }}
+                  className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm text-white bg-Green-button rounded-lg hover:bg-green-600"
+                >
+                  บันทึก
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
