@@ -13,6 +13,9 @@ const ManagePage = () => {
   const [searchQuantityOrdered, setSearchQuantityOrdered] = useState(""); // คำค้นหาน้ำหนักที่สั่ง
   const [searchQuantityDelivered, setSearchQuantityDelivered] = useState(""); // คำค้นหาน้ำหนักที่ส่ง
   const [searchStatus, setSearchStatus] = useState(""); // คำค้นหาสถานะ
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
   const handleSearch = (field, value) => {
     if (field === "farmer") setSearchFarmer(value);
@@ -27,20 +30,19 @@ const ManagePage = () => {
   useEffect(() => {
     getOrders(0)
       .then((response) => {
-        let uniqueId = 1;
         const orders = response.data.data
           .map((order) => {
             return order.details.map((detail) => {
               return {
-                id: uniqueId++,
+                id: detail._id,
+                orderId: order._id,
                 farmerId: `${detail.farmerId.firstName} ${detail.farmerId.lastName}`,
                 vegetableName: order.vegetable.name,
                 orderDate: new Date(order.orderDate).toLocaleDateString(),
                 quantityOrdered: detail.quantityKg,
-                // ตรวจสอบว่า deliveryDate เป็น null หรือไม่
                 deliveryDate: detail.delivery.deliveredDate
                   ? new Date(detail.delivery.deliveredDate).toLocaleDateString()
-                  : "--", // ถ้าเป็น null ให้แสดง "--"
+                  : "--",
                 quantityDelivered: detail.delivery.actualKg,
                 status: detail.delivery.status,
               };
@@ -71,8 +73,35 @@ const ManagePage = () => {
     );
   });
 
+  // ฟังก์ชันจัดการการเรียงข้อมูล
+  const sortedData = React.useMemo(() => {
+    let sortableItems = [...filteredData];
+    if (sortConfig.key) {
+      sortableItems.sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === "asc" ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === "asc" ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [filteredData, sortConfig]);
+
+  // ฟังก์ชันจัดการการแบ่งหน้า
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = sortedData.slice(indexOfFirstItem, indexOfLastItem);
+
   const columns = [
-    { header: "ลำดับ", accessor: "id", width: "5%" },
+    { 
+      header: "ลำดับ", 
+      accessor: "index",
+      width: "5%" 
+    },
     { header: "ลูกสวน", accessor: "farmerId", width: "20%" },
     { header: "ชื่อผัก", accessor: "vegetableName", width: "15%" },
     { header: "วันที่สั่งปลูก", accessor: "orderDate", width: "12%" },
@@ -92,13 +121,13 @@ const ManagePage = () => {
         <div className="flex">
           <button
             className="bg-blue-500 text-black px-2 py-1 rounded mr-2 w-14"
-            onClick={() => handleEdit(row)}
+            onClick={() => handleEdit(row.original.id, row.original.orderId)}
           >
             แก้ไข
           </button>
           <button
             className="bg-red-500 text-white px-2 py-1 rounded w-14"
-            onClick={() => handleDelete(row)}
+            onClick={() => handleDelete(row.original.id, row.original.orderId)}
           >
             ลบ
           </button>
@@ -108,12 +137,21 @@ const ManagePage = () => {
   ];
 
   // ? ฟังก์ชัน
-  const handleEdit = (id) => {
-    alert("Edit ID:" + id);
+  const handleEdit = (id, orderId) => {
+    alert("Edit ID:" + id + " and Order ID:" + orderId);
   };
 
-  const handleDelete = (id) => {
-    alert("Delete ID:" + id);
+  const handleDelete = (id, orderId) => {
+    alert("Delete ID:" + id + " and Order ID:" + orderId);
+  };
+
+  // เพิ่มฟังก์ชันสำหรับการแบ่งหน้า
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
   return (
@@ -173,8 +211,155 @@ const ManagePage = () => {
         />
       </div>
 
-      <div className="flex flex-col mt-6 px-4">
-        <TableComponent columns={columns} data={filteredData} />
+      <div className="relative overflow-x-auto">
+        {/* Show Entries */}
+        <div className="flex items-center gap-2 m-4">
+          <span className="text-sm">แสดง</span>
+          <select
+            className="px-2 py-1 text-sm rounded-lg"
+            value={itemsPerPage}
+            onChange={(e) => {
+              setItemsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+          >
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </select>
+          <span className="text-sm">รายการ</span>
+        </div>
+
+        <table className="w-full text-sm text-left text-gray-500">
+          <thead className="text-sm text-gray-700 uppercase bg-gray-300">
+            <tr>
+              {columns.map((col, index) => (
+                <th
+                  key={index}
+                  scope="col"
+                  className="px-6 py-3 cursor-pointer"
+                  style={{ width: col.width }}
+                  onClick={() =>
+                    setSortConfig({
+                      key: col.accessor,
+                      direction: sortConfig.direction === "asc" ? "desc" : "asc",
+                    })
+                  }
+                >
+                  {col.header}
+                  <span className="ml-1">
+                    {sortConfig.key === col.accessor
+                      ? sortConfig.direction === "asc"
+                        ? "↑"
+                        : "↓"
+                      : ""}
+                  </span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {currentItems.map((item, index) => (
+              <tr key={item.id} className="bg-white">
+                {columns.map((col, colIndex) => (
+                  <td key={colIndex} className="px-6 py-4">
+                    {col.accessor === "index" ? (
+                      indexOfFirstItem + index + 1
+                    ) : col.accessor === "actions" ? (
+                      <div className="flex">
+                        <button
+                          className="bg-blue-500 text-black px-2 py-1 rounded mr-2 w-14"
+                          onClick={() => handleEdit(item.id, item.orderId)}
+                        >
+                          แก้ไข
+                        </button>
+                        <button
+                          className="bg-red-500 text-white px-2 py-1 rounded w-14"
+                          onClick={() => handleDelete(item.id, item.orderId)}
+                        >
+                          ลบ
+                        </button>
+                      </div>
+                    ) : (
+                      item[col.accessor]
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* เพิ่ม Pagination */}
+        <div className="flex justify-center gap-2 mt-4 mb-4">
+          <button
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+            className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+          >
+            หน้าแรก
+          </button>
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+          >
+            ก่อนหน้า
+          </button>
+
+          {[...Array(totalPages)].map((_, index) => {
+            const pageNumber = index + 1;
+            // แสดงเฉพาะ 5 หน้ารอบๆ หน้าปัจจุบัน
+            if (
+              pageNumber === 1 ||
+              pageNumber === totalPages ||
+              (pageNumber >= currentPage - 2 && pageNumber <= currentPage + 2)
+            ) {
+              return (
+                <button
+                  key={pageNumber}
+                  onClick={() => setCurrentPage(pageNumber)}
+                  className={`px-4 py-2 text-sm rounded-lg ${
+                    currentPage === pageNumber
+                      ? "bg-Green-button text-white"
+                      : "text-gray-600 bg-gray-100 hover:bg-gray-200"
+                  }`}
+                >
+                  {pageNumber}
+                </button>
+              );
+            } else if (
+              pageNumber === currentPage - 3 ||
+              pageNumber === currentPage + 3
+            ) {
+              return (
+                <span
+                  key={pageNumber}
+                  className="px-4 py-2 text-sm text-gray-600"
+                >
+                  ...
+                </span>
+              );
+            }
+            return null;
+          })}
+
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+          >
+            ถัดไป
+          </button>
+          <button
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+          >
+            หน้าสุดท้าย
+          </button>
+        </div>
       </div>
     </div>
   );

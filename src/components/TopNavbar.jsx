@@ -100,7 +100,6 @@ const TopNavbar = () => {
             <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
               <img src="/assets/images/profile.png" alt="User" />
             </span>
-            <span className="block mr-1 font-semibold">User</span>
             <svg
               className={`stroke-gray-500 transition-transform duration-200 ${
                 isProfileMenuOpen ? "rotate-180" : ""

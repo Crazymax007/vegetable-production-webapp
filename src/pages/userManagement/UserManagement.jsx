@@ -438,37 +438,73 @@ const UserManagement = () => {
             </table>
           </div>
         </div>
-        <div className="flex items-center justify-between px-6 py-3 border-t border-gray-100">
-          <span className="text-sm text-gray-600">
-            Showing{" "}
-            <span className="">
-              {indexOfFirstFarmer + 1}-
-              {Math.min(indexOfLastFarmer, totalFarmers)}
-            </span>{" "}
-            of <span className="">{totalFarmers}</span>
-          </span>
-          <div className="flex gap-2">
-            <button
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
-              className={`px-4 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 ${
-                currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              Previous
-            </button>
-            <button
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-              className={`px-4 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 ${
-                currentPage === totalPages
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
-              }`}
-            >
-              Next
-            </button>
-          </div>
+        <div className="flex justify-center gap-2 mt-4 mb-4">
+          <button
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+            className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+          >
+            หน้าแรก
+          </button>
+          <button
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+          >
+            ก่อนหน้า
+          </button>
+
+          {[...Array(totalPages)].map((_, index) => {
+            const pageNumber = index + 1;
+            // แสดงเฉพาะ 5 หน้ารอบๆ หน้าปัจจุบัน
+            if (
+              pageNumber === 1 ||
+              pageNumber === totalPages ||
+              (pageNumber >= currentPage - 2 && pageNumber <= currentPage + 2)
+            ) {
+              return (
+                <button
+                  key={pageNumber}
+                  onClick={() => setCurrentPage(pageNumber)}
+                  className={`px-4 py-2 text-sm rounded-lg ${
+                    currentPage === pageNumber
+                      ? "bg-Green-button text-white"
+                      : "text-gray-600 bg-gray-100 hover:bg-gray-200"
+                  }`}
+                >
+                  {pageNumber}
+                </button>
+              );
+            } else if (
+              pageNumber === currentPage - 3 ||
+              pageNumber === currentPage + 3
+            ) {
+              return (
+                <span
+                  key={pageNumber}
+                  className="px-4 py-2 text-sm text-gray-600"
+                >
+                  ...
+                </span>
+              );
+            }
+            return null;
+          })}
+
+          <button
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+          >
+            ถัดไป
+          </button>
+          <button
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+          >
+            หน้าสุดท้าย
+          </button>
         </div>
       </div>
 
