@@ -73,4 +73,28 @@ export const predictOrder = async (orderData) => {
   }
 };
 
+// 📌 อัพเดทข้อมูล Order Detail
+export const updateOrderDetail = async (orderId, detailData) => {
+  try {
+    const response = await api.put(`/orders/${orderId}`, {
+      details: [detailData]
+    });
+    return response;
+  } catch (error) {
+    console.error("Failed to update order detail:", error);
+    throw error;
+  }
+};
+
+// 📌 ลบข้อมูล Order Detail
+export const deleteOrderDetail = async (orderId, detailId) => {
+  try {
+    const response = await api.delete(`/orders/${orderId}/details/${detailId}`);
+    return response;
+  } catch (error) {
+    console.error("Failed to delete order detail:", error);
+    throw error;
+  }
+};
+
 

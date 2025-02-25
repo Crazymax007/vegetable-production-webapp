@@ -7,7 +7,7 @@ const PlanPage = () => {
   const [selectedComponent, setSelectedComponent] = useState("plantOrder");
 
   return (
-    <div className="flex flex-col mx-20">
+    <div className="flex flex-col mx-20 my-6">
       {/* ทำนาย */}
       <PredictComponent />
       {/* สั่งปลูก */}
