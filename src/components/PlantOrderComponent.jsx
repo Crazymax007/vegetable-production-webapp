@@ -15,6 +15,7 @@ const PlantOrderComponent = () => {
   const [vegetable, setVegetable] = useState(null);
   const [vegetableList, setVegetableList] = useState([]);
   const [farmerList, setFarmerList] = useState([]);
+  const [selectedReceiver, setSelectedReceiver] = useState(null);
   const [selectedFarmers, setSelectedFarmers] = useState([
     { farmer: null, amount: "" },
   ]);
@@ -75,9 +76,20 @@ const PlantOrderComponent = () => {
     }
   };
 
+  const receivers = [
+    { id: 1, name: "โลตัส" },
+    { id: 2, name: "แม็คโคร" },
+    { id: 3, name: "บิ๊กซี" },
+    { id: 4, name: "ท็อปส์" },
+  ];
+
   const handleSave = async () => {
     if (!vegetable) {
       return Swal.fire("ผิดพลาด", "กรุณาเลือกผัก", "error");
+    }
+
+    if (!selectedReceiver) {
+      return Swal.fire("ผิดพลาด", "กรุณาเลือกผู้รับสินค้า", "error");
     }
 
     for (let i = 0; i < selectedFarmers.length; i++) {
@@ -94,14 +106,13 @@ const PlantOrderComponent = () => {
       }
     }
 
-    // หากเลือกวันที่แล้วใช้วันที่ที่เลือก หากไม่เลือกให้ใช้วันที่ปัจจุบัน
     const currentDate = selectedDate || new Date();
-    // แปลงวันที่เป็น 'yyyy-MM-dd' (ไม่ต้องการเวลา)
     const formattedDate = format(currentDate, "yyyy-MM-dd");
 
     const orderData = {
       orderDate: formattedDate,
       vegetableId: vegetable?._id,
+      receiverId: selectedReceiver.id,
       details: selectedFarmers.map((farmer) => ({
         farmerId: farmer.farmer?._id,
         quantityKg: farmer.amount,
@@ -124,7 +135,7 @@ const PlantOrderComponent = () => {
 
         setVegetable(null);
         setSelectedFarmers([{ farmer: null, amount: "" }]);
-        setSelectedDate(null); // รีเซ็ตวันที่หลังการบันทึก
+        setSelectedDate(null);
       } catch (error) {
         console.error("Error creating order:", error);
         Swal.fire("เกิดข้อผิดพลาด!", "ไม่สามารถบันทึกข้อมูลได้.", "error");
@@ -136,10 +147,10 @@ const PlantOrderComponent = () => {
     <div className="bg-Green-Custom rounded-3xl flex flex-col p-6">
       <div className="text-xl mb-6">มอบหมายการปลูก</div>
       <div className="flex flex-col">
-        <div className="flex justify-between mx-[5%] mb-6">
+        <div className="flex justify-between mx-[5%] mb-6 ">
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 w-[50%]">
-              <span className="text-lg">ผัก:</span>
+            <div className="flex items-center space-x-2 w-[33%]">
+              <span className="text-lg whitespace-nowrap">ผัก:</span>
               <Autocomplete
                 options={vegetableList}
                 getOptionLabel={(option) => option.name}
@@ -159,19 +170,43 @@ const PlantOrderComponent = () => {
                   />
                 )}
                 className="w-full rounded-lg"
-                loading={loading} // เพิ่มสถานะโหลด
+                loading={loading}
                 disableClearable
                 noOptionsText={
                   loading ? <CircularProgress size={24} /> : "ไม่พบผัก"
                 }
               />
             </div>
-            <div className="flex items-center space-x-2 w-[60%]">
-              <span className="w-[20%]">วันที่: </span>
+            <div className="flex items-center space-x-2 w-[35%]">
+              <span className="text-lg whitespace-nowrap">ส่งให้:</span>
+              <Autocomplete
+                options={receivers}
+                getOptionLabel={(option) => option.name}
+                value={selectedReceiver}
+                onChange={(event, newValue) => setSelectedReceiver(newValue)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="เลือกผู้รับ"
+                    variant="outlined"
+                    size="small"
+                    className="bg-white rounded-lg"
+                    InputProps={{
+                      ...params.InputProps,
+                      sx: { height: "40px", padding: "4px" },
+                    }}
+                  />
+                )}
+                className="w-full rounded-lg"
+                disableClearable
+              />
+            </div>
+            <div className="flex items-center space-x-2 w-[33%]">
+              <span className="whitespace-nowrap">วันที่: </span>
               <LocalizationProvider dateAdapter={AdapterDateFns} locale={th}>
                 <DatePicker
-                  value={selectedDate} // ใช้ค่า selectedDate เป็นค่าปัจจุบัน
-                  onChange={(newValue) => setSelectedDate(newValue)} // อัพเดตวันที่เมื่อมีการเลือก
+                  value={selectedDate}
+                  onChange={(newValue) => setSelectedDate(newValue)}
                   className="bg-white rounded-lg h-10 text-center"
                   renderInput={(params) => (
                     <TextField
@@ -199,7 +234,7 @@ const PlantOrderComponent = () => {
               key={index}
               className="flex items-center justify-center space-x-4"
             >
-              <span>ลูกสวนคนที่ {index + 1}: </span>
+              <span className="whitespace-nowrap">ลูกสวนคนที่ {index + 1}: </span>
               <Autocomplete
                 options={farmerList}
                 getOptionLabel={(option) =>
@@ -227,7 +262,7 @@ const PlantOrderComponent = () => {
               />
 
               <div>
-                <span>จำนวน(กก.): </span>
+                <span className="whitespace-nowrap">จำนวน(กก.): </span>
                 <input
                   type="text"
                   value={item.amount}
@@ -242,7 +277,7 @@ const PlantOrderComponent = () => {
                   index == 0 ? "opacity-0" : "opacity-100"
                 }`}
                 onClick={() => handleRemoveFarmer(index)}
-                disabled={index === 0} // ปิดการใช้งานปุ่มลบสำหรับลูกสวนคนที่ 1
+                disabled={index === 0}
               >
                 ลบ
               </button>
@@ -251,7 +286,7 @@ const PlantOrderComponent = () => {
         </div>
         <button
           className="bg-Green-button text-white rounded-lg w-24 text-base p-2 mx-[5%]"
-          onClick={handleSave} // ใช้ฟังก์ชัน handleSave เมื่อคลิก
+          onClick={handleSave}
         >
           บันทึก
         </button>

@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { getVegetables, addVegetable, updateVegetable, deleteVegetable } from "../../services/vegatableService";
+import {
+  getVegetables,
+  addVegetable,
+  updateVegetable,
+  deleteVegetable,
+} from "../../services/vegatableService";
 import Swal from "sweetalert2";
 
 const API_BASE_URL = "http://localhost:5000";
@@ -122,9 +127,9 @@ const PlantManagement = () => {
       if (editingPlant) {
         console.log("Updating with data:", {
           id: editingPlant._id,
-          formData: Object.fromEntries(formDataToSend.entries())
+          formData: Object.fromEntries(formDataToSend.entries()),
         });
-        
+
         await updateVegetable(editingPlant._id, formDataToSend);
         await Swal.fire({
           icon: "success",
@@ -153,13 +158,14 @@ const PlantManagement = () => {
       setFormData({ name: "", image: null, removeImage: false });
       setPreviewImage(null);
       setEditingPlant(null);
-
     } catch (error) {
       console.error("Error:", error);
       await Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด!",
-        text: error.response?.data?.message || "ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง",
+        text:
+          error.response?.data?.message ||
+          "ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง",
       });
     }
   };
@@ -175,14 +181,14 @@ const PlantManagement = () => {
         confirmButtonColor: "#d33",
         cancelButtonColor: "#3085d6",
         confirmButtonText: "ใช่, ลบเลย!",
-        cancelButtonText: "ยกเลิก"
+        cancelButtonText: "ยกเลิก",
       });
 
       if (result.isConfirmed) {
         await deleteVegetable(id);
         const response = await getVegetables();
         setPlants(response.data);
-        
+
         await Swal.fire({
           icon: "success",
           title: "ลบสำเร็จ!",
@@ -239,12 +245,10 @@ const PlantManagement = () => {
       </div>
 
       {/* Modal สำหรับเพิ่มผัก */}
-      {isModalOpen && (
+      {isModalOpen && !editingPlant && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[70]">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">
-              {editingPlant ? "แก้ไขผัก" : "เพิ่มผัก"}
-            </h2>
+            <h2 className="text-xl font-bold mb-4">เพิ่มผัก</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
@@ -269,6 +273,129 @@ const PlantManagement = () => {
                     <div className="relative w-fit">
                       <img
                         src={previewImage}
+                        alt="Preview"
+                        className="w-32 h-32 object-cover rounded-lg border border-gray-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center w-full">
+                      <label
+                        htmlFor="file_input"
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                      >
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <svg
+                            className="w-8 h-8 mb-3 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                          <p className="mb-2 text-sm text-gray-500">
+                            <span className="font-semibold">
+                              คลิกเพื่อเลือกรูปภาพ
+                            </span>
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            PNG, JPG หรือ GIF
+                          </p>
+                        </div>
+                        <input
+                          id="file_input"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setFormData({ name: "", image: null, removeImage: false });
+                    setPreviewImage(null);
+                  }}
+                  className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm text-white bg-Green-button rounded-lg hover:bg-green-600"
+                >
+                  บันทึก
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal สำหรับแก้ไขผัก */}
+      {isModalOpen && editingPlant && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[70]">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">แก้ไขผัก</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  ชื่อผัก
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-900">
+                  รูปภาพ
+                </label>
+                <div className="space-y-3">
+                  {previewImage || formData.image ? (
+                    <div className="relative w-fit">
+                      <img
+                        src={
+                          previewImage ||
+                          "https://www.protean.co.jp/wp-content/themes/protean/images/no-image.gif"
+                        }
                         alt="Preview"
                         className="w-32 h-32 object-cover rounded-lg border border-gray-200"
                       />
@@ -401,9 +528,10 @@ const PlantManagement = () => {
                     <td className="px-6 py-4 text-gray-600">{plant.name}</td>
                     <td className="px-6 py-4">
                       <img
-                        src={plant.imageUrl 
-                          ? `${API_BASE_URL}${plant.imageUrl}`
-                          : "https://www.protean.co.jp/wp-content/themes/protean/images/no-image.gif"
+                        src={
+                          plant.imageUrl
+                            ? `${API_BASE_URL}${plant.imageUrl}`
+                            : "https://www.protean.co.jp/wp-content/themes/protean/images/no-image.gif"
                         }
                         alt={plant.name}
                         className="w-16 h-16 object-cover rounded-full border border-gray-300"
@@ -414,13 +542,13 @@ const PlantManagement = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-2">
-                        <button 
+                        <button
                           onClick={() => handleEditClick(plant)}
                           className="bg-Green-button hover:bg-green-600 text-white shadow-md px-4 py-2 rounded-lg transition-colors"
                         >
                           แก้ไข
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleDelete(plant._id)}
                           className="bg-red-600 hover:bg-red-700 text-white shadow-md px-4 py-2 rounded-lg transition-colors"
                         >
@@ -434,7 +562,7 @@ const PlantManagement = () => {
             </table>
           </div>
         </div>
-        
+
         {/* ย้าย pagination เข้ามาอยู่ในกล่องเดียวกับตาราง */}
         <div className="flex justify-center gap-2 mt-4 mb-4">
           <button

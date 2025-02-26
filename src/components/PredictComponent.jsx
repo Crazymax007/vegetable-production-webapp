@@ -8,18 +8,22 @@ const PredictComponent = () => {
   const [vegetableList, setVegetableList] = useState([]);
   const [requiredKg, setRequiredKg] = useState("");
   const [numFarmers, setNumFarmers] = useState("");
-  const [predictionData, setPredictionData] = useState([]); // สำหรับเก็บข้อมูลที่ได้จากการทำนาย
+  const [predictionData, setPredictionData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const prediction = async () => {
     try {
+      setIsLoading(true);
       const response = await predictOrder({
-        plant: vegetable?.name, // ใช้ชื่อผักจาก state หรือค่า default
+        plant: vegetable?.name,
         required_kg: parseFloat(requiredKg),
         num_farmers: parseInt(numFarmers),
       });
-      setPredictionData(response.data.data); // เก็บข้อมูลที่ได้จาก prediction
+      setPredictionData(response.data.data);
     } catch (error) {
       console.error("Failed to fetch vegetables:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -100,9 +104,14 @@ const PredictComponent = () => {
         </div>
         <button
           onClick={prediction}
-          className="bg-Green-button text-white rounded-lg w-24 text-base p-2 mx-auto"
+          disabled={isLoading}
+          className="bg-Green-button text-white rounded-lg w-24 text-base p-2 mx-auto disabled:opacity-50"
         >
-          ทำนาย
+          {isLoading ? (
+            <CircularProgress size={20} color="inherit" />
+          ) : (
+            "ทำนาย"
+          )}
         </button>
       </div>
 
@@ -118,7 +127,13 @@ const PredictComponent = () => {
             </tr>
           </thead>
           <tbody>
-            {predictionData.length === 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan="4" className="text-center bg-white py-8">
+                  <CircularProgress />
+                </td>
+              </tr>
+            ) : predictionData.length === 0 ? (
               <tr>
                 <td colSpan="4" className="text-center bg-white py-4">
                   ไม่มีข้อมูลการทำนาย

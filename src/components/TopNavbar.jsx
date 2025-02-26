@@ -122,8 +122,8 @@ const TopNavbar = () => {
 
           {isProfileMenuOpen && (
             <div className="absolute right-0 mt-[17px] w-[260px] flex flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-lg">
-              <ul className="flex flex-col gap-1 pb-3 border-b border-gray-200">
-                {role === "admin" && (
+              {role === "admin" && (
+                <ul className="flex flex-col gap-1 pb-3 border-b border-gray-200">
                   <li>
                     <a
                       href="/admin"
@@ -133,8 +133,8 @@ const TopNavbar = () => {
                       จัดการระบบ
                     </a>
                   </li>
-                )}
-              </ul>
+                </ul>
+              )}
 
               <button
                 onClick={handleLogout}
