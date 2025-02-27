@@ -1,59 +1,67 @@
 import React, { useEffect, useState } from "react";
 import {
-  getFarmers,
-  addFarmer,
-  deleteFarmer,
-  updateFarmer,
-} from "../../services/farmerService";
+  getUsers,
+  addUser,
+  deleteUser,
+  updateUser,
+} from "../../services/authService";
+import { getFarmers } from "../../services/farmerService";
 import Swal from "sweetalert2";
 
 const UserManagement = () => {
-  const [farmers, setFarmers] = useState([]);
+  const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalFarmers, setTotalFarmers] = useState(0);
-  const farmersPerPage = 10;
+  const [totalUsers, setTotalUsers] = useState(0);
+  const usersPerPage = 10;
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    nickname: "",
-    phone: "",
-    location: {
-      latitude: "",
-      longitude: "",
-    },
-  });
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filteredFarmers, setFilteredFarmers] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingFarmer, setEditingFarmer] = useState(null);
 
-  // ✅ เรียกข้อมูลลูกสวนจากระบบ
+  // แยก state สำหรับฟอร์มเพิ่มและแก้ไข
+  const [addFormData, setAddFormData] = useState({
+    username: "",
+    password: "",
+    role: "",
+    farmerId: "",
+  });
+
+  const [editFormData, setEditFormData] = useState({
+    username: "",
+    password: "",
+    role: "",
+    farmerId: "",
+  });
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [editingUser, setEditingUser] = useState(null);
+  const [farmers, setFarmers] = useState([]);
+
+  // ✅ เรียกข้อมูลผู้ใช้จากระบบ
+  const fetchUsers = async () => {
+    try {
+      const response = await getUsers();
+      setUsers(response.data);
+      setTotalUsers(response.data.length);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  // เพิ่มฟังก์ชันดึงข้อมูลลูกสวน
   const fetchFarmers = async () => {
     try {
       const response = await getFarmers();
       setFarmers(response.data);
-      setTotalFarmers(response.data.length);
     } catch (error) {
       console.error("Error fetching farmers:", error);
     }
   };
 
-  // ✅ เพิ่มลูกสวนใหม่
-  const handleAddFarmer = async (newFarmer) => {
-    try {
-      await addFarmer(newFarmer);
-      fetchFarmers();
-    } catch (error) {
-      console.error("Error adding farmer:", error);
-    }
-  };
-
-  // ❌ ลบลูกสวน
-  const handleDeleteFarmer = async (farmerId) => {
+  // ❌ ลบผู้ใช้
+  const handleDeleteUser = async (userId) => {
     const result = await Swal.fire({
       title: "คุณแน่ใจหรือไม่?",
-      text: "คุณต้องการลบลูกสวนคนนี้ใช่หรือไม่?",
+      text: "คุณต้องการลบผู้ใช้คนนี้ใช่หรือไม่?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -64,14 +72,13 @@ const UserManagement = () => {
 
     if (result.isConfirmed) {
       try {
-        await deleteFarmer(farmerId);
-        await Swal.fire("ลบสำเร็จ!", "ลบข้อมูลลูกสวนเรียบร้อยแล้ว", "success");
-        fetchFarmers(); // รีเฟรชข้อมูล
+        await deleteUser(userId);
+        await Swal.fire("ลบสำเร็จ!", "ลบข้อมูลผู้ใช้เรียบร้อยแล้ว", "success");
+        fetchUsers();
       } catch (error) {
-        console.error("Error deleting farmer:", error);
         await Swal.fire(
           "เกิดข้อผิดพลาด!",
-          "ไม่สามารถลบลูกสวนได้ กรุณาลองใหม่อีกครั้ง",
+          "ไม่สามารถลบผู้ใช้ได้ กรุณาลองใหม่อีกครั้ง",
           "error"
         );
       }
@@ -79,76 +86,63 @@ const UserManagement = () => {
   };
 
   useEffect(() => {
+    fetchUsers();
     fetchFarmers();
   }, []);
 
-  // เพิ่มฟังก์ชันสำหรับการค้นหา
+  // ค้นหาผู้ใช้
   useEffect(() => {
-    const results = farmers.filter((farmer) =>
-      Object.values(farmer).some((value) =>
+    const results = users.filter((user) =>
+      Object.values(user).some((value) =>
         String(value).toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
-    setFilteredFarmers(results);
-    setTotalFarmers(results.length);
-  }, [searchTerm, farmers]);
+    setFilteredUsers(results);
+    setTotalUsers(results.length);
+  }, [searchTerm, users]);
 
   // คำนวณข้อมูลสำหรับหน้าปัจจุบัน
-  const indexOfLastFarmer = currentPage * farmersPerPage;
-  const indexOfFirstFarmer = indexOfLastFarmer - farmersPerPage;
-  const currentFarmers = filteredFarmers.slice(
-    indexOfFirstFarmer,
-    indexOfLastFarmer
-  );
-  const totalPages = Math.ceil(totalFarmers / farmersPerPage);
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.ceil(totalUsers / usersPerPage);
 
-  // ฟังก์ชันสำหรับเปลี่ยนหน้า
-  const handlePrevPage = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
-  };
-
-  const handleNextPage = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  };
-
-  const handleInputChange = (e) => {
+  // แยกฟังก์ชัน handleInputChange สำหรับแต่ละฟอร์ม
+  const handleAddInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "latitude" || name === "longitude") {
-      setFormData((prev) => ({
-        ...prev,
-        location: {
-          ...prev.location,
-          [name]: value,
-        },
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
+    setAddFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // อัพเดทฟังก์ชัน handleSubmit สำหรับการเพิ่ม
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addFarmer(formData);
-      await fetchFarmers();
+      await addUser(addFormData);
+      await fetchUsers();
       setIsModalOpen(false);
-      setFormData({
-        firstName: "",
-        lastName: "",
-        nickname: "",
-        phone: "",
-        location: {
-          latitude: "",
-          longitude: "",
-        },
+      // รีเซ็ตฟอร์มเพิ่ม
+      setAddFormData({
+        username: "",
+        password: "",
+        role: "",
+        farmerId: "",
       });
 
       await Swal.fire({
         icon: "success",
         title: "สำเร็จ!",
-        text: "เพิ่มลูกสวนเรียบร้อยแล้ว",
+        text: "เพิ่มผู้ใช้เรียบร้อยแล้ว",
         timer: 1500,
         showConfirmButton: false,
       });
@@ -156,50 +150,43 @@ const UserManagement = () => {
       await Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด!",
-        text: "ไม่สามารถเพิ่มลูกสวนได้ กรุณาลองใหม่อีกครั้ง",
+        text: "ไม่สามารถเพิ่มผู้ใช้ได้ กรุณาลองใหม่อีกครั้ง",
       });
     }
   };
 
-  // เพิ่มฟังก์ชันสำหรับเปิด modal แก้ไข
-  const handleEditClick = (farmer) => {
-    setEditingFarmer(farmer);
-    setFormData({
-      firstName: farmer.firstName || "",
-      lastName: farmer.lastName || "",
-      nickname: farmer.nickname || "",
-      phone: farmer.phone || "",
-      location: {
-        latitude: farmer.location?.latitude || "",
-        longitude: farmer.location?.longitude || "",
-      },
+  // อัพเดทฟังก์ชัน handleEditClick
+  const handleEditClick = (user) => {
+    setEditingUser(user);
+    setEditFormData({
+      username: user.username || "",
+      role: user.role || "",
+      farmerId: user.farmerId || "",
+      password: "", // รีเซ็ตรหัสผ่านเป็นค่าว่าง
     });
     setIsEditModalOpen(true);
   };
 
-  // เพิ่มฟังก์ชันสำหรับบันทึกการแก้ไข
+  // อัพเดทฟังก์ชัน handleEditSubmit
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      await updateFarmer(editingFarmer._id, formData);
-      await fetchFarmers();
+      await updateUser(editingUser._id, editFormData);
+      await fetchUsers();
       setIsEditModalOpen(false);
-      setEditingFarmer(null);
-      setFormData({
-        firstName: "",
-        lastName: "",
-        nickname: "",
-        phone: "",
-        location: {
-          latitude: "",
-          longitude: "",
-        },
+      setEditingUser(null);
+      // รีเซ็ตฟอร์มแก้ไข
+      setEditFormData({
+        username: "",
+        password: "",
+        role: "",
+        farmerId: "",
       });
 
       await Swal.fire({
         icon: "success",
         title: "สำเร็จ!",
-        text: "แก้ไขข้อมูลลูกสวนเรียบร้อยแล้ว",
+        text: "แก้ไขข้อมูลผู้ใช้เรียบร้อยแล้ว",
         timer: 1500,
         showConfirmButton: false,
       });
@@ -207,9 +194,18 @@ const UserManagement = () => {
       await Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด!",
-        text: "ไม่สามารถแก้ไขข้อมูลลูกสวนได้ กรุณาลองใหม่อีกครั้ง",
+        text: "ไม่สามารถแก้ไขข้อมูลผู้ใช้ได้ กรุณาลองใหม่อีกครั้ง",
       });
     }
+  };
+
+  // เพิ่มฟังก์ชันสำหรับหาข้อมูลลูกสวนจาก ID
+  const getFarmerInfo = (farmerId) => {
+    const farmer = farmers.find((f) => f._id === farmerId);
+    if (farmer) {
+      return `${farmer.firstName} ${farmer.lastName} (${farmer.nickname})`;
+    }
+    return "-";
   };
 
   return (
@@ -235,7 +231,7 @@ const UserManagement = () => {
           </span>
           <input
             type="text"
-            placeholder="ค้นหาลูกสวน..."
+            placeholder="ค้นหาผู้ใช้..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 xl:w-[430px]"
@@ -245,187 +241,74 @@ const UserManagement = () => {
           onClick={() => setIsModalOpen(true)}
           className="bg-Green-button hover:bg-green-600 shadow-md text-white text-sm px-3 py-2 rounded-lg transition-colors"
         >
-          เพิ่มลูกสวน
+          เพิ่มผู้ใช้
         </button>
       </div>
 
-      {/* Modal สำหรับเพิ่มลูกสวน */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[70]">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">เพิ่มลูกสวน</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  ชื่อ
-                </label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  นามสกุล
-                </label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  ชื่อเล่น
-                </label>
-                <input
-                  type="text"
-                  name="nickname"
-                  value={formData.nickname}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  เบอร์โทรศัพท์
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  ละติจูด
-                </label>
-                <input
-                  type="number"
-                  name="latitude"
-                  value={formData.location.latitude}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  ลองจิจูด
-                </label>
-                <input
-                  type="number"
-                  name="longitude"
-                  value={formData.location.longitude}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                />
-              </div>
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-sm text-white bg-Green-button rounded-lg hover:bg-green-600"
-                >
-                  บันทึก
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
+      {/* ตารางแสดงข้อมูลผู้ใช้ */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100">
         <div className="overflow-x-auto">
           <div className="overflow-hidden rounded-lg">
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="bg-gray-200">
-                  <th
-                    scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 first:rounded-tl-lg w-[50px]"
-                  >
+                  <th className="px-6 py-4 font-bold text-gray-600 first:rounded-tl-lg w-[80px]">
                     ลำดับ
                   </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[200px]"
-                  >
-                    ชื่อ-นามสกุล
+                  <th className="px-6 py-4 font-bold text-gray-600 w-[200px]">
+                    ชื่อผู้ใช้
                   </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[100px]"
-                  >
-                    ชื่อเล่น
+                  <th className="px-6 py-4 font-bold text-gray-600 w-[150px]">
+                    รหัสผ่าน
                   </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[150px]"
-                  >
-                    เบอร์โทรศัพท์
+                  <th className="px-6 py-4 font-bold text-gray-600 w-[150px]">
+                    สิทธิ์การใช้งาน
                   </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[200px]"
-                  >
-                    พิกัด
+                  <th className="px-6 py-4 font-bold text-gray-600 w-[200px]">
+                    วันที่สร้าง
                   </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 last:rounded-tr-lg text-center w-[100px]"
-                  >
-                    จัดการข้อมูล
+                  <th className="px-6 py-4 font-bold text-gray-600 last:rounded-tr-lg text-center w-[200px]">
+                    จัดการ
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {currentFarmers.map((item, index) => (
+                {currentUsers.map((user, index) => (
                   <tr
-                    key={item._id}
+                    key={user._id}
                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                   >
                     <td className="px-6 py-4 text-gray-600">
-                      {indexOfFirstFarmer + index + 1}
+                      {indexOfFirstUser + index + 1}
+                    </td>
+                    <td className="px-6 py-4 text-gray-600">{user.username}</td>
+                    <td className="px-6 py-4 text-gray-600">
+                      {user.password ? "••••••••" : "-"}
                     </td>
                     <td className="px-6 py-4 text-gray-600">
-                      {item.firstName || item.lastName
-                        ? `${item.firstName || "-"} ${item.lastName || "-"}`
-                        : "-"}
+                      {user.role === 'admin' ? 'ผู้ดูแลระบบ' : 
+                       user.role === 'manager' ? 'ผู้จัดการ' : 
+                       user.role === 'farmer' ? 'ลูกสวน' : user.role}
                     </td>
                     <td className="px-6 py-4 text-gray-600">
-                      {item.nickname || "-"}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {item.phone || "-"}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {item.location?.latitude && item.location?.longitude
-                        ? `${item.location.latitude}°N, ${item.location.longitude}°E`
-                        : "-"}
+                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString('th-TH', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }) : '-'}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-2">
                         <button
-                          onClick={() => handleEditClick(item)}
+                          onClick={() => handleEditClick(user)}
                           className="bg-Green-button hover:bg-green-600 text-white shadow-md px-4 py-2 rounded-lg transition-colors"
                         >
                           แก้ไข
                         </button>
                         <button
-                          onClick={() => handleDeleteFarmer(item._id)}
+                          onClick={() => handleDeleteUser(user._id)}
                           className="bg-red-600 hover:bg-red-700 text-white shadow-md px-4 py-2 rounded-lg transition-colors"
                         >
                           ลบ
@@ -438,6 +321,8 @@ const UserManagement = () => {
             </table>
           </div>
         </div>
+
+        {/* การแบ่งหน้า */}
         <div className="flex justify-center gap-2 mt-4 mb-4">
           <button
             onClick={() => setCurrentPage(1)}
@@ -456,7 +341,6 @@ const UserManagement = () => {
 
           {[...Array(totalPages)].map((_, index) => {
             const pageNumber = index + 1;
-            // แสดงเฉพาะ 5 หน้ารอบๆ หน้าปัจจุบัน
             if (
               pageNumber === 1 ||
               pageNumber === totalPages ||
@@ -508,90 +392,165 @@ const UserManagement = () => {
         </div>
       </div>
 
-      {/* เพิ่ม Modal สำหรับแก้ไขข้อมูล */}
+      {/* Modal เพิ่มผู้ใช้ - ใช้ addFormData */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[70]">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">เพิ่มผู้ใช้</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  ชื่อผู้ใช้
+                </label>
+                <input
+                  type="text"
+                  name="username"
+                  value={addFormData.username}
+                  onChange={handleAddInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  รหัสผ่าน
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={addFormData.password}
+                  onChange={handleAddInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  บทบาท
+                </label>
+                <select
+                  name="role"
+                  value={addFormData.role}
+                  onChange={handleAddInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                >
+                  <option value="">เลือกบทบาท</option>
+                  <option value="admin">ผู้ดูแลระบบ</option>
+                  <option value="manager">ผู้จัดการ</option>
+                  <option value="farmer">ลูกสวน</option>
+                </select>
+              </div>
+              {addFormData.role === "farmer" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    เลือกลูกสวน
+                  </label>
+                  <select
+                    name="farmerId"
+                    value={addFormData.farmerId}
+                    onChange={handleAddInputChange}
+                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                  >
+                    <option value="">เลือกลูกสวน</option>
+                    {farmers.map((farmer) => (
+                      <option key={farmer._id} value={farmer._id}>
+                        {farmer.firstName} {farmer.lastName} ({farmer.nickname})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm text-white bg-Green-button rounded-lg hover:bg-green-600"
+                >
+                  บันทึก
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal แก้ไขผู้ใช้ - ใช้ editFormData */}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[70]">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">แก้ไขข้อมูลลูกสวน</h2>
+            <h2 className="text-xl font-bold mb-4">แก้ไขข้อมูลผู้ใช้</h2>
             <form onSubmit={handleEditSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  ชื่อ
+                  ชื่อผู้ใช้
                 </label>
                 <input
                   type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
+                  name="username"
+                  value={editFormData.username}
+                  onChange={handleEditInputChange}
                   className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  นามสกุล
+                  รหัสผ่าน
                 </label>
                 <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
+                  type="password"
+                  name="password"
+                  value={editFormData.password}
+                  onChange={handleEditInputChange}
+                  placeholder="ใส่รหัสผ่านใหม่หากต้องการเปลี่ยน"
                   className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  ชื่อเล่น
+                  บทบาท
                 </label>
-                <input
-                  type="text"
-                  name="nickname"
-                  value={formData.nickname}
-                  onChange={handleInputChange}
+                <select
+                  name="role"
+                  value={editFormData.role}
+                  onChange={handleEditInputChange}
                   className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                />
+                >
+                  <option value="">เลือกบทบาท</option>
+                  <option value="admin">ผู้ดูแลระบบ</option>
+                  <option value="manager">ผู้จัดการ</option>
+                  <option value="farmer">ลูกสวน</option>
+                </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  เบอร์โทรศัพท์
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  ละติจูด
-                </label>
-                <input
-                  type="number"
-                  name="latitude"
-                  value={formData.location.latitude}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  ลองจิจูด
-                </label>
-                <input
-                  type="number"
-                  name="longitude"
-                  value={formData.location.longitude}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                />
-              </div>
+              {editFormData.role === "farmer" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    เลือกลูกสวน
+                  </label>
+                  <select
+                    name="farmerId"
+                    value={editFormData.farmerId}
+                    onChange={handleEditInputChange}
+                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                  >
+                    <option value="">เลือกลูกสวน</option>
+                    {farmers.map((farmer) => (
+                      <option key={farmer._id} value={farmer._id}>
+                        {farmer.firstName} {farmer.lastName} ({farmer.nickname})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="flex justify-end gap-2 mt-4">
                 <button
                   type="button"
                   onClick={() => {
                     setIsEditModalOpen(false);
-                    setEditingFarmer(null);
+                    setEditingUser(null);
                   }}
                   className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
                 >

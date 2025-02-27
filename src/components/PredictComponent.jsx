@@ -130,7 +130,7 @@ const PredictComponent = () => {
             {isLoading ? (
               <tr>
                 <td colSpan="4" className="text-center bg-white py-8">
-                  <CircularProgress />
+                  <CircularProgress sx={{ color: '#4CAF50' }} />
                 </td>
               </tr>
             ) : predictionData.length === 0 ? (

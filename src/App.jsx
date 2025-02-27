@@ -13,8 +13,9 @@ import TopNavbar from "./components/TopNavbar";
 import PlanPage from "./pages/planPage/PlanPage";
 import ManagePage from "./pages/managePage/ManagePage";
 import AdminLayout from "./components/admin/AdminLayout";
-import UserManagement from "./pages/UserManagement/UserManagement";
+import FarmersManagement from "./pages/farmersManagement/FarmersManagement";
 import PlantManagement from "./pages/plantManagement/PlantManagement";
+import UserManagement from "./pages/UserManagement/UserManagement";
 
 const App = () => {
   return (
@@ -32,6 +33,7 @@ const App = () => {
           }
         >
           <Route index element={<AdminDashboard />} />
+          <Route path="farmers" element={<FarmersManagement />} />
           <Route path="users" element={<UserManagement />} />
           <Route path="plants" element={<PlantManagement />} />
         </Route>

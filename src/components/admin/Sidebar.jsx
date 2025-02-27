@@ -2,6 +2,7 @@ import { RxDashboard } from "react-icons/rx";
 import { BsPeople } from "react-icons/bs";
 import { GiPlantSeed } from "react-icons/gi";
 import { Link, useLocation } from "react-router-dom";
+import { PiUserCircleGearLight } from "react-icons/pi";
 
 const Sidebar = ({ isSidebarOpen }) => {
   const location = useLocation();
@@ -54,6 +55,29 @@ const Sidebar = ({ isSidebarOpen }) => {
           </li>
         </Link>
 
+        <Link to="/admin/farmers">
+          <li
+            className={`mb-4 p-2 rounded-lg cursor-pointer transition-all duration-200 flex items-center ${
+              !isSidebarOpen && "justify-center group-hover:justify-start"
+            } gap-2 ${
+              isActive("/admin/farmers")
+                ? "text-Green-button bg-[#e0ffd7]"
+                : "hover:bg-gray-200"
+            }`}
+          >
+            <BsPeople
+              className={`text-xl ${
+                isActive("/admin/farmers") ? "text-Green-button" : ""
+              }`}
+            />
+            <span
+              className={`${!isSidebarOpen && "hidden group-hover:inline"}`}
+            >
+              จัดการลูกสวน
+            </span>
+          </li>
+        </Link>
+
         <Link to="/admin/users">
           <li
             className={`mb-4 p-2 rounded-lg cursor-pointer transition-all duration-200 flex items-center ${
@@ -64,8 +88,8 @@ const Sidebar = ({ isSidebarOpen }) => {
                 : "hover:bg-gray-200"
             }`}
           >
-            <BsPeople
-              className={`text-xl ${
+            <PiUserCircleGearLight
+              className={`text-2xl ${
                 isActive("/admin/users") ? "text-Green-button" : ""
               }`}
             />
