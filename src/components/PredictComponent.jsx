@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Autocomplete, TextField, CircularProgress } from "@mui/material";
-import { predictOrder } from "../services/orderService";
+import { predictOrder, checkAvailableFarmers } from "../services/predictService";
 import { getVegetables } from "../services/vegatableService";
 
 const PredictComponent = () => {
@@ -10,6 +10,8 @@ const PredictComponent = () => {
   const [numFarmers, setNumFarmers] = useState("");
   const [predictionData, setPredictionData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [availableFarmers, setAvailableFarmers] = useState(0);
+  const [isFarmersChecked, setIsFarmersChecked] = useState(false);
 
   const prediction = async () => {
     try {
@@ -36,6 +38,22 @@ const PredictComponent = () => {
     }
   };
 
+  const checkAvailableFarmersForSelectedVegetable = async (selectedVegetable) => {
+    if (!selectedVegetable) return;
+    setIsLoading(true); // Start loading state
+
+    try {
+      const response = await checkAvailableFarmers({ plant: selectedVegetable.name });
+      setAvailableFarmers(response.data.availableFarmers);
+      setIsFarmersChecked(true);
+    } catch (error) {
+      console.error("Failed to check available farmers:", error);
+      setIsFarmersChecked(false);
+    } finally {
+      setIsLoading(false); // End loading state
+    }
+  };
+
   useEffect(() => {
     fetchVegetables();
   }, []);
@@ -50,7 +68,10 @@ const PredictComponent = () => {
             options={vegetableList}
             getOptionLabel={(option) => option.name}
             value={vegetable}
-            onChange={(event, newValue) => setVegetable(newValue)}
+            onChange={(event, newValue) => {
+              setVegetable(newValue);
+              checkAvailableFarmersForSelectedVegetable(newValue); // Trigger API call for selected vegetable
+            }}
             className="w-full"
             renderInput={(params) => (
               <TextField
@@ -67,51 +88,52 @@ const PredictComponent = () => {
             )}
             loading={vegetableList.length === 0}
             disableClearable
-            noOptionsText={
-              vegetableList.length === 0 ? (
-                <CircularProgress size={24} />
-              ) : (
-                "ไม่พบผัก"
-              )
-            }
+            noOptionsText={vegetableList.length === 0 ? (
+              <CircularProgress size={24} />
+            ) : (
+              "ไม่พบผัก"
+            )}
           />
         </div>
 
-        <div className="flex items-center min-w-[220px]">
-          <span className="text-lg mr-2">จำนวนที่ต้องการ (กก.):</span>
-          <TextField
-            type="number"
-            value={requiredKg}
-            onChange={(e) => setRequiredKg(e.target.value)}
-            variant="outlined"
-            size="small"
-            className="bg-white rounded-lg"
-            label="กรอกจำนวน (กก.)"
-          />
-        </div>
+        {isFarmersChecked && (
+          <>
+            <div className="flex items-center min-w-[220px]">
+              <span className="text-lg mr-2">จำนวนที่ต้องการ (กก.):</span>
+              <TextField
+                type="number"
+                value={requiredKg}
+                onChange={(e) => setRequiredKg(e.target.value)}
+                variant="outlined"
+                size="small"
+                className="bg-white rounded-lg"
+                label="กรอกจำนวน (กก.)"
+              />
+            </div>
 
-        <div className="flex items-center min-w-[220px]">
-          <span className="text-lg mr-2">จำนวนคน:</span>
-          <TextField
-            type="number"
-            value={numFarmers}
-            onChange={(e) => setNumFarmers(e.target.value)}
-            variant="outlined"
-            size="small"
-            className="bg-white rounded-lg"
-            label="กรอกจำนวนคน"
-          />
-        </div>
+            <div className="flex items-center min-w-[220px]">
+              <span className="text-lg mr-2">จำนวนคน (สูงสุด: {availableFarmers}):</span>
+              <TextField
+                type="number"
+                value={numFarmers}
+                onChange={(e) => {
+                  const value = Math.min(e.target.value, availableFarmers);
+                  setNumFarmers(value);
+                }}
+                variant="outlined"
+                size="small"
+                className="bg-white rounded-lg"
+                label="กรอกจำนวนคน"
+              />
+            </div>
+          </>
+        )}
         <button
           onClick={prediction}
           disabled={isLoading}
           className="bg-Green-button text-white rounded-lg w-24 text-base p-2 mx-auto disabled:opacity-50"
         >
-          {isLoading ? (
-            <CircularProgress size={20} color="inherit" />
-          ) : (
-            "ทำนาย"
-          )}
+          {isLoading ? <CircularProgress size={20} color="inherit" /> : "ทำนาย"}
         </button>
       </div>
 
@@ -130,7 +152,7 @@ const PredictComponent = () => {
             {isLoading ? (
               <tr>
                 <td colSpan="4" className="text-center bg-white py-8">
-                  <CircularProgress sx={{ color: '#4CAF50' }} />
+                  <CircularProgress sx={{ color: "#4CAF50" }} />
                 </td>
               </tr>
             ) : predictionData.length === 0 ? (

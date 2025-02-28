@@ -286,18 +286,24 @@ const UserManagement = () => {
                       {user.password ? "••••••••" : "-"}
                     </td>
                     <td className="px-6 py-4 text-gray-600">
-                      {user.role === 'admin' ? 'ผู้ดูแลระบบ' : 
-                       user.role === 'manager' ? 'ผู้จัดการ' : 
-                       user.role === 'farmer' ? 'ลูกสวน' : user.role}
+                      {user.role === "admin"
+                        ? "ผู้ดูแลระบบ"
+                        : user.role === "manager"
+                        ? "ผู้จัดการ"
+                        : user.role === "farmer"
+                        ? "ลูกสวน"
+                        : user.role}
                     </td>
                     <td className="px-6 py-4 text-gray-600">
-                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString('th-TH', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      }) : '-'}
+                      {user.createdAt
+                        ? new Date(user.createdAt).toLocaleDateString("th-TH", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "-"}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-2">

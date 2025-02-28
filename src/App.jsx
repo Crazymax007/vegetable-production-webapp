@@ -16,14 +16,14 @@ import AdminLayout from "./components/admin/AdminLayout";
 import FarmersManagement from "./pages/farmersManagement/FarmersManagement";
 import PlantManagement from "./pages/plantManagement/PlantManagement";
 import UserManagement from "./pages/UserManagement/UserManagement";
-
+import BuyerManagement from "./pages/buyerManagement/BuyerManagement";
 const App = () => {
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        {/* Protected Routes */}
+        {/* Admin */}
         <Route
           path="/admin"
           element={
@@ -36,7 +36,9 @@ const App = () => {
           <Route path="farmers" element={<FarmersManagement />} />
           <Route path="users" element={<UserManagement />} />
           <Route path="plants" element={<PlantManagement />} />
+          <Route path="buyer" element={<BuyerManagement />} />
         </Route>
+
         <Route
           path="/map"
           element={

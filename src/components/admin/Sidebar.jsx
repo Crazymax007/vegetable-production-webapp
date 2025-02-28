@@ -3,6 +3,7 @@ import { BsPeople } from "react-icons/bs";
 import { GiPlantSeed } from "react-icons/gi";
 import { Link, useLocation } from "react-router-dom";
 import { PiUserCircleGearLight } from "react-icons/pi";
+import { FaStore } from "react-icons/fa";
 
 const Sidebar = ({ isSidebarOpen }) => {
   const location = useLocation();
@@ -120,6 +121,29 @@ const Sidebar = ({ isSidebarOpen }) => {
               className={`${!isSidebarOpen && "hidden group-hover:inline"}`}
             >
               จัดการผัก
+            </span>
+          </li>
+        </Link>
+
+        <Link to="/admin/buyer">
+          <li
+            className={`mb-4 p-2 rounded-lg cursor-pointer transition-all duration-200 flex items-center ${
+              !isSidebarOpen && "justify-center group-hover:justify-start"
+            } gap-2 ${
+              isActive("/admin/buyer")
+                ? "text-Green-button bg-[#e0ffd7]"
+                : "hover:bg-gray-200"
+            }`}
+          >
+            <FaStore
+              className={`text-lg ${
+                isActive("/admin/buyer") ? "text-Green-button" : ""
+              }`}
+            />
+            <span
+              className={`${!isSidebarOpen && "hidden group-hover:inline"}`}
+            >
+              จัดการผู้รับซื้อ
             </span>
           </li>
         </Link>
