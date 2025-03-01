@@ -48,7 +48,7 @@ export const getOrders = async ({
 // 📌  สร้างOrder
 export const createOrder = async (orderData) => {
   try {
-    const response = await api.post("/orders", orderData); 
+    const response = await api.post("/orders", orderData);
     return response;
   } catch (error) {
     console.error("Failed to create order:", error);
@@ -77,7 +77,7 @@ export const predictOrder = async (orderData) => {
 export const updateOrderDetail = async (orderId, detailData) => {
   try {
     const response = await api.put(`/orders/${orderId}`, {
-      details: [detailData]
+      details: [detailData],
     });
     return response;
   } catch (error) {
@@ -96,5 +96,4 @@ export const deleteOrderDetail = async (orderId, detailId) => {
     throw error;
   }
 };
-
 
