@@ -3,8 +3,7 @@ import { Autocomplete, TextField, CircularProgress } from "@mui/material";
 import { predictOrder, checkAvailableFarmers } from "../services/predictService";
 import { getVegetables } from "../services/vegatableService";
 
-const PredictComponent = () => {
-  const [vegetable, setVegetable] = useState(null);
+const PredictComponent = ({ onVegetableSelect, selectedVegetable }) => {
   const [vegetableList, setVegetableList] = useState([]);
   const [requiredKg, setRequiredKg] = useState("");
   const [numFarmers, setNumFarmers] = useState("");
@@ -17,7 +16,7 @@ const PredictComponent = () => {
     try {
       setIsLoading(true);
       const response = await predictOrder({
-        plant: vegetable?.name,
+        plant: selectedVegetable?.name,
         required_kg: parseFloat(requiredKg),
         num_farmers: parseInt(numFarmers),
       });
@@ -67,10 +66,10 @@ const PredictComponent = () => {
           <Autocomplete
             options={vegetableList}
             getOptionLabel={(option) => option.name}
-            value={vegetable}
+            value={selectedVegetable}
             onChange={(event, newValue) => {
-              setVegetable(newValue);
-              checkAvailableFarmersForSelectedVegetable(newValue); // Trigger API call for selected vegetable
+              onVegetableSelect(newValue);
+              checkAvailableFarmersForSelectedVegetable(newValue);
             }}
             className="w-full"
             renderInput={(params) => (

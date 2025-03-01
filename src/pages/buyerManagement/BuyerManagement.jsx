@@ -27,7 +27,10 @@ const BuyerManagement = () => {
   // คำนวณข้อมูลสำหรับการแสดงผล
   const indexOfLastBuyer = currentPage * buyersPerPage;
   const indexOfFirstBuyer = indexOfLastBuyer - buyersPerPage;
-  const currentBuyers = filteredBuyers.slice(indexOfFirstBuyer, indexOfLastBuyer);
+  const currentBuyers = filteredBuyers.slice(
+    indexOfFirstBuyer,
+    indexOfLastBuyer
+  );
   const totalPages = Math.ceil(totalBuyers / buyersPerPage);
 
   // ฟังก์ชันแปลงวันที่เป็น พ.ศ.
@@ -40,11 +43,11 @@ const BuyerManagement = () => {
   };
 
   useEffect(() => {
-  const fetchBuyers = async () => {
-    try {
-      const response = await getBuyers();
-      setBuyers(response.data);
-    } catch (error) {
+    const fetchBuyers = async () => {
+      try {
+        const response = await getBuyers();
+        setBuyers(response.data);
+      } catch (error) {
         console.error("Error fetching buyers:", error);
         await Swal.fire({
           icon: "error",
@@ -115,13 +118,33 @@ const BuyerManagement = () => {
       setEditingBuyer(null);
     } catch (error) {
       console.error("Error:", error);
-      await Swal.fire({
-        icon: "error",
-        title: "เกิดข้อผิดพลาด!",
-        text:
-          error.response?.data?.message ||
-          "ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง",
-      });
+
+      // ตรวจสอบ error message จาก backend
+      const errorMessage = error.message;
+      console.log(errorMessage);
+      // จัดการ error message ตามประเภท
+      switch (errorMessage) {
+        case "Name is required":
+          await Swal.fire({
+            icon: "error",
+            title: "เกิดข้อผิดพลาด!",
+            text: "กรุณากรอกชื่อผู้รับซื้อ",
+          });
+          break;
+        case "Buyer with this name already exists":
+          await Swal.fire({
+            icon: "error",
+            title: "เกิดข้อผิดพลาด!",
+            text: "มีชื่อผู้รับซื้อนี้ในระบบแล้ว กรุณาใช้ชื่ออื่น",
+          });
+          break;
+        default:
+          await Swal.fire({
+            icon: "error",
+            title: "เกิดข้อผิดพลาด!",
+            text: "ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง",
+          });
+      }
     }
   };
 

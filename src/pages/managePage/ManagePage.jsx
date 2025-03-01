@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import TableComponent from "../../components/TableComponent";
 import {
   getOrders,
   updateOrderDetail,
@@ -72,6 +71,7 @@ const ManagePage = () => {
                     detail.farmerId.firstName && detail.farmerId.lastName
                       ? `${detail.farmerId.firstName} ${detail.farmerId.lastName}`
                       : "ไม่ระบุ",
+                  buyerName: order.buyer ? order.buyer.name : "-",
                   vegetableName: order.vegetable
                     ? order.vegetable.name
                     : "ไม่ระบุ",
@@ -161,17 +161,25 @@ const ManagePage = () => {
       accessor: "index",
       width: "5%",
     },
-    { header: "ลูกสวน", accessor: "farmerId", width: "20%" },
-    { header: "ชื่อผัก", accessor: "vegetableName", width: "15%" },
-    { header: "วันที่สั่งปลูก", accessor: "orderDate", width: "12%" },
+    { header: "ลูกสวน", accessor: "farmerId", width: "15%" },
+    { header: "ชื่อผัก", accessor: "vegetableName", width: "10%" },
+    { header: "ผู้รับซื้อ", accessor: "buyerName", width: "15%" },
+    { header: "วันที่สั่งปลูก", accessor: "orderDate", width: "10%" },
     { header: "จำนวนที่สั่ง (กก.)", accessor: "quantityOrdered", width: "10%" },
-    { header: "วันที่ส่งผลิต", accessor: "deliveryDate", width: "12%" },
+    { header: "วันที่ส่งผลิต", accessor: "deliveryDate", width: "10%" },
     {
       header: "จำนวนที่ส่ง (กก.)",
       accessor: "quantityDelivered",
       width: "10%",
     },
-    { header: "สถานะ", accessor: "status", width: "10%" },
+    {
+      header: "สถานะ",
+      accessor: "status",
+      width: "10%",
+      Cell: ({ value }) => (
+        <span>{value === "Pending" ? "รอดำเนินการ" : "เสร็จสิ้น"}</span>
+      ),
+    },
     {
       header: "จัดการข้อมูล",
       accessor: "actions",
@@ -390,8 +398,8 @@ const ManagePage = () => {
                 }
                 className="w-full px-3 py-2 border rounded"
               >
-                <option value="Pending">Pending</option>
-                <option value="Complete">Complete</option>
+                <option value="Pending">รอดำเนินการ</option>
+                <option value="Complete">เสร็จสิ้น</option>
               </select>
             </div>
             <div className="flex justify-end gap-2">
@@ -517,6 +525,12 @@ const ManagePage = () => {
                   </th>
                   <th
                     scope="col"
+                    className="px-6 py-4 font-bold text-gray-600 w-[150px]"
+                  >
+                    ผู้รับซื้อ
+                  </th>
+                  <th
+                    scope="col"
                     className="px-6 py-4 font-bold text-gray-600 w-[120px]"
                   >
                     วันที่สั่งปลูก
@@ -565,6 +579,9 @@ const ManagePage = () => {
                     <td className="px-6 py-4 text-gray-600">{item.farmerId}</td>
                     <td className="px-6 py-4 text-gray-600">
                       {item.vegetableName}
+                    </td>
+                    <td className="px-6 py-4 text-gray-600">
+                      {item.buyerName}
                     </td>
                     <td className="px-6 py-4 text-gray-600">
                       {item.orderDate}

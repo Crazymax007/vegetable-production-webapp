@@ -160,13 +160,26 @@ const PlantManagement = () => {
       setEditingPlant(null);
     } catch (error) {
       console.error("Error:", error);
-      await Swal.fire({
-        icon: "error",
-        title: "เกิดข้อผิดพลาด!",
-        text:
-          error.response?.data?.message ||
-          "ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง",
-      });
+
+      // ตรวจสอบ error message จาก backend
+      const errorMessage = error.message;
+      console.log(errorMessage);
+      // จัดการ error message ตามประเภท
+      switch (errorMessage) {
+        case "Vegetable already exists":
+          await Swal.fire({
+            icon: "error",
+            title: "เกิดข้อผิดพลาด!",
+            text: "มีชื่อผักนี้ในระบบแล้ว กรุณาใช้ชื่ออื่น",
+          });
+          break;
+        default:
+          await Swal.fire({
+            icon: "error",
+            title: "เกิดข้อผิดพลาด!",
+            text: "ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง",
+          });
+      }
     }
   };
 

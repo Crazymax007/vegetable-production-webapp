@@ -6,12 +6,20 @@ import { FooterComponent } from "../../components/FooterComponent";
 
 const PlanPage = () => {
   const [selectedComponent, setSelectedComponent] = useState("plantOrder");
+  const [selectedVegetable, setSelectedVegetable] = useState(null);
+
+  const handleVegetableSelect = (vegetable) => {
+    setSelectedVegetable(vegetable);
+  };
 
   return (
     <div>
       <div className="flex flex-col mx-20 my-6">
         {/* ทำนาย */}
-        <PredictComponent />
+        <PredictComponent 
+          onVegetableSelect={handleVegetableSelect}
+          selectedVegetable={selectedVegetable}
+        />
         {/* สั่งปลูก */}
         <div className="flex flex-col">
           <div className="flex gap-3 m-4">
@@ -38,13 +46,18 @@ const PlanPage = () => {
           </div>
 
           {/* แสดง Component ตามปุ่มที่กด */}
-          {selectedComponent === "plantOrder" && <PlantOrderComponent />}
+          {selectedComponent === "plantOrder" && (
+            <PlantOrderComponent 
+              selectedVegetable={selectedVegetable}
+              onVegetableSelect={handleVegetableSelect}
+            />
+          )}
           {selectedComponent === "productDelivery" && (
             <ProductDeliveryComponent />
           )}
         </div>
       </div>
-        <FooterComponent />
+      {/* <FooterComponent /> */}
     </div>
   );
 };

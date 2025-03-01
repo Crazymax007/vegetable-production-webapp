@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Autocomplete, TextField, CircularProgress } from "@mui/material";
 import { getVegetables } from "../services/vegatableService";
 import { getFarmers } from "../services/farmerService";
+import { getBuyers } from "../services/buyerService";
 import { createOrder } from "../services/orderService";
 import Swal from "sweetalert2"; // นำเข้า SweetAlert2
 import { DatePicker } from "@mui/x-date-pickers"; // ใช้ MUI DatePicker
@@ -11,10 +12,10 @@ import { th } from "date-fns/locale";
 import { format } from "date-fns";
 import "../pages/planPage/PlanPage.css";
 
-const PlantOrderComponent = () => {
-  const [vegetable, setVegetable] = useState(null);
+const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
   const [vegetableList, setVegetableList] = useState([]);
   const [farmerList, setFarmerList] = useState([]);
+  const [buyerList, setBuyerList] = useState([]);
   const [selectedReceiver, setSelectedReceiver] = useState(null);
   const [selectedFarmers, setSelectedFarmers] = useState([
     { farmer: null, amount: "" },
@@ -46,9 +47,22 @@ const PlantOrderComponent = () => {
     }
   };
 
+  const fetchBuyers = async () => {
+    setLoading(true);
+    try {
+      const response = await getBuyers();
+      setBuyerList(response.data);
+    } catch (error) {
+      console.error("Failed to fetch buyers:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchVegetables();
     fetchFarmers();
+    fetchBuyers();
   }, []);
 
   const handleAddFarmer = () => {
@@ -76,15 +90,8 @@ const PlantOrderComponent = () => {
     }
   };
 
-  const receivers = [
-    { id: 1, name: "โลตัส" },
-    { id: 2, name: "แม็คโคร" },
-    { id: 3, name: "บิ๊กซี" },
-    { id: 4, name: "ท็อปส์" },
-  ];
-
   const handleSave = async () => {
-    if (!vegetable) {
+    if (!selectedVegetable) {
       return Swal.fire("ผิดพลาด", "กรุณาเลือกผัก", "error");
     }
 
@@ -111,8 +118,8 @@ const PlantOrderComponent = () => {
 
     const orderData = {
       orderDate: formattedDate,
-      vegetableId: vegetable?._id,
-      receiverId: selectedReceiver.id,
+      vegetableId: selectedVegetable?._id,
+      buyerId: selectedReceiver._id,
       details: selectedFarmers.map((farmer) => ({
         farmerId: farmer.farmer?._id,
         quantityKg: farmer.amount,
@@ -133,7 +140,6 @@ const PlantOrderComponent = () => {
         const response = await createOrder(orderData);
         Swal.fire("สำเร็จ!", "ข้อมูลการบันทึกสำเร็จ.", "success");
 
-        setVegetable(null);
         setSelectedFarmers([{ farmer: null, amount: "" }]);
         setSelectedDate(null);
       } catch (error) {
@@ -154,8 +160,10 @@ const PlantOrderComponent = () => {
               <Autocomplete
                 options={vegetableList}
                 getOptionLabel={(option) => option.name}
-                value={vegetable}
-                onChange={(event, newValue) => setVegetable(newValue)}
+                value={selectedVegetable}
+                onChange={(event, newValue) => {
+                  onVegetableSelect(newValue);
+                }}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -178,16 +186,16 @@ const PlantOrderComponent = () => {
               />
             </div>
             <div className="flex items-center space-x-2 w-[35%]">
-              <span className="text-lg whitespace-nowrap">ส่งให้:</span>
+              <span className="text-lg whitespace-nowrap">ผู้รับซื้อ:</span>
               <Autocomplete
-                options={receivers}
+                options={buyerList}
                 getOptionLabel={(option) => option.name}
                 value={selectedReceiver}
                 onChange={(event, newValue) => setSelectedReceiver(newValue)}
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="เลือกผู้รับ"
+                    label="เลือกผู้รับซื้อ"
                     variant="outlined"
                     size="small"
                     className="bg-white rounded-lg"
@@ -198,7 +206,11 @@ const PlantOrderComponent = () => {
                   />
                 )}
                 className="w-full rounded-lg"
+                loading={loading}
                 disableClearable
+                noOptionsText={
+                  loading ? <CircularProgress size={24} /> : "ไม่พบผู้รับซื้อ"
+                }
               />
             </div>
             <div className="flex items-center space-x-2 w-[33%]">
@@ -234,7 +246,9 @@ const PlantOrderComponent = () => {
               key={index}
               className="flex items-center justify-center space-x-4"
             >
-              <span className="whitespace-nowrap">ลูกสวนคนที่ {index + 1}: </span>
+              <span className="whitespace-nowrap">
+                ลูกสวนคนที่ {index + 1}:{" "}
+              </span>
               <Autocomplete
                 options={farmerList}
                 getOptionLabel={(option) =>
