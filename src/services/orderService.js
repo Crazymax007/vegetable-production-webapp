@@ -1,4 +1,5 @@
 import api from "./api";
+import axios from "axios";
 
 // 📌 เรียกดู top 3s
 export const getTopVegetables = async (farmerId) => {
@@ -93,6 +94,16 @@ export const deleteOrderDetail = async (orderId, detailId) => {
     return response;
   } catch (error) {
     console.error("Failed to delete order detail:", error);
+    throw error;
+  }
+};
+
+export const getDashboardOrder = async () => {
+  try {
+    const response = await api.delete(`/ordersBoard`);
+    return response;
+  } catch (error) {
+    console.error("Failed to get ordersBoard:", error);
     throw error;
   }
 };
