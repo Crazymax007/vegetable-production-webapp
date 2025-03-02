@@ -21,6 +21,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
     { farmer: null, amount: "" },
   ]);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [dueDate, setDueDate] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const fetchVegetables = async () => {
@@ -116,8 +117,14 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
     const currentDate = selectedDate || new Date();
     const formattedDate = format(currentDate, "yyyy-MM-dd");
 
+    if (!dueDate) {
+      return Swal.fire("ผิดพลาด", "กรุณาเลือกวันที่กำหนดส่ง", "error");
+    }
+    const formattedDueDate = format(dueDate, "yyyy-MM-dd");
+
     const orderData = {
       orderDate: formattedDate,
+      dueDate: formattedDueDate,
       vegetableId: selectedVegetable?._id,
       buyerId: selectedReceiver._id,
       details: selectedFarmers.map((farmer) => ({
@@ -142,6 +149,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
 
         setSelectedFarmers([{ farmer: null, amount: "" }]);
         setSelectedDate(null);
+        setDueDate(null);
       } catch (error) {
         console.error("Error creating order:", error);
         Swal.fire("เกิดข้อผิดพลาด!", "ไม่สามารถบันทึกข้อมูลได้.", "error");
@@ -155,7 +163,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
       <div className="flex flex-col">
         <div className="flex justify-between mx-[5%] mb-6 ">
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 w-[33%]">
+            <div className="flex items-center space-x-2 w-[30%] ">
               <span className="text-lg whitespace-nowrap">ผัก:</span>
               <Autocomplete
                 options={vegetableList}
@@ -214,7 +222,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
               />
             </div>
             <div className="flex items-center space-x-2 w-[33%]">
-              <span className="whitespace-nowrap">วันที่: </span>
+              <span className="whitespace-nowrap text-lg">วันที่สั่ง: </span>
               <LocalizationProvider dateAdapter={AdapterDateFns} locale={th}>
                 <DatePicker
                   value={selectedDate}
@@ -225,7 +233,26 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
                       {...params}
                       variant="outlined"
                       size="small"
-                      className="  h-10"
+                      className="h-10"
+                    />
+                  )}
+                  format="dd/MM/yyyy"
+                />
+              </LocalizationProvider>
+            </div>
+            <div className="flex items-center space-x-2 w-[40%]">
+              <span className="whitespace-nowrap text-lg">กำหนดส่ง: </span>
+              <LocalizationProvider dateAdapter={AdapterDateFns} locale={th}>
+                <DatePicker
+                  value={dueDate}
+                  onChange={(newValue) => setDueDate(newValue)}
+                  className="bg-white rounded-lg h-10 text-center"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      size="small"
+                      className="h-10"
                     />
                   )}
                   format="dd/MM/yyyy"

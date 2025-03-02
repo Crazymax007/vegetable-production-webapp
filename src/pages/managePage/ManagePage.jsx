@@ -8,6 +8,13 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Swal from "sweetalert2";
 
+// เพิ่มตัวแปรสำหรับตัวเลือกสถานะ
+const STATUS_OPTIONS = [
+  { value: '', label: '--' },
+  { value: 'Pending', label: 'รอดำเนินการ' },
+  { value: 'Complete', label: 'เสร็จสิ้น' }
+];
+
 const ManagePage = () => {
   const [data, setData] = useState([]);
   const [searchFarmer, setSearchFarmer] = useState(""); // คำค้นหาลูกสวน
@@ -78,6 +85,9 @@ const ManagePage = () => {
                   orderDate: order.orderDate
                     ? new Date(order.orderDate).toLocaleDateString()
                     : "--",
+                  dueDate: order.dueDate
+                    ? new Date(order.dueDate).toLocaleDateString()
+                    : "--",
                   quantityOrdered: detail.quantityKg || 0,
                   deliveryDate:
                     detail.delivery && detail.delivery.deliveredDate
@@ -108,7 +118,7 @@ const ManagePage = () => {
       });
   }, []);
 
-  // ฟังก์ชันกรองข้อมูล
+  // แก้ไขฟังก์ชัน filteredData ให้ตรวจสอบสถานะตามค่าที่เลือก
   const filteredData = data.filter((item) => {
     if (!item) return false;
     return (
@@ -128,7 +138,8 @@ const ManagePage = () => {
       (item.quantityDelivered || "")
         .toString()
         .includes(searchQuantityDelivered) &&
-      (item.status || "").toLowerCase().includes(searchStatus.toLowerCase())
+      // แก้ไขการกรองสถานะ
+      (searchStatus === "" || item.status === searchStatus)
     );
   });
 
@@ -155,6 +166,18 @@ const ManagePage = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = sortedData.slice(indexOfFirstItem, indexOfLastItem);
 
+  // เพิ่มฟังก์ชันแปลงสถานะเป็นภาษาไทย
+  const getStatusThai = (status) => {
+    switch (status) {
+      case 'Pending':
+        return 'รอดำเนินการ';
+      case 'Complete':
+        return 'เสร็จสิ้น';
+      default:
+        return status;
+    }
+  };
+
   const columns = [
     {
       header: "ลำดับ",
@@ -165,6 +188,7 @@ const ManagePage = () => {
     { header: "ชื่อผัก", accessor: "vegetableName", width: "10%" },
     { header: "ผู้รับซื้อ", accessor: "buyerName", width: "15%" },
     { header: "วันที่สั่งปลูก", accessor: "orderDate", width: "10%" },
+    { header: "วันที่กำหนดส่ง", accessor: "dueDate", width: "10%" },
     { header: "จำนวนที่สั่ง (กก.)", accessor: "quantityOrdered", width: "10%" },
     { header: "วันที่ส่งผลิต", accessor: "deliveryDate", width: "10%" },
     {
@@ -177,7 +201,7 @@ const ManagePage = () => {
       accessor: "status",
       width: "10%",
       Cell: ({ value }) => (
-        <span>{value === "Pending" ? "รอดำเนินการ" : "เสร็จสิ้น"}</span>
+        <span>{getStatusThai(value)}</span>
       ),
     },
     {
@@ -467,13 +491,18 @@ const ManagePage = () => {
           value={tempSearch.quantityDelivered}
           onChange={(e) => handleSearch("quantityDelivered", e.target.value)}
         />
-        <input
-          type="text"
-          placeholder="ค้นหาสถานะ"
-          className="px-4 py-2 border rounded-lg"
+        <select
           value={tempSearch.status}
           onChange={(e) => handleSearch("status", e.target.value)}
-        />
+          className="px-4 py-2 border rounded-lg bg-white text-gray-600"
+        >
+          <option value="" disabled hidden>สถานะ</option>
+          {STATUS_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
         <button
           onClick={handleSubmitSearch}
           className="px-6 py-2 bg-Green-button text-white rounded-lg hover:bg-green-600 transition-colors"
@@ -525,7 +554,7 @@ const ManagePage = () => {
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[150px]"
+                    className="px-6 py-4 font-bold text-gray-600 w-[100px]"
                   >
                     ผู้รับซื้อ
                   </th>
@@ -534,6 +563,12 @@ const ManagePage = () => {
                     className="px-6 py-4 font-bold text-gray-600 w-[120px]"
                   >
                     วันที่สั่งปลูก
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-4 font-bold text-gray-600 w-[120px]"
+                  >
+                    วันที่กำหนดส่ง
                   </th>
                   <th
                     scope="col"
@@ -549,13 +584,7 @@ const ManagePage = () => {
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[120px]"
-                  >
-                    จำนวนที่ส่ง (กก.)
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[100px]"
+                    className="px-6 py-4 font-bold text-gray-600 w-[150px]"
                   >
                     สถานะ
                   </th>
@@ -587,15 +616,17 @@ const ManagePage = () => {
                       {item.orderDate}
                     </td>
                     <td className="px-6 py-4 text-gray-600">
+                      {item.dueDate}
+                    </td>
+                    <td className="px-6 py-4 text-gray-600">
                       {item.quantityOrdered}
                     </td>
                     <td className="px-6 py-4 text-gray-600">
                       {item.deliveryDate}
                     </td>
                     <td className="px-6 py-4 text-gray-600">
-                      {item.quantityDelivered}
+                      {getStatusThai(item.status)}
                     </td>
-                    <td className="px-6 py-4 text-gray-600">{item.status}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-2">
                         <button

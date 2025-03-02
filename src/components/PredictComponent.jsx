@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Autocomplete, TextField, CircularProgress } from "@mui/material";
-import { predictOrder, checkAvailableFarmers } from "../services/predictService";
+import {
+  predictOrder,
+  checkAvailableFarmers,
+} from "../services/predictService";
 import { getVegetables } from "../services/vegatableService";
 
 const PredictComponent = ({ onVegetableSelect, selectedVegetable }) => {
@@ -37,12 +40,16 @@ const PredictComponent = ({ onVegetableSelect, selectedVegetable }) => {
     }
   };
 
-  const checkAvailableFarmersForSelectedVegetable = async (selectedVegetable) => {
+  const checkAvailableFarmersForSelectedVegetable = async (
+    selectedVegetable
+  ) => {
     if (!selectedVegetable) return;
     setIsLoading(true); // Start loading state
 
     try {
-      const response = await checkAvailableFarmers({ plant: selectedVegetable.name });
+      const response = await checkAvailableFarmers({
+        plant: selectedVegetable.name,
+      });
       setAvailableFarmers(response.data.availableFarmers);
       setIsFarmersChecked(true);
     } catch (error) {
@@ -87,11 +94,13 @@ const PredictComponent = ({ onVegetableSelect, selectedVegetable }) => {
             )}
             loading={vegetableList.length === 0}
             disableClearable
-            noOptionsText={vegetableList.length === 0 ? (
-              <CircularProgress size={24} />
-            ) : (
-              "ไม่พบผัก"
-            )}
+            noOptionsText={
+              vegetableList.length === 0 ? (
+                <CircularProgress size={24} />
+              ) : (
+                "ไม่พบผัก"
+              )
+            }
           />
         </div>
 
@@ -111,7 +120,9 @@ const PredictComponent = ({ onVegetableSelect, selectedVegetable }) => {
             </div>
 
             <div className="flex items-center min-w-[220px]">
-              <span className="text-lg mr-2">จำนวนคน (สูงสุด: {availableFarmers}):</span>
+              <span className="text-lg mr-2">
+                จำนวนคน (สูงสุด: {availableFarmers}):
+              </span>
               <TextField
                 type="number"
                 value={numFarmers}
