@@ -10,9 +10,9 @@ import Swal from "sweetalert2";
 
 // เพิ่มตัวแปรสำหรับตัวเลือกสถานะ
 const STATUS_OPTIONS = [
-  { value: '', label: '--' },
-  { value: 'Pending', label: 'รอดำเนินการ' },
-  { value: 'Complete', label: 'เสร็จสิ้น' }
+  { value: "", label: "--" },
+  { value: "Pending", label: "รอดำเนินการ" },
+  { value: "Complete", label: "เสร็จสิ้น" },
 ];
 
 const ManagePage = () => {
@@ -169,10 +169,10 @@ const ManagePage = () => {
   // เพิ่มฟังก์ชันแปลงสถานะเป็นภาษาไทย
   const getStatusThai = (status) => {
     switch (status) {
-      case 'Pending':
-        return 'รอดำเนินการ';
-      case 'Complete':
-        return 'เสร็จสิ้น';
+      case "Pending":
+        return "รอดำเนินการ";
+      case "Complete":
+        return "เสร็จสิ้น";
       default:
         return status;
     }
@@ -200,9 +200,7 @@ const ManagePage = () => {
       header: "สถานะ",
       accessor: "status",
       width: "10%",
-      Cell: ({ value }) => (
-        <span>{getStatusThai(value)}</span>
-      ),
+      Cell: ({ value }) => <span>{getStatusThai(value)}</span>,
     },
     {
       header: "จัดการข้อมูล",
@@ -496,7 +494,9 @@ const ManagePage = () => {
           onChange={(e) => handleSearch("status", e.target.value)}
           className="px-4 py-2 border rounded-lg bg-white text-gray-600"
         >
-          <option value="" disabled hidden>สถานะ</option>
+          <option value="" disabled hidden>
+            สถานะ
+          </option>
           {STATUS_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
@@ -584,6 +584,12 @@ const ManagePage = () => {
                   </th>
                   <th
                     scope="col"
+                    className="px-6 py-4 font-bold text-gray-600 w-[120px]"
+                  >
+                    จำนวนที่ส่ง (กก.)
+                  </th>
+                  <th
+                    scope="col"
                     className="px-6 py-4 font-bold text-gray-600 w-[150px]"
                   >
                     สถานะ
@@ -615,14 +621,15 @@ const ManagePage = () => {
                     <td className="px-6 py-4 text-gray-600">
                       {item.orderDate}
                     </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {item.dueDate}
-                    </td>
+                    <td className="px-6 py-4 text-gray-600">{item.dueDate}</td>
                     <td className="px-6 py-4 text-gray-600">
                       {item.quantityOrdered}
                     </td>
                     <td className="px-6 py-4 text-gray-600">
                       {item.deliveryDate}
+                    </td>
+                    <td className="px-6 py-4 text-gray-600">
+                      {item.quantityDelivered}
                     </td>
                     <td className="px-6 py-4 text-gray-600">
                       {getStatusThai(item.status)}
