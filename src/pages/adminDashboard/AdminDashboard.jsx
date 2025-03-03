@@ -176,14 +176,23 @@ const AdminDashboard = () => {
     }
 
     // กรองตามวันที่
-    if (startDate && endDate) {
+    if (startDate) {
       filtered = filtered.filter((order) => {
         if (order.harvestDate === "--") return false;
+
+        // แปลงวันที่จาก DD/MM/YYYY เป็น Date object
         const orderDate = new Date(
           order.harvestDate.split("/").reverse().join("-")
         );
         const start = new Date(startDate);
-        const end = new Date(endDate);
+        // ถ้ามีวันที่สิ้นสุด ใช้วันที่สิ้นสุด ถ้าไม่มีใช้วันปัจจุบัน
+        const end = endDate ? new Date(endDate) : new Date();
+
+        // ตั้งเวลาให้เป็นเที่ยงคืนของวันนั้นๆ
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        orderDate.setHours(0, 0, 0, 0);
+
         return orderDate >= start && orderDate <= end;
       });
     }
@@ -202,32 +211,49 @@ const AdminDashboard = () => {
       return acc;
     }, {});
 
+    // กำหนดสีที่ไม่ซ้ำกัน
+    const colors = [
+      "#FF6384", // สีชมพู
+      "#36A2EB", // สีฟ้า
+      "#FFCE56", // สีเหลือง
+      "#4BC0C0", // สีเขียวมิ้นท์
+      "#FF9F40", // สีส้ม
+      "#9966FF", // สีม่วง
+      "#FF6384", // สีชมพูเข้ม
+      "#C9CBCF", // สีเทา
+      "#4D5360", // สีเทาเข้ม
+      "#FF99CC", // สีชมพูอ่อน
+      "#99CCFF", // สีฟ้าอ่อน
+      "#FFB366", // สีส้มอ่อน
+      "#99FF99", // สีเขียวอ่อน
+      "#FF99CC", // สีชมพูอ่อน
+      "#CC99FF", // สีม่วงอ่อน
+    ];
+
+    // ตรวจสอบว่ามีการเลือกผักหรือไม่
+    const selectedVegIds = Object.entries(selectedVegetables)
+      .filter(([_, isSelected]) => isSelected)
+      .map(([id]) => id);
+
+    // คำนวณเปอร์เซ็นต์ถ้ามีการเลือกผัก
+    const total = Object.values(vegGroups).reduce((a, b) => a + b, 0);
+    const labels = Object.keys(vegGroups).map((label, index) => {
+      if (selectedVegIds.length > 0) {
+        const value = Object.values(vegGroups)[index];
+        const percentage = ((value / total) * 100).toFixed(1);
+        return `${label} (${value} กก. ${percentage}%)`;
+      }
+      return label;
+    });
+
     // อัพเดทข้อมูล Pie Chart
     setPieData({
-      labels: Object.keys(vegGroups),
+      labels: labels,
       datasets: [
         {
           data: Object.values(vegGroups),
-          backgroundColor: [
-            "#FF6384",
-            "#36A2EB",
-            "#FFCE56",
-            "#4BC0C0",
-            "#FF9F40",
-            "#FF6384",
-            "#4BC0C0",
-            "#FFCE56",
-          ],
-          hoverBackgroundColor: [
-            "#FF6384",
-            "#36A2EB",
-            "#FFCE56",
-            "#4BC0C0",
-            "#FF9F40",
-            "#FF6384",
-            "#4BC0C0",
-            "#FFCE56",
-          ],
+          backgroundColor: colors.slice(0, Object.keys(vegGroups).length),
+          hoverBackgroundColor: colors.slice(0, Object.keys(vegGroups).length),
         },
       ],
     });
@@ -256,12 +282,12 @@ const AdminDashboard = () => {
           padding: 15,
           font: {
             size: 12,
-          }
+          },
         },
         display: true,
-        overflow: 'scroll',
-        maxHeight: 350
-      }
+        overflow: "scroll",
+        maxHeight: 350,
+      },
     },
     layout: {
       padding: {
@@ -278,10 +304,16 @@ const AdminDashboard = () => {
   const calculateTotalKilograms = () => {
     if (filteredOrders.length === 0) {
       // ถ้าไม่มีการกรอง ให้คำนวณจากทั้งหมด
-      return orders.reduce((total, order) => total + order.quantityDelivered, 0);
+      return orders.reduce(
+        (total, order) => total + order.quantityDelivered,
+        0
+      );
     }
     // ถ้ามีการกรอง ให้คำนวณจากข้อมูลที่กรองแล้ว
-    return filteredOrders.reduce((total, order) => total + order.quantityDelivered, 0);
+    return filteredOrders.reduce(
+      (total, order) => total + order.quantityDelivered,
+      0
+    );
   };
 
   return (
@@ -356,7 +388,7 @@ const AdminDashboard = () => {
             </div>
             <div className="bg-white flex w-1/3 flex-col gap-2 items-center p-2 rounded-lg border border-black">
               <span>จำนวนกิโลกรัม</span>
-              <span>{calculateTotalKilograms().toLocaleString('th-TH')}</span>
+              <span>{calculateTotalKilograms().toLocaleString("th-TH")}</span>
             </div>
           </div>
           <div
@@ -368,8 +400,8 @@ const AdminDashboard = () => {
         </div>
       </div>
       {/* ตาราง 💻 */}
-      <div className="flex flex-col items-center gap-4 bg-white rounded-lg border border-black">
-        <div className="w-full">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-full bg-white border border-black ">
           <div className="overflow-x-auto">
             <div className="overflow-hidden rounded-lg">
               <table className="w-full text-sm text-left">
@@ -388,7 +420,7 @@ const AdminDashboard = () => {
                       จำนวนส่งจริง (กก.)
                     </th>
                     <th className="px-6 py-4 font-bold text-gray-600 w-[200px]">
-                      วันที่เก็บเกี่ยว
+                      วันที่
                     </th>
                   </tr>
                 </thead>
