@@ -316,6 +316,43 @@ const AdminDashboard = () => {
     );
   };
 
+  // เพิ่มฟังก์ชันสำหรับนำออกข้อมูล CSV
+  const exportToCSV = () => {
+    // กำหนดข้อมูลที่จะนำออก
+    const dataToExport = filteredOrders.length > 0 ? filteredOrders : orders;
+    
+    // สร้างหัวข้อ CSV
+    const headers = ['ลำดับ', 'ชื่อผัก', 'จำนวนสั่ง (กก.)', 'จำนวนส่งจริง (กก.)', 'วันที่'];
+    
+    // แปลงข้อมูลเป็นรูปแบบ CSV
+    const csvContent = [
+      headers.join(','),
+      ...dataToExport.map((item, index) => [
+        index + 1,
+        item.vegetableName,
+        item.quantityOrdered,
+        item.quantityDelivered,
+        item.harvestDate
+      ].join(','))
+    ].join('\n');
+
+    // สร้าง Blob และดาวน์โหลดไฟล์
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    // สร้างชื่อไฟล์ตามวันที่ปัจจุบัน
+    const today = new Date().toISOString().split('T')[0];
+    const fileName = `รายงานการส่งผลผลิต_${today}.csv`;
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', fileName);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="flex flex-col gap-4 p-4">
       <div className="flex flex-row gap-4">
@@ -400,8 +437,16 @@ const AdminDashboard = () => {
         </div>
       </div>
       {/* ตาราง 💻 */}
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-full bg-white border border-black ">
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-end">
+          <button 
+            onClick={exportToCSV}
+            className="px-4 py-2 text-sm text-white bg-Green-button rounded-lg hover:bg-green-600"
+          >
+            นำออกข้อมูล CSV
+          </button>
+        </div>
+        <div className="w-full bg-white border border-black rounded-lg">
           <div className="overflow-x-auto">
             <div className="overflow-hidden rounded-lg">
               <table className="w-full text-sm text-left">
