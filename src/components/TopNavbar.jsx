@@ -70,7 +70,7 @@ const TopNavbar = () => {
                     alt=""
                   />
                 </div>
-                <span className="px-5 text-base">วางแผน</span>
+                <span className="px-5 text-base">วางแผนการปลูกผัก</span>
               </div>
             </a>
           )}

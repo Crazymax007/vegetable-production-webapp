@@ -34,7 +34,11 @@ const PredictComponent = ({ onVegetableSelect, selectedVegetable }) => {
   const fetchVegetables = async () => {
     try {
       const response = await getVegetables();
-      setVegetableList(response.data);
+      const sortedVegetables = response.data.sort((a, b) => {
+        // เปรียบเทียบชื่อผักโดยใช้ localeCompare สำหรับภาษาไทย
+        return a.name.localeCompare(b.name, "th");
+      });
+      setVegetableList(sortedVegetables);
     } catch (error) {
       console.error("Failed to fetch vegetables:", error);
     }

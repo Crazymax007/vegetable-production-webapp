@@ -180,20 +180,24 @@ const AdminDashboard = () => {
       filtered = filtered.filter((order) => {
         if (order.harvestDate === "--") return false;
 
-        // แปลงวันที่จาก DD/MM/YYYY เป็น Date object
-        const orderDate = new Date(
-          order.harvestDate.split("/").reverse().join("-")
-        );
-        const start = new Date(startDate);
-        // ถ้ามีวันที่สิ้นสุด ใช้วันที่สิ้นสุด ถ้าไม่มีใช้วันปัจจุบัน
-        const end = endDate ? new Date(endDate) : new Date();
+        try {
+          // แปลงวันที่จากฐานข้อมูลให้เป็นรูปแบบที่ถูกต้อง
+          const [day, month, year] = order.harvestDate.split('/');
+          const orderDate = new Date(parseInt(year) - 543, parseInt(month) - 1, parseInt(day));
+          
+          const start = new Date(startDate);
+          const end = endDate ? new Date(endDate) : new Date();
 
-        // ตั้งเวลาให้เป็นเที่ยงคืนของวันนั้นๆ
-        start.setHours(0, 0, 0, 0);
-        end.setHours(23, 59, 59, 999);
-        orderDate.setHours(0, 0, 0, 0);
+          // ตั้งเวลาให้เป็นเที่ยงคืนของวันนั้นๆ
+          start.setHours(0, 0, 0, 0);
+          end.setHours(23, 59, 59, 999);
+          orderDate.setHours(0, 0, 0, 0);
 
-        return orderDate >= start && orderDate <= end;
+          return orderDate >= start && orderDate <= end;
+        } catch (error) {
+          console.error("Date parsing error:", error);
+          return false;
+        }
       });
     }
 
@@ -320,34 +324,42 @@ const AdminDashboard = () => {
   const exportToCSV = () => {
     // กำหนดข้อมูลที่จะนำออก
     const dataToExport = filteredOrders.length > 0 ? filteredOrders : orders;
-    
+
     // สร้างหัวข้อ CSV
-    const headers = ['ลำดับ', 'ชื่อผัก', 'จำนวนสั่ง (กก.)', 'จำนวนส่งจริง (กก.)', 'วันที่'];
-    
+    const headers = [
+      "ลำดับ",
+      "ชื่อผัก",
+      "จำนวนสั่ง (กก.)",
+      "จำนวนส่งจริง (กก.)",
+      "วันที่",
+    ];
+
     // แปลงข้อมูลเป็นรูปแบบ CSV
     const csvContent = [
-      headers.join(','),
-      ...dataToExport.map((item, index) => [
-        index + 1,
-        item.vegetableName,
-        item.quantityOrdered,
-        item.quantityDelivered,
-        item.harvestDate
-      ].join(','))
-    ].join('\n');
+      headers.join(","),
+      ...dataToExport.map((item, index) =>
+        [
+          index + 1,
+          item.vegetableName,
+          item.quantityOrdered,
+          item.quantityDelivered,
+          item.harvestDate,
+        ].join(",")
+      ),
+    ].join("\n");
 
     // สร้าง Blob และดาวน์โหลดไฟล์
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
-    
+
     // สร้างชื่อไฟล์ตามวันที่ปัจจุบัน
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
     const fileName = `รายงานการส่งผลผลิต_${today}.csv`;
-    
-    link.setAttribute('href', url);
-    link.setAttribute('download', fileName);
-    link.style.visibility = 'hidden';
+
+    link.setAttribute("href", url);
+    link.setAttribute("download", fileName);
+    link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -439,7 +451,7 @@ const AdminDashboard = () => {
       {/* ตาราง 💻 */}
       <div className="flex flex-col gap-2">
         <div className="flex justify-end">
-          <button 
+          <button
             onClick={exportToCSV}
             className="px-4 py-2 text-sm text-white bg-Green-button rounded-lg hover:bg-green-600"
           >

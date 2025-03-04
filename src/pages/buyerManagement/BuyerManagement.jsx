@@ -254,7 +254,6 @@ const BuyerManagement = () => {
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
                   placeholder="เบอร์โทรศัพท์หรืออีเมล"
-                  required
                 />
               </div>
 
@@ -319,7 +318,7 @@ const BuyerManagement = () => {
                       {indexOfFirstBuyer + index + 1}
                     </td>
                     <td className="px-6 py-4 text-gray-600">{buyer.name}</td>
-                    <td className="px-6 py-4 text-gray-600">{buyer.contact}</td>
+                    <td className="px-6 py-4 text-gray-600">{buyer.contact ? buyer.contact : "-"}</td>
                     <td className="px-6 py-4 text-gray-600">
                       {convertToBuddhistYear(buyer.createdAt)}
                     </td>

@@ -28,7 +28,12 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
     setLoading(true);
     try {
       const response = await getVegetables();
-      setVegetableList(response.data);
+      // เรียงลำดับผักตามตัวอักษร
+      const sortedVegetables = response.data.sort((a, b) => {
+        // เปรียบเทียบชื่อผักโดยใช้ localeCompare สำหรับภาษาไทย
+        return a.name.localeCompare(b.name, 'th');
+      });
+      setVegetableList(sortedVegetables);
     } catch (error) {
       console.error("Failed to fetch vegetables:", error);
     } finally {

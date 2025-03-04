@@ -21,7 +21,10 @@ const ProductDeliveryComponent = () => {
     setLoading(true);
     try {
       const response = await getVegetables();
-      setVegetableList(response.data);
+      const sortedVegetables = response.data.sort((a, b) => {
+        return a.name.localeCompare(b.name, 'th');
+      });
+      setVegetableList(sortedVegetables);
     } catch (error) {
       console.error("Failed to fetch vegetables:", error);
     } finally {
