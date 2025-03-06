@@ -33,7 +33,7 @@ const Login = () => {
 
   return (
     <div className="bg-login">
-      <div className="bg-white w-4/5 h-4/5 rounded-[36px] flex">
+      <div className="bg-white w-4/5 h-4/5 rounded-[36px] flex shadow-lg">
         {/* ส่วนข้อความ (ซ้าย) */}
         <div className="flex-1 flex justify-center items-center">
           <div className="flex flex-col items-center">

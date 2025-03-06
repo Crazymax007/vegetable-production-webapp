@@ -15,14 +15,13 @@ const ProductDeliveryComponent = () => {
   const [deliveryDate, setDeliveryDate] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
 
   const fetchVegetables = async () => {
     setLoading(true);
     try {
       const response = await getVegetables();
       const sortedVegetables = response.data.sort((a, b) => {
-        return a.name.localeCompare(b.name, 'th');
+        return a.name.localeCompare(b.name, "th");
       });
       setVegetableList(sortedVegetables);
     } catch (error) {
@@ -35,12 +34,8 @@ const ProductDeliveryComponent = () => {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const formattedDate = selectedDate
-        ? format(selectedDate, "yyyy-MM-dd")
-        : null;
       const response = await getOrders({
         search: vegetable?._id,
-        orderDate: formattedDate,
         status: "Pending",
       });
       setOrders(response.data.data);
@@ -53,16 +48,15 @@ const ProductDeliveryComponent = () => {
 
   const handleInputChange = (orderIndex, detailIndex, value) => {
     const updatedOrders = [...orders];
-
-    // เปลี่ยนค่าเป็นตัวเลข (parse float เพื่อให้เป็น number)
     updatedOrders[orderIndex].details[detailIndex].delivery.actualKg =
       parseFloat(value);
+    setOrders(updatedOrders);
+  };
 
-    // แปลงวันที่ปัจจุบันให้เป็นฟอร์แมตเดียวกับวันที่สั่งปลูก
-    const today = format(new Date(), "yyyy-MM-dd");
+  const handleDeliveryDateChange = (orderIndex, detailIndex, date) => {
+    const updatedOrders = [...orders];
     updatedOrders[orderIndex].details[detailIndex].delivery.deliveredDate =
-      today;
-
+      format(date, "yyyy-MM-dd");
     setOrders(updatedOrders);
   };
 
@@ -115,7 +109,6 @@ const ProductDeliveryComponent = () => {
         await updateOrder(orders[0]._id, payload);
         Swal.fire("สำเร็จ!", "ข้อมูลการบันทึกสำเร็จ.", "success");
         setOrders([]); // รีเซ็ตค่าหลังจากบันทึกสำเร็จ
-        setSelectedDate(null); // รีเซ็ตค่า selectedDate
       } catch (error) {
         console.error("Error updating order:", error);
         Swal.fire("เกิดข้อผิดพลาด!", "ไม่สามารถบันทึกข้อมูลได้.", "error");
@@ -128,10 +121,10 @@ const ProductDeliveryComponent = () => {
   }, []);
 
   useEffect(() => {
-    if (vegetable || selectedDate) {
+    if (vegetable) {
       fetchOrders();
     }
-  }, [vegetable, selectedDate]);
+  }, [vegetable]);
 
   return (
     <div className="bg-Green-Custom rounded-3xl flex flex-col p-6">
@@ -166,25 +159,6 @@ const ProductDeliveryComponent = () => {
               }
             />
           </div>
-          <div className="flex items-center space-x-2">
-            <span className="text-lg">วันที่สั่งปลูก:</span>
-            <LocalizationProvider dateAdapter={AdapterDateFns} locale={th}>
-              <DatePicker
-                value={selectedDate} // ใช้ค่า selectedDate เป็นค่าปัจจุบัน
-                onChange={(newValue) => setSelectedDate(newValue)}
-                className="bg-white rounded-lg"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    size="small"
-                    className="bg-white rounded-lg"
-                  />
-                )}
-                format="dd/MM/yyyy"
-              />
-            </LocalizationProvider>
-          </div>
         </div>
 
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg mx-[5%] mb-6">
@@ -196,6 +170,7 @@ const ProductDeliveryComponent = () => {
                 <th className="px-6 py-3">ชนิดผัก</th>
                 <th className="px-6 py-3">จำนวนที่สั่ง (กก.)</th>
                 <th className="px-6 py-3">วันที่สั่ง</th>
+                <th className="px-6 py-3">วันที่กำหนด</th>
                 <th className="px-6 py-3">จำนวนที่ส่ง (กก.)</th>
                 <th className="px-6 py-3">วันที่ส่ง</th>
               </tr>
@@ -203,7 +178,7 @@ const ProductDeliveryComponent = () => {
             <tbody>
               {orders.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="text-center bg-white py-4">
+                  <td colSpan="8" className="text-center bg-white py-4">
                     ไม่พบข้อมูล
                   </td>
                 </tr>
@@ -227,6 +202,9 @@ const ProductDeliveryComponent = () => {
                         {new Date(order.orderDate).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4">
+                        {new Date(order.dueDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4">
                         <input
                           type="number"
                           className="border rounded-lg p-1 text-center w-20"
@@ -237,7 +215,35 @@ const ProductDeliveryComponent = () => {
                         />
                       </td>
                       <td className="px-6 py-4">
-                        {new Date().toLocaleDateString("th-TH")}
+                        <LocalizationProvider
+                          dateAdapter={AdapterDateFns}
+                          locale={th}
+                        >
+                          <DatePicker
+                            value={
+                              detail.delivery.deliveredDate
+                                ? new Date(detail.delivery.deliveredDate)
+                                : new Date()
+                            }
+                            onChange={(newValue) =>
+                              handleDeliveryDateChange(
+                                index,
+                                subIndex,
+                                newValue
+                              )
+                            }
+                            className="bg-white rounded-lg"
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                variant="outlined"
+                                size="small"
+                                className="bg-white rounded-lg w-40"
+                              />
+                            )}
+                            format="dd/MM/yyyy"
+                          />
+                        </LocalizationProvider>
                       </td>
                     </tr>
                   ))

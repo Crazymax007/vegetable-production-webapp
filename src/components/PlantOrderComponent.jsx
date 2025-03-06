@@ -31,7 +31,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
       // เรียงลำดับผักตามตัวอักษร
       const sortedVegetables = response.data.sort((a, b) => {
         // เปรียบเทียบชื่อผักโดยใช้ localeCompare สำหรับภาษาไทย
-        return a.name.localeCompare(b.name, 'th');
+        return a.name.localeCompare(b.name, "th");
       });
       setVegetableList(sortedVegetables);
     } catch (error) {
@@ -70,6 +70,12 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
     fetchFarmers();
     fetchBuyers();
   }, []);
+
+  const getAvailableFarmers = (index) => {
+    return farmerList.filter((farmer) => {
+      return !selectedFarmers.some((selected) => selected.farmer?._id === farmer._id && selected !== selectedFarmers[index]);
+    });
+  };
 
   const handleAddFarmer = () => {
     setSelectedFarmers([...selectedFarmers, { farmer: null, amount: "" }]);
@@ -261,6 +267,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
                     />
                   )}
                   format="dd/MM/yyyy"
+                  minDate={selectedDate} // กำหนดวันที่ที่เลือกได้ไม่ให้ก่อน selectedDate
                 />
               </LocalizationProvider>
             </div>
@@ -282,7 +289,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
                 ลูกสวนคนที่ {index + 1}:{" "}
               </span>
               <Autocomplete
-                options={farmerList}
+                options={getAvailableFarmers(index)}
                 getOptionLabel={(option) =>
                   `${option.firstName} ${option.lastName} (${option.nickname})`
                 }
