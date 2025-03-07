@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Autocomplete, TextField, CircularProgress } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { th } from "date-fns/locale";
 import { format } from "date-fns";
 import { getVegetables } from "../services/vegatableService";
 import { getOrders, updateOrder } from "../services/orderService";
@@ -55,8 +51,9 @@ const ProductDeliveryComponent = () => {
 
   const handleDeliveryDateChange = (orderIndex, detailIndex, date) => {
     const updatedOrders = [...orders];
-    updatedOrders[orderIndex].details[detailIndex].delivery.deliveredDate =
-      format(date, "yyyy-MM-dd");
+    if (date) {
+      updatedOrders[orderIndex].details[detailIndex].delivery.deliveredDate = format(date, "yyyy-MM-dd");
+    }
     setOrders(updatedOrders);
   };
 
@@ -88,7 +85,7 @@ const ProductDeliveryComponent = () => {
           quantityKg: detail.quantityKg,
           delivery: {
             actualKg: parseFloat(detail.delivery.actualKg) || 0,
-            deliveredDate: detail.delivery.deliveredDate || null,
+            deliveredDate: detail.delivery.deliveredDate || format(new Date(), "yyyy-MM-dd"),
             status: "Complete",
           },
         }))
@@ -199,10 +196,10 @@ const ProductDeliveryComponent = () => {
                       {/* แสดงชนิดผักจาก order.vegetable.name */}
                       <td className="px-6 py-4">{detail.quantityKg}</td>
                       <td className="px-6 py-4">
-                        {new Date(order.orderDate).toLocaleDateString()}
+                        {format(new Date(order.orderDate), 'dd/MM/yyyy')}
                       </td>
                       <td className="px-6 py-4">
-                        {new Date(order.dueDate).toLocaleDateString()}
+                        {format(new Date(order.dueDate), 'dd/MM/yyyy')}
                       </td>
                       <td className="px-6 py-4">
                         <input
@@ -215,35 +212,18 @@ const ProductDeliveryComponent = () => {
                         />
                       </td>
                       <td className="px-6 py-4">
-                        <LocalizationProvider
-                          dateAdapter={AdapterDateFns}
-                          locale={th}
-                        >
-                          <DatePicker
-                            value={
-                              detail.delivery.deliveredDate
-                                ? new Date(detail.delivery.deliveredDate)
-                                : new Date()
-                            }
-                            onChange={(newValue) =>
-                              handleDeliveryDateChange(
-                                index,
-                                subIndex,
-                                newValue
-                              )
-                            }
-                            className="bg-white rounded-lg"
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                variant="outlined"
-                                size="small"
-                                className="bg-white rounded-lg w-40"
-                              />
-                            )}
-                            format="dd/MM/yyyy"
-                          />
-                        </LocalizationProvider>
+                        <input
+                          type="date"
+                          className="border rounded-lg p-1 text-center"
+                          value={detail.delivery.deliveredDate || format(new Date(), 'yyyy-MM-dd')}
+                          onChange={(e) =>
+                            handleDeliveryDateChange(
+                              index,
+                              subIndex,
+                              new Date(e.target.value)
+                            )
+                          }
+                        />
                       </td>
                     </tr>
                   ))
