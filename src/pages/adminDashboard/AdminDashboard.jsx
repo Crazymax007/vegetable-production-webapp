@@ -182,9 +182,13 @@ const AdminDashboard = () => {
 
         try {
           // แปลงวันที่จากฐานข้อมูลให้เป็นรูปแบบที่ถูกต้อง
-          const [day, month, year] = order.harvestDate.split('/');
-          const orderDate = new Date(parseInt(year) - 543, parseInt(month) - 1, parseInt(day));
-          
+          const [day, month, year] = order.harvestDate.split("/");
+          const orderDate = new Date(
+            parseInt(year) - 543,
+            parseInt(month) - 1,
+            parseInt(day)
+          );
+
           const start = new Date(startDate);
           const end = endDate ? new Date(endDate) : new Date();
 
