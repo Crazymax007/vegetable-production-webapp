@@ -7,23 +7,23 @@ import {
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Swal from "sweetalert2";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
 
 // เพิ่มตัวแปรสำหรับตัวเลือกสถานะ
 const STATUS_OPTIONS = [
-  { value: "", label: "--" },
   { value: "Pending", label: "รอดำเนินการ" },
   { value: "Complete", label: "เสร็จสิ้น" },
 ];
 
 const ManagePage = () => {
   const [data, setData] = useState([]);
-  const [searchFarmer, setSearchFarmer] = useState(""); // คำค้นหาลูกสวน
-  const [searchVegetable, setSearchVegetable] = useState(""); // คำค้นหาชื่อผัก
-  const [searchOrderDate, setSearchOrderDate] = useState(null); // คำค้นหาวันที่สั่งปลูก
-  const [searchDeliveryDate, setSearchDeliveryDate] = useState(null); // คำค้นหาวันที่ส่งปลูก
-  const [searchQuantityOrdered, setSearchQuantityOrdered] = useState(""); // คำค้นหาน้ำหนักที่สั่ง
-  const [searchQuantityDelivered, setSearchQuantityDelivered] = useState(""); // คำค้นหาน้ำหนักที่ส่ง
-  const [searchStatus, setSearchStatus] = useState(""); // คำค้นหาสถานะ
+  const [searchTerm, setSearchTerm] = useState(""); // สำหรับค้นหาทั่วไป
+  const [searchDates, setSearchDates] = useState({
+    orderDate: "",
+    deliveryDate: "",
+  });
+  const [searchStatus, setSearchStatus] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
@@ -32,10 +32,9 @@ const ManagePage = () => {
   const [tempSearch, setTempSearch] = useState({
     farmer: "",
     vegetable: "",
-    orderDate: null,
-    deliveryDate: null,
-    quantityOrdered: "",
-    quantityDelivered: "",
+    buyer: "",
+    orderDate: "",
+    deliveryDate: "",
     status: "",
   });
 
@@ -43,22 +42,44 @@ const ManagePage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
+  // เพิ่ม state สำหรับควบคุมการแสดง/ซ่อนการค้นหาขั้นสูง
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+
+  // เพิ่ม state สำหรับช่วงวันที่
+  const [dateRange, setDateRange] = useState({
+    start: "",
+    end: "",
+  });
+
   const handleSearch = (field, value) => {
-    setTempSearch((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    if (field === "general") {
+      setSearchTerm(value);
+    } else if (field === "status") {
+      setSearchStatus(value);
+    } else if (field === "dateRange") {
+      setDateRange((prev) => ({
+        ...prev,
+        ...value,
+      }));
+    } else {
+      setSearchDates((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    }
   };
 
   // เพิ่มฟังก์ชันสำหรับการยืนยันการค้นหา
   const handleSubmitSearch = () => {
-    setSearchFarmer(tempSearch.farmer);
-    setSearchVegetable(tempSearch.vegetable);
-    setSearchOrderDate(tempSearch.orderDate);
-    setSearchDeliveryDate(tempSearch.deliveryDate);
-    setSearchQuantityOrdered(tempSearch.quantityOrdered);
-    setSearchQuantityDelivered(tempSearch.quantityDelivered);
-    setSearchStatus(tempSearch.status);
+    setTempSearch((prev) => ({
+      ...prev,
+      farmer: searchTerm,
+      vegetable: tempSearch.vegetable,
+      buyer: tempSearch.buyer,
+      orderDate: searchDates.orderDate,
+      deliveryDate: searchDates.deliveryDate,
+      status: searchStatus,
+    }));
     setCurrentPage(1); // รีเซ็ตหน้าเมื่อค้นหาใหม่
   };
 
@@ -83,17 +104,13 @@ const ManagePage = () => {
                     ? order.vegetable.name
                     : "ไม่ระบุ",
                   orderDate: order.orderDate
-                    ? new Date(order.orderDate).toLocaleDateString()
+                    ? formatDate(order.orderDate)
                     : "--",
-                  dueDate: order.dueDate
-                    ? new Date(order.dueDate).toLocaleDateString()
-                    : "--",
+                  dueDate: order.dueDate ? formatDate(order.dueDate) : "--",
                   quantityOrdered: detail.quantityKg || 0,
                   deliveryDate:
                     detail.delivery && detail.delivery.deliveredDate
-                      ? new Date(
-                          detail.delivery.deliveredDate
-                        ).toLocaleDateString()
+                      ? formatDate(detail.delivery.deliveredDate)
                       : "--",
                   quantityDelivered: detail.delivery
                     ? detail.delivery.actualKg || 0
@@ -118,29 +135,61 @@ const ManagePage = () => {
       });
   }, []);
 
-  // แก้ไขฟังก์ชัน filteredData ให้ตรวจสอบสถานะตามค่าที่เลือก
+  // เพิ่มฟังก์ชันสำหรับจัดรูปแบบวันที่
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // เดือนเริ่มต้นที่ 0
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  // แก้ไขฟังก์ชัน filteredData
   const filteredData = data.filter((item) => {
     if (!item) return false;
-    return (
-      (item.farmerId || "")
-        .toLowerCase()
-        .includes(searchFarmer.toLowerCase()) &&
-      (item.vegetableName || "")
-        .toLowerCase()
-        .includes(searchVegetable.toLowerCase()) &&
-      (searchOrderDate
-        ? item.orderDate === searchOrderDate.toLocaleDateString()
-        : true) &&
-      (searchDeliveryDate
-        ? item.deliveryDate === searchDeliveryDate.toLocaleDateString()
-        : true) &&
-      (item.quantityOrdered || "").toString().includes(searchQuantityOrdered) &&
-      (item.quantityDelivered || "")
-        .toString()
-        .includes(searchQuantityDelivered) &&
-      // แก้ไขการกรองสถานะ
-      (searchStatus === "" || item.status === searchStatus)
-    );
+
+    // ค้นหาข้อความทั่วไป (รวมถึงจำนวนกิโล)
+    const searchTermMatch =
+      searchTerm.toLowerCase() === "" ||
+      item.farmerId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.vegetableName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.buyerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.quantityOrdered.toString().includes(searchTerm) ||
+      item.quantityDelivered.toString().includes(searchTerm);
+
+    // ค้นหาตามช่วงวันที่
+    let dateMatch = true;
+    if (dateRange.start || dateRange.end) {
+      const start = dateRange.start ? new Date(dateRange.start) : null;
+      const end = dateRange.end ? new Date(dateRange.end) : null;
+
+      // แปลงวันที่จากสตริงเป็น Date object
+      const orderDate =
+        item.orderDate !== "--"
+          ? new Date(item.orderDate.split("/").reverse().join("-"))
+          : null;
+      const dueDate =
+        item.dueDate !== "--"
+          ? new Date(item.dueDate.split("/").reverse().join("-"))
+          : null;
+      const deliveryDate =
+        item.deliveryDate !== "--"
+          ? new Date(item.deliveryDate.split("/").reverse().join("-"))
+          : null;
+
+      // ตรวจสอบว่ามีวันที่ใดๆ อยู่ในช่วงที่กำหนดหรือไม่
+      dateMatch =
+        (start && orderDate && orderDate >= start) ||
+        (end && orderDate && orderDate <= end) ||
+        (start && dueDate && dueDate >= start) ||
+        (end && dueDate && dueDate <= end) ||
+        (start && deliveryDate && deliveryDate >= start) ||
+        (end && deliveryDate && deliveryDate <= end);
+    }
+
+    const statusMatch = searchStatus === "" || item.status === searchStatus;
+
+    return searchTermMatch && dateMatch && statusMatch;
   });
 
   // ฟังก์ชันจัดการการเรียงข้อมูล
@@ -413,16 +462,21 @@ const ManagePage = () => {
             </div>
             <div className="mb-4">
               <label className="block mb-2">สถานะ</label>
-              <select
-                value={editData.status}
-                onChange={(e) =>
-                  setEditData({ ...editData, status: e.target.value })
+              <Autocomplete
+                options={STATUS_OPTIONS}
+                getOptionLabel={(option) => option.label}
+                onChange={(event, newValue) =>
+                  handleSearch("status", newValue ? newValue.value : "")
                 }
-                className="w-full px-3 py-2 border rounded"
-              >
-                <option value="Pending">รอดำเนินการ</option>
-                <option value="Complete">เสร็จสิ้น</option>
-              </select>
+                renderInput={(params) => (
+                  <TextField {...params} label="สถานะ" variant="outlined" />
+                )}
+                value={
+                  STATUS_OPTIONS.find(
+                    (option) => option.value === searchStatus
+                  ) || null
+                }
+              />
             </div>
             <div className="flex justify-end gap-2">
               <button
@@ -445,72 +499,102 @@ const ManagePage = () => {
     );
   };
 
+  // เพิ่มฟังก์ชันสำหรับการแสดง/ซ่อนการค้นหาขั้นสูง
+  const toggleAdvancedSearch = () => {
+    setShowAdvancedSearch((prev) => !prev);
+  };
+
   return (
-    <div className="flex flex-col mx-20 bg-Green-Custom rounded-3xl p-6 mb-6">
+    <div className="flex flex-col gap-5 mx-20 bg-Green-Custom rounded-3xl p-6">
       <div className="text-xl">จัดการข้อมูล</div>
-      <div className="flex flex-wrap gap-4 my-4">
-        <input
-          type="text"
-          placeholder="ค้นหาลูกสวน"
-          className="px-4 py-2 border rounded-lg"
-          value={tempSearch.farmer}
-          onChange={(e) => handleSearch("farmer", e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="ค้นหาชื่อผัก"
-          className="px-4 py-2 border rounded-lg"
-          value={tempSearch.vegetable}
-          onChange={(e) => handleSearch("vegetable", e.target.value)}
-        />
-        <DatePicker
-          selected={tempSearch.orderDate}
-          onChange={(date) => handleSearch("orderDate", date)}
-          className="px-4 py-2 border rounded-lg"
-          placeholderText="ค้นหาวันที่สั่งปลูก"
-        />
-        <DatePicker
-          selected={tempSearch.deliveryDate}
-          onChange={(date) => handleSearch("deliveryDate", date)}
-          className="px-4 py-2 border rounded-lg"
-          placeholderText="ค้นหาวันที่ส่งปลูก"
-        />
-        <input
-          type="number"
-          placeholder="ค้นหาน้ำหนักที่สั่ง"
-          className="px-4 py-2 border rounded-lg"
-          value={tempSearch.quantityOrdered}
-          onChange={(e) => handleSearch("quantityOrdered", e.target.value)}
-        />
-        <input
-          type="number"
-          placeholder="ค้นหาน้ำหนักที่ส่ง"
-          className="px-4 py-2 border rounded-lg"
-          value={tempSearch.quantityDelivered}
-          onChange={(e) => handleSearch("quantityDelivered", e.target.value)}
-        />
-        <select
-          value={tempSearch.status}
-          onChange={(e) => handleSearch("status", e.target.value)}
-          className="px-4 py-2 border rounded-lg bg-white text-gray-600"
-        >
-          <option value="" disabled hidden>
-            สถานะ
-          </option>
-          {STATUS_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <button
-          onClick={handleSubmitSearch}
-          className="px-6 py-2 bg-Green-button text-white rounded-lg hover:bg-green-600 transition-colors"
-        >
-          ค้นหา
-        </button>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap gap-4 items-center">
+          {/* ช่องค้นหาทั่วไป */}
+          <div className="relative w-[30%]">
+            <span className="absolute -translate-y-1/2 pointer-events-none left-4 top-1/2">
+              <svg
+                className="fill-gray-500"
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
+                  fill=""
+                />
+              </svg>
+            </span>
+            <input
+              type="text"
+              placeholder="ค้นหาข้อมูล (ชื่อ, จำนวนกิโล)"
+              value={searchTerm}
+              onChange={(e) => handleSearch("general", e.target.value)}
+              className="h-11 w-full rounded-lg bg-white border border-gray-300 bg-transparent py-2.5 pl-12 pr-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10"
+            />
+          </div>
+
+          {/* ปุ่มค้นหาเพิ่มเติม */}
+          <button
+            onClick={toggleAdvancedSearch}
+            className="px-4 py-2 bg-gray-400 hover:bg-gray-600 text-white rounded-md"
+          >
+            เพิ่มเติม
+          </button>
+        </div>
+
+        {/* แสดงช่องค้นหาขั้นสูงเมื่อ showAdvancedSearch เป็น true */}
+        {showAdvancedSearch && (
+          <div className="flex gap-2 items-center">
+            {/* ช่วงวันที่ */}
+            <span className="text-sm text-gray-600">ช่วงวันที่:</span>
+            <div className="relative">
+              <input
+                type="date"
+                className="px-4 py-2 border rounded-lg text-gray-600"
+                value={dateRange.start}
+                onChange={(e) => {
+                  handleSearch("dateRange", { start: e.target.value });
+                  // ตั้งค่าวันที่สิ้นสุดให้เป็นวันที่มากกว่าหรือเท่ากับวันที่เริ่มต้น
+                  if (new Date(e.target.value) > new Date(dateRange.end)) {
+                    setDateRange((prev) => ({ ...prev, end: e.target.value }));
+                  }
+                }}
+              />
+            </div>
+            <span className="text-sm text-gray-600">ถึง</span>
+            <div className="relative">
+              <input
+                type="date"
+                className="px-4 py-2 border rounded-lg text-gray-600"
+                value={dateRange.end}
+                onChange={(e) =>
+                  handleSearch("dateRange", { end: e.target.value })
+                }
+                min={dateRange.start}
+              />
+            </div>
+
+            {/* สถานะ */}
+            <select
+              value={searchStatus}
+              onChange={(e) => handleSearch("status", e.target.value)}
+              className="px-2 py-2 border rounded-lg bg-white text-gray-600"
+            >
+              <option value="">สถานะทั้งหมด</option>
+              {STATUS_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
-      <div className="flex items-center gap-2 m-4">
+      <div className="flex items-center gap-2">
         <span className="text-sm">แสดง</span>
         <select
           className="px-2 py-1 text-sm rounded-lg"
