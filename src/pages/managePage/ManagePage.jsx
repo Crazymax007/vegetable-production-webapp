@@ -9,6 +9,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import Swal from "sweetalert2";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
+import { getUserInfo } from "../../services/authService";
 
 // เพิ่มตัวแปรสำหรับตัวเลือกสถานะ
 const STATUS_OPTIONS = [
@@ -51,6 +52,20 @@ const ManagePage = () => {
     end: "",
   });
 
+  const [user, setUser] = useState(null); // เพิ่ม state สำหรับเก็บข้อมูลผู้ใช้
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userData = await getUserInfo(); // ดึงข้อมูลผู้ใช้
+        setUser(userData);
+      } catch (error) {
+        console.error("Failed to fetch user info:", error);
+      }
+    };
+    fetchUser();
+  }, []);
+
   const handleSearch = (field, value) => {
     if (field === "general") {
       setSearchTerm(value);
@@ -84,8 +99,11 @@ const ManagePage = () => {
   };
 
   useEffect(() => {
-    getOrders()
-      .then((response) => {
+    const fetchOrders = async () => {
+      try {
+        const response = await getOrders(
+          user?.role === "farmer" ? { farmerId: user.farmerId } : {}
+        );
         if (response && response.data && response.data.data) {
           const orders = response.data.data
             .map((order) => {
@@ -128,12 +146,16 @@ const ManagePage = () => {
           setData([]);
           console.warn("No data received from API");
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching data:", error);
         setData([]);
-      });
-  }, []);
+      }
+    };
+
+    if (user) {
+      fetchOrders();
+    }
+  }, [user]);
 
   // เพิ่มฟังก์ชันสำหรับจัดรูปแบบวันที่
   const formatDate = (dateString) => {
@@ -257,18 +279,22 @@ const ManagePage = () => {
       width: "15%",
       Cell: ({ row }) => (
         <div className="flex">
-          <button
-            className="bg-blue-500 text-black px-2 py-1 rounded mr-2 w-14"
-            onClick={() => handleEdit(row.original.id, row.original.orderId)}
-          >
-            แก้ไข
-          </button>
-          <button
-            className="bg-red-500 text-white px-2 py-1 rounded w-14"
-            onClick={() => handleDelete(row.original.id, row.original.orderId)}
-          >
-            ลบ
-          </button>
+          {user?.role !== "farmer" && ( // ตรวจสอบว่า user ไม่ใช่ farmer
+            <>
+              <button
+                className="bg-blue-500 text-black px-2 py-1 rounded mr-2 w-14"
+                onClick={() => handleEdit(row.original.id, row.original.orderId)}
+              >
+                แก้ไข
+              </button>
+              <button
+                className="bg-red-500 text-white px-2 py-1 rounded w-14"
+                onClick={() => handleDelete(row.original.id, row.original.orderId)}
+              >
+                ลบ
+              </button>
+            </>
+          )}
         </div>
       ),
     },
@@ -678,12 +704,14 @@ const ManagePage = () => {
                   >
                     สถานะ
                   </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 last:rounded-tr-lg text-center w-[150px]"
-                  >
-                    จัดการข้อมูล
-                  </th>
+                  {user?.role !== "farmer" && ( // ตรวจสอบว่า user ไม่ใช่ farmer
+                    <th
+                      scope="col"
+                      className="px-6 py-4 font-bold text-gray-600 last:rounded-tr-lg text-center w-[150px]"
+                    >
+                      จัดการข้อมูล
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -718,22 +746,24 @@ const ManagePage = () => {
                     <td className="px-6 py-4 text-gray-600">
                       {getStatusThai(item.status)}
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => handleEdit(item.id, item.orderId)}
-                          className="bg-Green-button hover:bg-green-600 text-white shadow-md px-4 py-2 rounded-lg transition-colors"
-                        >
-                          แก้ไข
-                        </button>
-                        <button
-                          onClick={() => handleDelete(item.id, item.orderId)}
-                          className="bg-red-600 hover:bg-red-700 text-white shadow-md px-4 py-2 rounded-lg transition-colors"
-                        >
-                          ลบ
-                        </button>
-                      </div>
-                    </td>
+                    {user?.role !== "farmer" && ( // ตรวจสอบว่า user ไม่ใช่ farmer
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => handleEdit(item.id, item.orderId)}
+                            className="bg-Green-button hover:bg-green-600 text-white shadow-md px-4 py-2 rounded-lg transition-colors"
+                          >
+                            แก้ไข
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item.id, item.orderId)}
+                            className="bg-red-600 hover:bg-red-700 text-white shadow-md px-4 py-2 rounded-lg transition-colors"
+                          >
+                            ลบ
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
