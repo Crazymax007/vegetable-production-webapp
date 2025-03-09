@@ -45,7 +45,7 @@ const Login = () => {
             >
               <TextField
                 fullWidth
-                label="Username"
+                label="ผู้ใช้"
                 variant="outlined"
                 margin="normal"
                 value={username}
@@ -59,7 +59,7 @@ const Login = () => {
               />
               <TextField
                 fullWidth
-                label="Password"
+                label="รหัสผ่าน"
                 type="password"
                 variant="outlined"
                 margin="normal"

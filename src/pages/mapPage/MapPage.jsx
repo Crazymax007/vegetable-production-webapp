@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { getFarmers } from "../../services/farmerService";
-import { getTopVegetables } from "../../services/orderService";
+import { getTopVegetables, getTopYear } from "../../services/orderService";
 import { FooterComponent } from "../../components/FooterComponent";
 
 // 🔹 สร้างไอคอน Marker แบบกำหนดเอง
@@ -28,23 +28,36 @@ const MapPage = () => {
   const [farmers, setFarmers] = useState([]);
   const [selectedFarmer, setSelectedFarmer] = useState(null);
   const [topVegetables, setTopVegetables] = useState([]);
+  const [topYear, setTopYear] = useState([]);
   const API_BASE_URL = "http://localhost:5000";
+  const currentYear = new Date().getFullYear();
+
+  const fetchData = async () => {
+    try {
+      const response = await getFarmers();
+
+      if (response && Array.isArray(response.data)) {
+        setFarmers(response.data);
+      } else {
+        console.error("Invalid data format:", response);
+      }
+    } catch (error) {
+      console.error("Failed to fetch farmers:", error);
+    }
+  };
+
+  const fetchTopVegetable = async () => {
+    try {
+      const response = await getTopYear();
+      setTopYear(response.data);
+    } catch (error) {
+      console.error("Failed to fetch farmers:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await getFarmers();
-
-        if (response && Array.isArray(response.data)) {
-          setFarmers(response.data);
-        } else {
-          console.error("Invalid data format:", response);
-        }
-      } catch (error) {
-        console.error("Failed to fetch farmers:", error);
-      }
-    };
     fetchData();
+    fetchTopVegetable();
   }, []);
 
   const handleMarkerClick = async (farmer) => {
@@ -77,7 +90,7 @@ const MapPage = () => {
   const positionMap = new Map();
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col h-screen">
       <div className="flex justify-center gap-6 mx-20 mb-[2%]">
         {/* Mini map */}
         <div className="rounded-3xl shadow-md overflow-hidden w-[65%]">
@@ -168,7 +181,7 @@ const MapPage = () => {
           <div className="bg-white rounded-3xl p-4 flex-grow">
             <div className="flex flex-col">
               <span className="text-center pb-4 text-lg">
-                ผักที่ปลูกได้เยอะที่สุด 3 อันดับแรก (2024)
+                ผักที่ปลูกได้เยอะที่สุด 3 อันดับแรก ({currentYear})
               </span>
               <div className="flex flex-col gap-4">
                 {topVegetables.length > 0 ? (
@@ -198,12 +211,45 @@ const MapPage = () => {
           </div>
         </div>
       </div>
-      <div className="bg-Green-button shadow-md h-40 mb-[2%] flex justify-center items-center">
-        ผักที่ปลูกเยอะ
+      <div className="bg-Green-button shadow-md h-full mb-[2%] flex justify-center items-center gap-24">
+        <div className="h-fullflex justify-center items-center">
+          <div className="text-xl text-center text-white">
+            จำนวนผลผลิต
+            <br />
+            แต่ละชนิดของกลุ่มวิสาหกิจ
+            <br />
+            ในปี {currentYear}
+          </div>
+        </div>
+        <div className="h-full flex justify-center items-center p-2">
+          <div className="flex items-center gap-5 overflow-y-auto">
+            {topYear.length > 0 ? (
+              topYear.map((item, index) => (
+                <div key={index} className="flex flex-col items-center gap-2">
+                  <img
+                    src={API_BASE_URL + item.imageUrl}
+                    alt=""
+                    className="w-[120px] h-[130px] rounded-lg border border-black"
+                  />
+                  <div className="flex flex-col justify-center items-center">
+                    <span className="text-sm text-white font-medium">
+                      {index + 1}. {item.name}
+                    </span>
+                    <span className="text-sm text-white font-medium">
+                      {item.quantity} กิโลกรัม
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center text-red-500">ไม่มีข้อมูล</div>
+            )}
+          </div>
+        </div>
       </div>
-      <FooterComponent/>
+      <div className="flex-grow" />
+      <FooterComponent />
     </div>
   );
 };
-
 export default MapPage;

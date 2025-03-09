@@ -107,3 +107,19 @@ export const getDashboardOrder = async () => {
     throw error;
   }
 };
+
+export const getTopYear = async ({ limit = 0 } = {}) => {
+  try {
+    // สร้าง query string สำหรับการค้นหา
+    const params = new URLSearchParams();
+
+    if (limit) params.append("limit", limit);
+
+    const response = await api.get(`/top-vegetables?${params.toString()}`);
+
+    return response.data;
+  } catch (error) {
+    console.error("Failed to search orders:", error);
+    return [];
+  }
+};
