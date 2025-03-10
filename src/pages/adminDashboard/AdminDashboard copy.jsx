@@ -14,7 +14,6 @@ import { getVegetables } from "../../services/vegatableService";
 import { getFarmers } from "../../services/farmerService";
 import { getOrders } from "../../services/orderService";
 import { getUsers } from "../../services/authService";
-import { getBuyers } from "../../services/buyerService";
 
 // 📌 นำเข้า Pie Chart จาก react-chartjs-2 และ Chart.js
 import { Pie } from "react-chartjs-2";
@@ -34,8 +33,6 @@ const AdminDashboard = () => {
   const [filteredOrders, setFilteredOrders] = useState([]); // เพิ่ม state สำหรับเก็บข้อมูลที่กรองแล้ว
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const [buyers, setBuyers] = useState([]);
-  const [selectedBuyers, setSelectedBuyers] = useState({});
 
   // คำนวณจำนวนหน้าทั้งหมด
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
@@ -52,7 +49,6 @@ const AdminDashboard = () => {
     fetchFarmers();
     fetchOrders();
     fetchUsers();
-    fetchBuyers(); // Add this line
   }, []);
 
   useEffect(() => {
@@ -141,29 +137,6 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error("Failed to fetch orders:", error);
     }
-  };
-
-  const fetchBuyers = async () => {
-    try {
-      const response = await getBuyers();
-      setBuyers(response.data);
-      // Initialize selected buyers state
-      const initialSelected = response.data.reduce((acc, buyer) => {
-        acc[buyer._id] = false;
-        return acc;
-      }, {});
-      setSelectedBuyers(initialSelected);
-    } catch (error) {
-      console.error("Failed to fetch buyers:", error);
-    }
-  };
-
-  const handleBuyerChange = (event) => {
-    const newSelection = {
-      ...selectedBuyers,
-      [event.target.name]: event.target.checked,
-    };
-    setSelectedBuyers(newSelection);
   };
 
   const handleVegetableChange = (event) => {
@@ -397,15 +370,25 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 p-4">
       {/* ข้างบน */}
-      <div className="flex flex-col gap-2">
-        <div className="flex gap-2">
-          <div className="bg-white w-[25%] border border-black rounded-lg h-[50vh] overflow-y-auto p-4">
-            <FormGroup className="">
-              <FormLabel component="legend" className="mb-2">
-                เลือกชนิดผัก
-              </FormLabel>
+      <div className="flex flex-row gap-4 w-[100%] bg-blue-200">
+        {/* ซ้าย */}
+        <div className="w-[20%] flex flex-col gap-4 rounded-lg max-h-[500px] ">
+          <Box
+            className="rounded-lg p-4 bg-white border border-black"
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              overflowY: "auto",
+              height: "100%",
+              gap: 1,
+            }}
+          >
+            <FormLabel component="legend" sx={{ fontWeight: "bold" }}>
+              เลือกชนิดผัก
+            </FormLabel>
+            <FormGroup>
               {vegetables.map((vegetable) => (
                 <FormControlLabel
                   key={vegetable._id}
@@ -420,41 +403,55 @@ const AdminDashboard = () => {
                 />
               ))}
             </FormGroup>
-          </div>
-          <div className="bg-blue-200 w-[75%] border border-black rounded-lg">
-            Pie chart
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <div className="w-[25%]">
-            <div className="flex flex-col gap-2">
-              <div className="bg-white border border-black rounded-lg p-4 h-[30vh] overflow-y-auto">
-                <FormGroup>
-                  <FormLabel component="legend" className="mb-2">
-                    เลือกผู้รับซื้อ
-                  </FormLabel>
-                  {buyers.map((buyer) => (
-                    <FormControlLabel
-                      key={buyer._id}
-                      control={
-                        <Checkbox
-                          checked={selectedBuyers[buyer._id] || false}
-                          onChange={handleBuyerChange}
-                          name={buyer._id}
-                        />
-                      }
-                      label={buyer.name}
-                    />
-                  ))}
-                </FormGroup>
-              </div>
-              <div className="bg-pink-200 border border-black rounded-lg">
-                เลือกช่วงเวลา
-              </div>
+          </Box>
+          <div className="flex flex-col gap-2 bg-white rounded-lg border border-black p-4">
+            <div className="flex flex-col gap-4">
+              <TextField
+                label="วันที่เริ่ม"
+                type="date"
+                value={startDate}
+                onChange={handleStartDateChange}
+                sx={{ width: "200px" }}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+              <TextField
+                label="วันที่สิ้นสุด"
+                type="date"
+                value={endDate}
+                onChange={handleEndDateChange}
+                sx={{ width: "200px" }}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
             </div>
           </div>
-          <div className="bg-green-200 w-[75%] border border-black rounded-lg">
-            Lne chart
+        </div>
+        {/* ขวา */}
+        <div className="w-[80%] bg-red-200 flex flex-col gap-4 rounded-lg">
+          {/* จำนวนกิโล 💻 */}
+          <div className="flex justify-between gap-4">
+            <div className="bg-white flex w-1/3 flex-col gap-2 items-center p-2 rounded-lg border border-black">
+              <span>จำนวนลูกสวนทั้งหมด</span>
+              <span>{farmers.length}</span>
+            </div>
+            <div className="bg-white flex w-1/3 flex-col gap-2 items-center p-2 rounded-lg border border-black">
+              <span>จำนวนผู้ใช้ระบบ</span>
+              <span>{users.length}</span>
+            </div>
+            <div className="bg-white flex w-1/3 flex-col gap-2 items-center p-2 rounded-lg border border-black">
+              <span>จำนวนกิโลกรัม</span>
+              <span>{calculateTotalKilograms().toLocaleString("th-TH")}</span>
+            </div>
+          </div>
+          {/* Pie chart */}
+          <div
+            className="flex justify-center p-4 bg-white rounded-lg border border-black"
+            style={{ height: "410px" }}
+          >
+            <Pie data={pieData} options={pieOptions} />
           </div>
         </div>
       </div>

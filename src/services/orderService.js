@@ -22,6 +22,7 @@ export const getOrders = async ({
   actualKg = "",
   status = "",
   orderDate = "",
+  buyerId = "",
 } = {}) => {
   try {
     // สร้าง query string สำหรับการค้นหา
@@ -35,6 +36,7 @@ export const getOrders = async ({
     if (actualKg) params.append("actualKg", actualKg);
     if (status) params.append("status", status);
     if (orderDate) params.append("orderDate", orderDate);
+    if (buyerId) params.append("buyerId", buyerId);
 
     // ส่ง request พร้อม query parameters
     const response = await api.get(`/orders?${params.toString()}`);

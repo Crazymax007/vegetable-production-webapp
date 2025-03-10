@@ -35,7 +35,7 @@ const AdminLayout = () => {
           toggleSidebar={toggleSidebar}
           handleLogout={handleLogout}
         />
-        <main className="flex-1 p-6 overflow-x-hidden">
+        <main className="flex-1 p-6 max-w-full overflow-x-hidden overflow-y-auto">
           <Outlet />
         </main>
       </div>
