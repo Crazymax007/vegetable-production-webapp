@@ -110,8 +110,8 @@ const AdminDashboard = () => {
               harvestDate:
                 detail.delivery && detail.delivery.deliveredDate
                   ? new Date(detail.delivery.deliveredDate).toLocaleDateString(
-                    "th-TH"
-                  )
+                      "th-TH"
+                    )
                   : "--",
             }));
           })
@@ -407,7 +407,10 @@ const AdminDashboard = () => {
           <div className="bg-white w-[25%] border border-black rounded-lg p-4">
             <div className="h-[50vh] overflow-y-auto">
               <FormGroup className="">
-                <FormLabel component="legend" className="mb-2 flex items-center gap-2">
+                <FormLabel
+                  component="legend"
+                  className="mb-2 flex items-center gap-2"
+                >
                   <FcCloseUpMode />
                   เลือกชนิดผัก
                 </FormLabel>
@@ -426,7 +429,6 @@ const AdminDashboard = () => {
                 ))}
               </FormGroup>
             </div>
-
           </div>
           {/* Pie chart */}
           <div className="bg-white w-[75%] flex flex-col  border border-black rounded-lg p-4">
@@ -437,30 +439,38 @@ const AdminDashboard = () => {
         <div className="flex gap-2">
           <div className="w-[25%]">
             <div className="flex flex-col gap-2">
-              <div className="bg-white border border-black rounded-lg p-4 h-[30vh] overflow-y-auto">
-                <FormGroup>
-                  <FormLabel component="legend" className="mb-2 flex items-center gap-2">
-                    <FcShop />
-                    เลือกผู้รับซื้อ
-                  </FormLabel>
-                  {buyers.map((buyer) => (
-                    <FormControlLabel
-                      key={buyer._id}
-                      control={
-                        <Checkbox
-                          checked={selectedBuyers[buyer._id] || false}
-                          onChange={handleBuyerChange}
-                          name={buyer._id}
-                        />
-                      }
-                      label={buyer.name}
-                    />
-                  ))}
-                </FormGroup>
-              </div>
               <div className="bg-white border border-black rounded-lg p-4">
+                <div className="h-[30vh] overflow-y-auto">
+                  <FormGroup>
+                    <FormLabel
+                      component="legend"
+                      className="mb-2 flex items-center gap-2"
+                    >
+                      <FcShop />
+                      เลือกผู้รับซื้อ
+                    </FormLabel>
+                    {buyers.map((buyer) => (
+                      <FormControlLabel
+                        key={buyer._id}
+                        control={
+                          <Checkbox
+                            checked={selectedBuyers[buyer._id] || false}
+                            onChange={handleBuyerChange}
+                            name={buyer._id}
+                          />
+                        }
+                        label={buyer.name}
+                      />
+                    ))}
+                  </FormGroup>
+                </div>
+              </div>
+              <div className="bg-white border border-black rounded-lg p-4 overflow-auto">
                 <FormGroup>
-                  <FormLabel component="legend" className="mb-2 flex items-center gap-2">
+                  <FormLabel
+                    component="legend"
+                    className="mb-2 flex items-center gap-2"
+                  >
                     <FcOvertime />
                     เลือกช่วงเวลา
                   </FormLabel>
@@ -586,10 +596,11 @@ const AdminDashboard = () => {
                 <button
                   key={pageNumber}
                   onClick={() => setCurrentPage(pageNumber)}
-                  className={`px-4 py-2 text-sm rounded-lg ${currentPage === pageNumber
-                    ? "bg-green-500 text-white"
-                    : "text-gray-600 bg-gray-100 hover:bg-gray-200"
-                    }`}
+                  className={`px-4 py-2 text-sm rounded-lg ${
+                    currentPage === pageNumber
+                      ? "bg-green-500 text-white"
+                      : "text-gray-600 bg-gray-100 hover:bg-gray-200"
+                  }`}
                 >
                   {pageNumber}
                 </button>
