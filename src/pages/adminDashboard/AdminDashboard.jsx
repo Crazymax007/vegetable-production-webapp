@@ -8,6 +8,7 @@ import {
   Box,
   TextField,
 } from "@mui/material";
+import { FcCloseUpMode, FcShop, FcOvertime } from "react-icons/fc";
 
 // 📌 ดึงข้อมูล API
 import { getVegetables } from "../../services/vegatableService";
@@ -109,8 +110,8 @@ const AdminDashboard = () => {
               harvestDate:
                 detail.delivery && detail.delivery.deliveredDate
                   ? new Date(detail.delivery.deliveredDate).toLocaleDateString(
-                      "th-TH"
-                    )
+                    "th-TH"
+                  )
                   : "--",
             }));
           })
@@ -164,6 +165,7 @@ const AdminDashboard = () => {
       [event.target.name]: event.target.checked,
     };
     setSelectedBuyers(newSelection);
+    console.log("selectedBuyers: ", newSelection);
   };
 
   const handleVegetableChange = (event) => {
@@ -401,28 +403,35 @@ const AdminDashboard = () => {
       {/* ข้างบน */}
       <div className="flex flex-col gap-2">
         <div className="flex gap-2">
-          <div className="bg-white w-[25%] border border-black rounded-lg h-[50vh] overflow-y-auto p-4">
-            <FormGroup className="">
-              <FormLabel component="legend" className="mb-2">
-                เลือกชนิดผัก
-              </FormLabel>
-              {vegetables.map((vegetable) => (
-                <FormControlLabel
-                  key={vegetable._id}
-                  control={
-                    <Checkbox
-                      checked={selectedVegetables[vegetable._id] || false}
-                      onChange={handleVegetableChange}
-                      name={vegetable._id}
-                    />
-                  }
-                  label={vegetable.name}
-                />
-              ))}
-            </FormGroup>
+          {/* เลือกชนิดผัก */}
+          <div className="bg-white w-[25%] border border-black rounded-lg p-4">
+            <div className="h-[50vh] overflow-y-auto">
+              <FormGroup className="">
+                <FormLabel component="legend" className="mb-2 flex items-center gap-2">
+                  <FcCloseUpMode />
+                  เลือกชนิดผัก
+                </FormLabel>
+                {vegetables.map((vegetable) => (
+                  <FormControlLabel
+                    key={vegetable._id}
+                    control={
+                      <Checkbox
+                        checked={selectedVegetables[vegetable._id] || false}
+                        onChange={handleVegetableChange}
+                        name={vegetable._id}
+                      />
+                    }
+                    label={vegetable.name}
+                  />
+                ))}
+              </FormGroup>
+            </div>
+
           </div>
-          <div className="bg-blue-200 w-[75%] border border-black rounded-lg">
-            Pie chart
+          {/* Pie chart */}
+          <div className="bg-white w-[75%] flex flex-col  border border-black rounded-lg p-4">
+            <div>ผลผลิตทั้งหมดแยกตามลูกค้า (กิโลกรัม)</div>
+            <div> Pie Chart </div>
           </div>
         </div>
         <div className="flex gap-2">
@@ -430,7 +439,8 @@ const AdminDashboard = () => {
             <div className="flex flex-col gap-2">
               <div className="bg-white border border-black rounded-lg p-4 h-[30vh] overflow-y-auto">
                 <FormGroup>
-                  <FormLabel component="legend" className="mb-2">
+                  <FormLabel component="legend" className="mb-2 flex items-center gap-2">
+                    <FcShop />
                     เลือกผู้รับซื้อ
                   </FormLabel>
                   {buyers.map((buyer) => (
@@ -448,13 +458,42 @@ const AdminDashboard = () => {
                   ))}
                 </FormGroup>
               </div>
-              <div className="bg-pink-200 border border-black rounded-lg">
-                เลือกช่วงเวลา
+              <div className="bg-white border border-black rounded-lg p-4">
+                <FormGroup>
+                  <FormLabel component="legend" className="mb-2 flex items-center gap-2">
+                    <FcOvertime />
+                    เลือกช่วงเวลา
+                  </FormLabel>
+                  <div className="flex flex-col gap-2">
+                    <TextField
+                      label="วันที่เริ่มต้น"
+                      type="date"
+                      value={startDate}
+                      onChange={handleStartDateChange}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      fullWidth
+                      size="small"
+                    />
+                    <TextField
+                      label="วันที่สิ้นสุด"
+                      type="date"
+                      value={endDate}
+                      onChange={handleEndDateChange}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      fullWidth
+                      size="small"
+                    />
+                  </div>
+                </FormGroup>
               </div>
             </div>
           </div>
-          <div className="bg-green-200 w-[75%] border border-black rounded-lg">
-            Lne chart
+          <div className="bg-green-200 w-[75%] border border-black rounded-lg p-4">
+            Bar chart
           </div>
         </div>
       </div>
@@ -547,11 +586,10 @@ const AdminDashboard = () => {
                 <button
                   key={pageNumber}
                   onClick={() => setCurrentPage(pageNumber)}
-                  className={`px-4 py-2 text-sm rounded-lg ${
-                    currentPage === pageNumber
-                      ? "bg-green-500 text-white"
-                      : "text-gray-600 bg-gray-100 hover:bg-gray-200"
-                  }`}
+                  className={`px-4 py-2 text-sm rounded-lg ${currentPage === pageNumber
+                    ? "bg-green-500 text-white"
+                    : "text-gray-600 bg-gray-100 hover:bg-gray-200"
+                    }`}
                 >
                   {pageNumber}
                 </button>
