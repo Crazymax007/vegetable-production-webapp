@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { FcCloseUpMode, FcShop, FcOvertime } from "react-icons/fc";
 
-// 📌 ดึงข้อมูล API
+// 📌 ข้อมูล API
 import { getVegetables } from "../../services/vegatableService";
 import { getFarmers } from "../../services/farmerService";
 import { getOrders } from "../../services/orderService";
@@ -18,21 +18,36 @@ import { getUsers } from "../../services/authService";
 import { getBuyers } from "../../services/buyerService";
 
 // 📌 นำเข้า Pie Chart จาก react-chartjs-2 และ Chart.js
-import { Pie } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Pie, Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+} from "chart.js";
 
-// 📌 กำหนดให้ ChartJS ใช้ ArcElement สำหรับ Pie Chart
-ChartJS.register(ArcElement, Tooltip, Legend);
+// 📌 กำหนดให้ ChartJS ใช้ ArcElement, BarElement, CategoryScale, LinearScale
+ChartJS.register(
+  ArcElement,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale
+);
 
 const AdminDashboard = () => {
   const [vegetables, setVegetables] = useState([]);
   const [farmers, setFarmers] = useState([]);
   const [selectedVegetables, setSelectedVegetables] = useState({});
-  const [startDate, setStartDate] = useState(""); // สถานะของวันที่เริ่ม
-  const [endDate, setEndDate] = useState(""); // สถานะของวันที่สิ้นสุด
+  const [startDate, setStartDate] = useState(""); // สถานะของเริ่ม
+  const [endDate, setEndDate] = useState(""); // สถานะของสิ้นสุด
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
-  const [filteredOrders, setFilteredOrders] = useState([]); // เพิ่ม state สำหรับเก็บข้อมูลที่กรองแล้ว
+  const [filteredOrders, setFilteredOrders] = useState([]); // เล่ม state เก็บข้อมูลกรองแล้ว
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [buyers, setBuyers] = useState([]);
@@ -41,11 +56,11 @@ const AdminDashboard = () => {
   // คำนวณจำนวนหน้าทั้งหมด
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
 
-  // คำนวณ index เริ่มต้นและสิ้นสุดของข้อมูลในหน้าปัจจุบัน
+  // คำนวณ index เล่มต้นและสิ้นสุดของข้อมูลในหน้า
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
 
-  // กรองข้อมูลสำหรับหน้าปัจจุบัน
+  // กรองข้อมูลหน้า
   const currentOrders = filteredOrders.slice(startIndex, endIndex);
 
   useEffect(() => {
@@ -64,7 +79,7 @@ const AdminDashboard = () => {
     try {
       const response = await getVegetables();
       setVegetables(response.data);
-      // สร้าง object สำหรับเก็บสถานะการเลือกของแต่ละผัก
+      // สร้าง object เก็บสถานะการเลือกของแต่ละ
       const initialSelected = response.data.reduce((acc, veg) => {
         acc[veg._id] = false;
         return acc;
@@ -96,13 +111,13 @@ const AdminDashboard = () => {
     try {
       const response = await getOrders();
       if (response && response.data && response.data.data) {
-        // แปลงข้อมูลให้อยู่ในรูปแบบที่ต้องการก่อน
+        // แปลงข้อมูลให้อยู่ใน รูปแบบที่ต้องการก่อน
         const allOrders = response.data.data
           .map((order) => {
             if (!order.details) return null;
             return order.details.map((detail) => ({
               id: detail._id,
-              vegetableName: order.vegetable ? order.vegetable.name : "ไม่ระบุ",
+              vegetableName: order.vegetable ? order.vegetable.name : "ไม่",
               quantityOrdered: detail.quantityKg || 0,
               quantityDelivered: detail.delivery
                 ? detail.delivery.actualKg || 0
@@ -118,7 +133,7 @@ const AdminDashboard = () => {
           .filter(Boolean)
           .flat();
 
-        // สร้าง key สำหรับจัดกลุ่ม (ชื่อผัก + วันที่)
+        // สร้าง key กลุ่ม (ชื้อ + วันเก็บ)
         const groupedOrders = allOrders.reduce((acc, order) => {
           const key = `${order.vegetableName}_${order.harvestDate}`;
           if (!acc[key]) {
@@ -135,7 +150,7 @@ const AdminDashboard = () => {
           return acc;
         }, {});
 
-        // แปลงกลับเป็น array
+        // แปลงเป็น array
         const formattedOrders = Object.values(groupedOrders);
         setOrders(formattedOrders);
       }
@@ -190,7 +205,7 @@ const AdminDashboard = () => {
   const filterOrders = () => {
     let filtered = [...orders];
 
-    // กรองตามผักที่เลือก
+    // กรองตาม ผัก
     const selectedVegIds = Object.entries(selectedVegetables)
       .filter(([_, isSelected]) => isSelected)
       .map(([id]) => id);
@@ -204,13 +219,13 @@ const AdminDashboard = () => {
       });
     }
 
-    // กรองตามวันที่
+    // กรองตาม วัน
     if (startDate) {
       filtered = filtered.filter((order) => {
         if (order.harvestDate === "--") return false;
 
         try {
-          // แปลงวันที่จากฐานข้อมูลให้เป็นรูปแบบที่ถูกต้อง
+          // แปลง วันจากฐานข้อมูลให้เป็น วันที่ต้องการ
           const [day, month, year] = order.harvestDate.split("/");
           const orderDate = new Date(
             parseInt(year) - 543,
@@ -221,7 +236,7 @@ const AdminDashboard = () => {
           const start = new Date(startDate);
           const end = endDate ? new Date(endDate) : new Date();
 
-          // ตั้งเวลาให้เป็นเที่ยงคืนของวันนั้นๆ
+          // ตั้งเวลาให้เป็นเที่ยง ของ วันๆ
           start.setHours(0, 0, 0, 0);
           end.setHours(23, 59, 59, 999);
           orderDate.setHours(0, 0, 0, 0);
@@ -236,10 +251,75 @@ const AdminDashboard = () => {
 
     setFilteredOrders(filtered);
     updatePieChartData(filtered);
+    updateBarChartData(filtered);
   };
 
   const updatePieChartData = (filteredData) => {
-    // จัดกลุ่มข้อมูลตามชื่อผัก
+    // กลุ่มข้อมูลตาม buyer
+    const buyerGroups = filteredData.reduce((acc, order) => {
+      const buyerId = order.buyerId; // Assuming 'buyerId' is available in the order data
+      if (!acc[buyerId]) {
+        acc[buyerId] = {
+          buyerName: order.buyerName, // Assuming 'buyerName' is available
+          totalDelivered: 0,
+        };
+      }
+      acc[buyerId].totalDelivered += order.quantityDelivered;
+      return acc;
+    }, {});
+
+    // กำหนด ค่าสี ไม่ซ้ำ
+    const colors = [
+      "#FF6384",
+      "#36A2EB",
+      "#FFCE56",
+      "#4BC0C0",
+      "#FF9F40",
+      "#9966FF",
+      "#FF6384",
+      "#C9CBCF",
+      "#4D5360",
+      "#FF99CC",
+      "#99CCFF",
+      "#FFB366",
+      "#99FF99",
+      "#FF99CC",
+      "#CC99FF",
+    ];
+
+    // คำนวณเปอร์เซ็นต์และตั้งค่าชื่อ แต่ละ Buyer
+    const totalDelivered = Object.values(buyerGroups).reduce(
+      (sum, group) => sum + group.totalDelivered,
+      0
+    );
+
+    const labels = Object.keys(buyerGroups).map((buyerId, index) => {
+      const buyer = buyerGroups[buyerId];
+      const percentage = (
+        (buyer.totalDelivered / totalDelivered) *
+        100
+      ).toFixed(1);
+      return `${buyer.buyerName} (${buyer.totalDelivered} กก. ${percentage}%)`;
+    });
+
+    // เดทข้อมูล Pie Chart
+    setPieData({
+      labels: labels,
+      datasets: [
+        {
+          data: Object.values(buyerGroups).map((group) => group.totalDelivered),
+          backgroundColor: colors.slice(0, Object.keys(buyerGroups).length),
+          hoverBackgroundColor: colors.slice(
+            0,
+            Object.keys(buyerGroups).length
+          ),
+        },
+      ],
+    });
+  };
+
+  const updateBarChartData = (filteredData) => {
+    // กลุ่มข้อมูลตามชื้อ
     const vegGroups = filteredData.reduce((acc, order) => {
       if (!acc[order.vegetableName]) {
         acc[order.vegetableName] = 0;
@@ -248,55 +328,22 @@ const AdminDashboard = () => {
       return acc;
     }, {});
 
-    // กำหนดสีที่ไม่ซ้ำกัน
-    const colors = [
-      "#FF6384", // สีชมพู
-      "#36A2EB", // สีฟ้า
-      "#FFCE56", // สีเหลือง
-      "#4BC0C0", // สีเขียวมิ้นท์
-      "#FF9F40", // สีส้ม
-      "#9966FF", // สีม่วง
-      "#FF6384", // สีชมพูเข้ม
-      "#C9CBCF", // สีเทา
-      "#4D5360", // สีเทาเข้ม
-      "#FF99CC", // สีชมพูอ่อน
-      "#99CCFF", // สีฟ้าอ่อน
-      "#FFB366", // สีส้มอ่อน
-      "#99FF99", // สีเขียวอ่อน
-      "#FF99CC", // สีชมพูอ่อน
-      "#CC99FF", // สีม่วงอ่อน
-    ];
-
-    // ตรวจสอบว่ามีการเลือกผักหรือไม่
-    const selectedVegIds = Object.entries(selectedVegetables)
-      .filter(([_, isSelected]) => isSelected)
-      .map(([id]) => id);
-
-    // คำนวณเปอร์เซ็นต์ถ้ามีการเลือกผัก
-    const total = Object.values(vegGroups).reduce((a, b) => a + b, 0);
-    const labels = Object.keys(vegGroups).map((label, index) => {
-      if (selectedVegIds.length > 0) {
-        const value = Object.values(vegGroups)[index];
-        const percentage = ((value / total) * 100).toFixed(1);
-        return `${label} (${value} กก. ${percentage}%)`;
-      }
-      return label;
-    });
-
-    // อัพเดทข้อมูล Pie Chart
-    setPieData({
-      labels: labels,
+    // เดทข้อมูล Bar Chart
+    setBarData({
+      labels: Object.keys(vegGroups),
       datasets: [
         {
+          label: "จำนวนผลิต (กก.)",
           data: Object.values(vegGroups),
-          backgroundColor: colors.slice(0, Object.keys(vegGroups).length),
-          hoverBackgroundColor: colors.slice(0, Object.keys(vegGroups).length),
+          backgroundColor: "#4BC0C0",
+          borderColor: "#36A2EB",
+          borderWidth: 1,
         },
       ],
     });
   };
 
-  // เพิ่ม state สำหรับ Pie Chart
+  // เล่ม state Pie Chart
   const [pieData, setPieData] = useState({
     labels: [],
     datasets: [
@@ -308,7 +355,7 @@ const AdminDashboard = () => {
     ],
   });
 
-  // เพิ่ม options สำหรับ Pie Chart
+  // เล่ม options Pie Chart
   const pieOptions = {
     plugins: {
       legend: {
@@ -337,37 +384,76 @@ const AdminDashboard = () => {
     maintainAspectRatio: false,
   };
 
-  // คำนวณจำนวนกิโลกรัมรวม
+  // เล่ม state Bar Chart
+  const [barData, setBarData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: "จำนวนผลิต (กก.)",
+        data: [],
+        backgroundColor: "#4BC0C0",
+        borderColor: "#36A2EB",
+        borderWidth: 1,
+      },
+    ],
+  });
+
+  const barOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: "จำนวน (กก.)",
+        },
+      },
+      // x: {
+      //   title: {
+      //     display: true,
+      //     text: "ชื้อ",
+      //   },
+      // },
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+  };
+
+  // คำนวณจำนวนโลกรวม
   const calculateTotalKilograms = () => {
     if (filteredOrders.length === 0) {
-      // ถ้าไม่มีการกรอง ให้คำนวณจากทั้งหมด
+      // ถ้าไม่กรอง ให้คำนวณจากทั้งหมด
       return orders.reduce(
         (total, order) => total + order.quantityDelivered,
         0
       );
     }
-    // ถ้ามีการกรอง ให้คำนวณจากข้อมูลที่กรองแล้ว
+    // ถ้ากรอง ให้คำนวณจากข้อมูลกรองแล้ว
     return filteredOrders.reduce(
       (total, order) => total + order.quantityDelivered,
       0
     );
   };
 
-  // เพิ่มฟังก์ชันสำหรับนำออกข้อมูล CSV
+  // เล่ม ฟังก์ชัน นำออกข้อมูล CSV
   const exportToCSV = () => {
     // กำหนดข้อมูลที่จะนำออก
     const dataToExport = filteredOrders.length > 0 ? filteredOrders : orders;
 
-    // สร้างหัวข้อ CSV
+    // สร้างข้อ CSV
     const headers = [
       "ลำดับ",
-      "ชื่อผัก",
-      "จำนวนสั่ง (กก.)",
-      "จำนวนส่งจริง (กก.)",
-      "วันที่",
+      "ชื่อ",
+      "จำนวนผลิต (กก.)",
+      "จำนวนส่ง (กก.)",
+      "วันเก็บ",
     ];
 
-    // แปลงข้อมูลเป็นรูปแบบ CSV
+    // แปลงข้อมูลเป็น CSV
     const csvContent = [
       headers.join(","),
       ...dataToExport.map((item, index) =>
@@ -386,9 +472,9 @@ const AdminDashboard = () => {
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
 
-    // สร้างชื่อไฟล์ตามวันที่ปัจจุบัน
+    // สร้างชื่อไฟล์ตามวันที่
     const today = new Date().toISOString().split("T")[0];
-    const fileName = `รายงานการส่งผลผลิต_${today}.csv`;
+    const fileName = `รายงานการส่งผลิต_${today}.csv`;
 
     link.setAttribute("href", url);
     link.setAttribute("download", fileName);
@@ -403,7 +489,7 @@ const AdminDashboard = () => {
       {/* ข้างบน */}
       <div className="flex flex-col gap-2">
         <div className="flex gap-2">
-          {/* เลือกชนิดผัก */}
+          {/* เลือกผัก */}
           <div className="bg-white w-[25%] border border-black rounded-lg p-4">
             <div className="h-[50vh] overflow-y-auto">
               <FormGroup className="">
@@ -412,7 +498,7 @@ const AdminDashboard = () => {
                   className="mb-2 flex items-center gap-2"
                 >
                   <FcCloseUpMode />
-                  เลือกชนิดผัก
+                  เลือกผัก
                 </FormLabel>
                 {vegetables.map((vegetable) => (
                   <FormControlLabel
@@ -432,7 +518,7 @@ const AdminDashboard = () => {
           </div>
           {/* Pie chart */}
           <div className="bg-white w-[75%] flex flex-col  border border-black rounded-lg p-4">
-            <div>ผลผลิตทั้งหมดแยกตามลูกค้า (กิโลกรัม)</div>
+            <div>ผลผลิตรวมแยกตามผู้ซื้อ (กก.)</div>
             <div> Pie Chart </div>
           </div>
         </div>
@@ -447,7 +533,7 @@ const AdminDashboard = () => {
                       className="mb-2 flex items-center gap-2"
                     >
                       <FcShop />
-                      เลือกผู้รับซื้อ
+                      เลือกผู้ซื้อ
                     </FormLabel>
                     {buyers.map((buyer) => (
                       <FormControlLabel
@@ -476,7 +562,7 @@ const AdminDashboard = () => {
                   </FormLabel>
                   <div className="flex flex-col gap-2">
                     <TextField
-                      label="วันที่เริ่มต้น"
+                      label="วันเริ่มต้น"
                       type="date"
                       value={startDate}
                       onChange={handleStartDateChange}
@@ -487,7 +573,7 @@ const AdminDashboard = () => {
                       size="small"
                     />
                     <TextField
-                      label="วันที่สิ้นสุด"
+                      label="วันสิ้นสุด"
                       type="date"
                       value={endDate}
                       onChange={handleEndDateChange}
@@ -502,8 +588,11 @@ const AdminDashboard = () => {
               </div>
             </div>
           </div>
-          <div className="bg-green-200 w-[75%] border border-black rounded-lg p-4">
-            Bar chart
+          <div className="bg-white w-[75%] border border-black rounded-lg p-4">
+            <div className="text-lg mb-2">ผลผลิตรวมแยกตามชื้อ (กก.)</div>
+            <div style={{ height: "300px" }}>
+              <Bar data={barData} options={barOptions} />
+            </div>
           </div>
         </div>
       </div>
@@ -527,16 +616,16 @@ const AdminDashboard = () => {
                       ลำดับ
                     </th>
                     <th className="px-6 py-4 font-bold text-gray-600 w-[200px]">
-                      ชื่อผัก
+                      ชื่อ
                     </th>
                     <th className="px-6 py-4 font-bold text-gray-600 w-[150px]">
-                      จำนวนสั่ง (กก.)
+                      จำนวนผลิต (กก.)
                     </th>
                     <th className="px-6 py-4 font-bold text-gray-600 w-[150px]">
-                      จำนวนส่งจริง (กก.)
+                      จำนวนส่ง (กก.)
                     </th>
                     <th className="px-6 py-4 font-bold text-gray-600 w-[200px]">
-                      วันที่
+                      วันเก็บ
                     </th>
                   </tr>
                 </thead>
