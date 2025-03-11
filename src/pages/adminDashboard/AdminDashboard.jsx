@@ -68,12 +68,12 @@ const AdminDashboard = () => {
     fetchFarmers();
     fetchOrders();
     fetchUsers();
-    fetchBuyers(); // Add this line
+    fetchBuyers();
   }, []);
 
   useEffect(() => {
     filterOrders();
-  }, [selectedVegetables, startDate, endDate, orders]);
+  }, [selectedVegetables, selectedBuyers, startDate, endDate, orders]);
 
   const fetchVegetables = async () => {
     try {
@@ -107,6 +107,7 @@ const AdminDashboard = () => {
       console.error("Failed to fetch users:", error);
     }
   };
+
   const fetchOrders = async () => {
     try {
       const response = await getOrders();
@@ -116,7 +117,7 @@ const AdminDashboard = () => {
             if (!order.details) return null;
             return order.details.map((detail) => ({
               id: detail._id,
-              vegetableName: order.vegetable ? order.vegetable.name : "ไม่",
+              vegetableName: order.vegetable ? order.vegetable.name : "-",
               quantityOrdered: detail.quantityKg || 0,
               quantityDelivered: detail.delivery
                 ? detail.delivery.actualKg || 0
@@ -128,13 +129,13 @@ const AdminDashboard = () => {
                     )
                   : "--",
               buyerId: order.buyer ? order.buyer._id : null, // เก็บ buyerId
-              buyerName: order.buyer ? order.buyer.name : "ไม่ระบุ", // เก็บชื่อผู้ซื้อ
+              buyerName: order.buyer ? order.buyer.name : "-", // เก็บชื้อผู้ซื้อ
             }));
           })
           .filter(Boolean)
           .flat();
 
-        console.log("Formatted Orders Data:", allOrders); // ตรวจสอบข้อมูลที่ถูกแปลงแล้ว
+        // console.log("Formatted Orders Data:", allOrders); // ตรวจสอบข้อมูลที่แปลงแล้ว
         setOrders(allOrders); // ตั้งค่า state orders
       }
     } catch (error) {
@@ -163,7 +164,6 @@ const AdminDashboard = () => {
       [event.target.name]: event.target.checked,
     };
     setSelectedBuyers(newSelection);
-    console.log("selectedBuyers: ", newSelection);
   };
 
   const handleVegetableChange = (event) => {
@@ -172,24 +172,24 @@ const AdminDashboard = () => {
       [event.target.name]: event.target.checked,
     };
     setSelectedVegetables(newSelection);
-    console.log("Selected Vegetables: ", newSelection);
+    // console.log("Selected Vegetables: ", newSelection);
   };
 
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
-    console.log("Start Date: ", e.target.value);
+    // console.log("Start Date: ", e.target.value);
   };
 
   const handleEndDateChange = (e) => {
     setEndDate(e.target.value);
-    console.log("End Date: ", e.target.value);
+    // console.log("End Date: ", e.target.value);
   };
 
   const filterOrders = () => {
     let filtered = [...orders];
-    console.log("Initial Orders:", orders); // ตรวจสอบข้อมูลก่อนกรอง
+    // console.log("Initial Orders:", orders);
 
-    // กรองตาม ผัก
+    // 🫛 กรองตามผัก
     const selectedVegIds = Object.entries(selectedVegetables)
       .filter(([_, isSelected]) => isSelected)
       .map(([id]) => id);
@@ -200,6 +200,17 @@ const AdminDashboard = () => {
           (v) => v.name === order.vegetableName
         );
         return vegetable && selectedVegIds.includes(vegetable._id);
+      });
+    }
+
+    //🛒 กรองตามผู้ซื้อ
+    const selectedBuyerIds = Object.entries(selectedBuyers)
+      .filter(([_, isSelected]) => isSelected)
+      .map(([id]) => id);
+
+    if (selectedBuyerIds.length > 0) {
+      filtered = filtered.filter((order) => {
+        return selectedBuyerIds.includes(order.buyerId); // ตรวจสอบว่า buyerId ตรงกับที่เลือกหรือไม่
       });
     }
 
@@ -233,7 +244,7 @@ const AdminDashboard = () => {
       });
     }
 
-    console.log("Filtered Orders:", filtered); // ตรวจสอบข้อมูลหลังกรอง
+    // console.log("Filtered Orders:", filtered); // ตรวจสอบข้อมูลที่กรอง
     setFilteredOrders(filtered);
     updatePieChartData(filtered);
     updateBarChartData(filtered);
@@ -417,22 +428,6 @@ const AdminDashboard = () => {
         display: false,
       },
     },
-  };
-
-  // คำนวณจำนวนโลกรวม
-  const calculateTotalKilograms = () => {
-    if (filteredOrders.length === 0) {
-      // ถ้าไม่กรอง ให้คำนวณจากทั้งหมด
-      return orders.reduce(
-        (total, order) => total + order.quantityDelivered,
-        0
-      );
-    }
-    // ถ้ากรอง ให้คำนวณจากข้อมูลกรองแล้ว
-    return filteredOrders.reduce(
-      (total, order) => total + order.quantityDelivered,
-      0
-    );
   };
 
   // เล่ม ฟังก์ชัน นำออกข้อมูล CSV
@@ -626,36 +621,48 @@ const AdminDashboard = () => {
                       จำนวนส่ง (กก.)
                     </th>
                     <th className="px-6 py-4 font-bold text-gray-600 w-[200px]">
+                      กำหนดส่ง
+                    </th>
+                    <th className="px-6 py-4 font-bold text-gray-600 w-[200px]">
                       วันเก็บ
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {currentOrders.map((item, index) => (
-                    <tr
-                      key={item.id}
-                      className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-6 py-4 text-gray-600">
-                        {startIndex + index + 1}
-                      </td>
-                      <td className="px-6 py-4 text-gray-600">
-                        {item.vegetableName}
-                      </td>
-                      <td className="px-6 py-4 text-gray-600">
-                        {item.buyerName}
-                      </td>
-                      <td className="px-6 py-4 text-gray-600">
-                        {item.quantityOrdered}
-                      </td>
-                      <td className="px-6 py-4 text-gray-600">
-                        {item.quantityDelivered}
-                      </td>
-                      <td className="px-6 py-4 text-gray-600">
-                        {item.harvestDate}
-                      </td>
-                    </tr>
-                  ))}
+                  {currentOrders.map((item, index) => {
+                    // console.log(`Order item: ${index + 1}`, item);
+
+                    return (
+                      <tr
+                        key={item.id}
+                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-6 py-4 text-gray-600">
+                          {startIndex + index + 1}
+                        </td>
+                        <td className="px-6 py-4 text-gray-600">
+                          {item.vegetableName}
+                        </td>
+                        <td className="px-6 py-4 text-gray-600">
+                          {item.buyerName}
+                        </td>
+                        <td className="px-6 py-4 text-gray-600">
+                          {item.quantityOrdered}
+                        </td>
+                        <td className="px-6 py-4 text-gray-600">
+                          {item.quantityDelivered}
+                        </td>
+                        <td className="px-6 py-4 text-gray-600">
+                          {item.dueDate
+                            ? new Date(item.dueDate).toLocaleDateString("th-TH")
+                            : "--"}
+                        </td>
+                        <td className="px-6 py-4 text-gray-600">
+                          {item.harvestDate}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
