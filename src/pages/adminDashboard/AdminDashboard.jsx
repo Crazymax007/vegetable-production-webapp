@@ -111,7 +111,6 @@ const AdminDashboard = () => {
     try {
       const response = await getOrders();
       if (response && response.data && response.data.data) {
-        // แปลงข้อมูลให้อยู่ใน รูปแบบที่ต้องการก่อน
         const allOrders = response.data.data
           .map((order) => {
             if (!order.details) return null;
@@ -128,31 +127,15 @@ const AdminDashboard = () => {
                       "th-TH"
                     )
                   : "--",
+              buyerId: order.buyer ? order.buyer._id : null, // เก็บ buyerId
+              buyerName: order.buyer ? order.buyer.name : "ไม่ระบุ", // เก็บชื่อผู้ซื้อ
             }));
           })
           .filter(Boolean)
           .flat();
 
-        // สร้าง key กลุ่ม (ชื้อ + วันเก็บ)
-        const groupedOrders = allOrders.reduce((acc, order) => {
-          const key = `${order.vegetableName}_${order.harvestDate}`;
-          if (!acc[key]) {
-            acc[key] = {
-              id: order.id, // เก็บ id แรกที่เจอ
-              vegetableName: order.vegetableName,
-              quantityOrdered: 0,
-              quantityDelivered: 0,
-              harvestDate: order.harvestDate,
-            };
-          }
-          acc[key].quantityOrdered += order.quantityOrdered;
-          acc[key].quantityDelivered += order.quantityDelivered;
-          return acc;
-        }, {});
-
-        // แปลงเป็น array
-        const formattedOrders = Object.values(groupedOrders);
-        setOrders(formattedOrders);
+        console.log("Formatted Orders Data:", allOrders); // ตรวจสอบข้อมูลที่ถูกแปลงแล้ว
+        setOrders(allOrders); // ตั้งค่า state orders
       }
     } catch (error) {
       console.error("Failed to fetch orders:", error);
@@ -204,6 +187,7 @@ const AdminDashboard = () => {
 
   const filterOrders = () => {
     let filtered = [...orders];
+    console.log("Initial Orders:", orders); // ตรวจสอบข้อมูลก่อนกรอง
 
     // กรองตาม ผัก
     const selectedVegIds = Object.entries(selectedVegetables)
@@ -249,6 +233,7 @@ const AdminDashboard = () => {
       });
     }
 
+    console.log("Filtered Orders:", filtered); // ตรวจสอบข้อมูลหลังกรอง
     setFilteredOrders(filtered);
     updatePieChartData(filtered);
     updateBarChartData(filtered);
@@ -328,15 +313,26 @@ const AdminDashboard = () => {
       return acc;
     }, {});
 
-    // เดทข้อมูล Bar Chart
+    function getRandomColor() {
+      const letters = "ABCDEF0123456789";
+      let color = "#";
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+
     setBarData({
       labels: Object.keys(vegGroups),
       datasets: [
         {
           label: "จำนวนผลิต (กก.)",
           data: Object.values(vegGroups),
-          backgroundColor: "#4BC0C0",
-          borderColor: "#36A2EB",
+          backgroundColor: Array.from(
+            { length: Object.keys(vegGroups).length },
+            () => getRandomColor()
+          ),
+          borderColor: "#ffff", // สีขอบ
           borderWidth: 1,
         },
       ],
@@ -451,6 +447,7 @@ const AdminDashboard = () => {
       "จำนวนผลิต (กก.)",
       "จำนวนส่ง (กก.)",
       "วันเก็บ",
+      "ผู้ซื้อ",
     ];
 
     // แปลงข้อมูลเป็น CSV
@@ -463,6 +460,7 @@ const AdminDashboard = () => {
           item.quantityOrdered,
           item.quantityDelivered,
           item.harvestDate,
+          item.buyerName,
         ].join(",")
       ),
     ].join("\n");
@@ -618,6 +616,9 @@ const AdminDashboard = () => {
                     <th className="px-6 py-4 font-bold text-gray-600 w-[200px]">
                       ชื่อ
                     </th>
+                    <th className="px-6 py-4 font-bold text-gray-600 w-[200px]">
+                      ผู้ซื้อ
+                    </th>
                     <th className="px-6 py-4 font-bold text-gray-600 w-[150px]">
                       จำนวนผลิต (กก.)
                     </th>
@@ -640,6 +641,9 @@ const AdminDashboard = () => {
                       </td>
                       <td className="px-6 py-4 text-gray-600">
                         {item.vegetableName}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        {item.buyerName}
                       </td>
                       <td className="px-6 py-4 text-gray-600">
                         {item.quantityOrdered}
