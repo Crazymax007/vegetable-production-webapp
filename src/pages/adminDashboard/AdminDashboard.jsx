@@ -28,15 +28,18 @@ import {
   CategoryScale,
   LinearScale,
 } from "chart.js";
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-// 📌 กำหนดให้ ChartJS ใช้ ArcElement, BarElement, CategoryScale, LinearScale
+
+// 📌 กำหนดให้ ChartJS ใช้ ArcElement, BarElement, CategoryScale, LinearScale และ ChartDataLabels
 ChartJS.register(
   ArcElement,
   Tooltip,
   Legend,
   BarElement,
   CategoryScale,
-  LinearScale
+  LinearScale,
+  ChartDataLabels
 );
 
 const AdminDashboard = () => {
@@ -408,6 +411,13 @@ const AdminDashboard = () => {
         overflow: "scroll",
         maxHeight: 350,
       },
+      datalabels: {
+        formatter: (value, context) => {
+          const label = context.chart.data.labels[context.dataIndex];
+          return `${value.toLocaleString()}`;
+        },
+        color: '#000',
+      },
     },
     layout: {
       padding: {
@@ -445,16 +455,16 @@ const AdminDashboard = () => {
           text: "จำนวน (กก.)",
         },
       },
-      // x: {
-      //   title: {
-      //     display: true,
-      //     text: "ชื้อ",
-      //   },
-      // },
     },
     plugins: {
       legend: {
         display: false,
+      },
+      datalabels: {
+        anchor: 'end',
+        align: 'end',
+        formatter: (value) => value.toLocaleString(),
+        color: '#000',
       },
     },
   };
@@ -614,8 +624,8 @@ const AdminDashboard = () => {
           </div>
           <div className="bg-white w-[75%] border border-black rounded-lg p-4">
             <div className="text-lg mb-2">ผลผลิตรวมแยกตามชื้อ (กก.)</div>
-            <div style={{ height: "300px" }}>
-              <Bar data={barData} options={barOptions} />
+            <div className="h-[40vh] overflow-x-auto">
+              <Bar className="" data={barData} options={barOptions} />
             </div>
           </div>
         </div>
