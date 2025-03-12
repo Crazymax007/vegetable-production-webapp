@@ -78,9 +78,13 @@ const AdminDashboard = () => {
   const fetchVegetables = async () => {
     try {
       const response = await getVegetables();
-      setVegetables(response.data);
+      // เรียงลำดับผักตามชื่อ
+      const sortedVegetables = response.data.sort((a, b) =>
+        a.name.localeCompare(b.name, "th")
+      );
+      setVegetables(sortedVegetables);
       // สร้าง object เก็บสถานะการเลือกของแต่ละ
-      const initialSelected = response.data.reduce((acc, veg) => {
+      const initialSelected = sortedVegetables.reduce((acc, veg) => {
         acc[veg._id] = false;
         return acc;
       }, {});
@@ -146,9 +150,13 @@ const AdminDashboard = () => {
   const fetchBuyers = async () => {
     try {
       const response = await getBuyers();
-      setBuyers(response.data);
+      // เรียงลำดับผู้ซื้อตามชื่อ
+      const sortedBuyers = response.data.sort((a, b) =>
+        a.name.localeCompare(b.name, "th")
+      );
+      setBuyers(sortedBuyers);
       // Initialize selected buyers state
-      const initialSelected = response.data.reduce((acc, buyer) => {
+      const initialSelected = sortedBuyers.reduce((acc, buyer) => {
         acc[buyer._id] = false;
         return acc;
       }, {});
@@ -253,18 +261,39 @@ const AdminDashboard = () => {
   const updatePieChartData = (filteredData) => {
     // กลุ่มข้อมูลตาม buyer
     const buyerGroups = filteredData.reduce((acc, order) => {
-      const buyerId = order.buyerId; // Assuming 'buyerId' is available in the order data
-      if (!acc[buyerId]) {
-        acc[buyerId] = {
-          buyerName: order.buyerName, // Assuming 'buyerName' is available
-          totalDelivered: 0,
-        };
+      const buyerId = order.buyerId; // ใช้ buyerId จากคำสั่งซื้อ
+      const buyerName = order.buyerName; // ชื่อผู้ซื้อ
+
+      // ตรวจสอบว่า buyerName ไม่เป็น '-' หรือ null
+      if (buyerName && buyerName !== "-") {
+        if (!acc[buyerId]) {
+          acc[buyerId] = {
+            buyerName: buyerName, // ชื่อผู้ซื้อ
+            totalDelivered: 0,
+          };
+        }
+        acc[buyerId].totalDelivered += order.quantityDelivered;
       }
-      acc[buyerId].totalDelivered += order.quantityDelivered;
       return acc;
     }, {});
 
-    // กำหนด ค่าสี ไม่ซ้ำ
+    // ตรวจสอบว่ามีผู้ซื้อหรือไม่
+    if (Object.keys(buyerGroups).length === 0) {
+      // ถ้าไม่มีผู้ซื้อ ให้รีเซ็ต pieData
+      setPieData({
+        labels: [],
+        datasets: [
+          {
+            data: [],
+            backgroundColor: [],
+            hoverBackgroundColor: [],
+          },
+        ],
+      });
+      return; // ออกจากฟังก์ชัน
+    }
+
+    // กำหนดค่าสีไม่ซ้ำ
     const colors = [
       "#FF6384",
       "#36A2EB",
@@ -283,13 +312,13 @@ const AdminDashboard = () => {
       "#CC99FF",
     ];
 
-    // คำนวณเปอร์เซ็นต์และตั้งค่าชื่อ แต่ละ Buyer
+    // คำนวณเปอร์เซ็นต์และตั้งค่าชื่อแต่ละ Buyer
     const totalDelivered = Object.values(buyerGroups).reduce(
       (sum, group) => sum + group.totalDelivered,
       0
     );
 
-    const labels = Object.keys(buyerGroups).map((buyerId, index) => {
+    const labels = Object.keys(buyerGroups).map((buyerId) => {
       const buyer = buyerGroups[buyerId];
       const percentage = (
         (buyer.totalDelivered / totalDelivered) *
@@ -298,7 +327,7 @@ const AdminDashboard = () => {
       return `${buyer.buyerName} (${buyer.totalDelivered} กก. ${percentage}%)`;
     });
 
-    // เดทข้อมูล Pie Chart
+    // ตั้งค่าข้อมูล Pie Chart
     setPieData({
       labels: labels,
       datasets: [
@@ -510,9 +539,11 @@ const AdminDashboard = () => {
             </div>
           </div>
           {/* Pie chart */}
-          <div className="bg-white w-[75%] flex flex-col  border border-black rounded-lg p-4">
+          <div className="bg-white w-[75%] flex flex-col border border-black rounded-lg p-4">
             <div>ผลผลิตรวมแยกตามผู้ซื้อ (กก.)</div>
-            <div> Pie Chart </div>
+            <div style={{ height: "300px" }}>
+              <Pie data={pieData} options={pieOptions} />
+            </div>
           </div>
         </div>
         <div className="flex gap-2">
