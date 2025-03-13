@@ -8,7 +8,12 @@ import {
   Box,
   TextField,
 } from "@mui/material";
-import { FcCloseUpMode, FcShop, FcOvertime } from "react-icons/fc";
+import {
+  FcCloseUpMode,
+  FcShop,
+  FcOvertime,
+  FcClearFilters,
+} from "react-icons/fc";
 
 // 📌 ข้อมูล API
 import { getVegetables } from "../../services/vegatableService";
@@ -28,8 +33,7 @@ import {
   CategoryScale,
   LinearScale,
 } from "chart.js";
-import ChartDataLabels from 'chartjs-plugin-datalabels';
-
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 // 📌 กำหนดให้ ChartJS ใช้ ArcElement, BarElement, CategoryScale, LinearScale และ ChartDataLabels
 ChartJS.register(
@@ -132,11 +136,23 @@ const AdminDashboard = () => {
               harvestDate:
                 detail.delivery && detail.delivery.deliveredDate
                   ? new Date(detail.delivery.deliveredDate).toLocaleDateString(
-                      "th-TH"
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      }
                     )
                   : "--",
               buyerId: order.buyer ? order.buyer._id : null, // เก็บ buyerId
-              buyerName: order.buyer ? order.buyer.name : "-", // เก็บชื้อผู้ซื้อ
+              buyerName: order.buyer ? order.buyer.name : "-", // เก็บชื่อผู้ซื้อ
+              dueDate: order.dueDate
+                ? new Date(order.dueDate).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })
+                : "--",
             }));
           })
           .filter(Boolean)
@@ -193,12 +209,15 @@ const AdminDashboard = () => {
 
   const handleEndDateChange = (e) => {
     setEndDate(e.target.value);
-    // console.log("End Date: ", e.target.value);
+  };
+
+  const handleClearDates = () => {
+    setStartDate("");
+    setEndDate("");
   };
 
   const filterOrders = () => {
     let filtered = [...orders];
-    // console.log("Initial Orders:", orders);
 
     // 🫛 กรองตามผัก
     const selectedVegIds = Object.entries(selectedVegetables)
@@ -226,6 +245,31 @@ const AdminDashboard = () => {
     }
 
     // กรองตาม วัน
+    if (endDate) {
+      filtered = filtered.filter((order) => {
+        if (order.harvestDate === "--") return false;
+
+        try {
+          // แปลง วันจากฐานข้อมูลให้เป็น วันที่ต้องการ
+          const [day, month, year] = order.harvestDate.split("/");
+          const orderDate = new Date(
+            parseInt(year), // ใช้ปีในรูปแบบคริสต์ศักราช
+            parseInt(month) - 1,
+            parseInt(day)
+          );
+
+          const end = new Date(endDate);
+          end.setHours(23, 59, 59, 999); // ตั้งเวลาสิ้นสุดเป็น 23:59:59
+
+          // ถ้าไม่มี startDate ให้แสดงข้อมูลตั้งแต่ endDate ย้อนกลับไป
+          return orderDate <= end;
+        } catch (error) {
+          console.error("Date parsing error:", error);
+          return false;
+        }
+      });
+    }
+
     if (startDate) {
       filtered = filtered.filter((order) => {
         if (order.harvestDate === "--") return false;
@@ -234,20 +278,15 @@ const AdminDashboard = () => {
           // แปลง วันจากฐานข้อมูลให้เป็น วันที่ต้องการ
           const [day, month, year] = order.harvestDate.split("/");
           const orderDate = new Date(
-            parseInt(year) - 543,
+            parseInt(year), // ใช้ปีในรูปแบบคริสต์ศักราช
             parseInt(month) - 1,
             parseInt(day)
           );
 
           const start = new Date(startDate);
-          const end = endDate ? new Date(endDate) : new Date();
+          start.setHours(0, 0, 0, 0); // ตั้งเวลาเริ่มต้นเป็น 00:00:00
 
-          // ตั้งเวลาให้เป็นเที่ยง ของ วันๆ
-          start.setHours(0, 0, 0, 0);
-          end.setHours(23, 59, 59, 999);
-          orderDate.setHours(0, 0, 0, 0);
-
-          return orderDate >= start && orderDate <= end;
+          return orderDate >= start; // กรองตาม startDate
         } catch (error) {
           console.error("Date parsing error:", error);
           return false;
@@ -356,26 +395,32 @@ const AdminDashboard = () => {
       return acc;
     }, {});
 
-    function getRandomColor() {
-      const letters = "ABCDEF0123456789";
-      let color = "#";
-      for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
-    }
+    const colors = [
+      "#FF6384", // ชม
+      "#36A2EB", // ฟ้า
+      "#FFCE56", // ยืด
+      "#4BC0C0", // น้ำเงิน
+      "#FF9F40", // ส้ม
+      "#9966FF", // ม่วง
+      "#FF6384", // ชมเข้ม
+      "#C9CBCF", // เทา
+      "#4D5360", // เทาเข้ม
+      "#FF99CC", // ชมอ่อน
+      "#99CCFF", // ฟ้าอ่อน
+      "#FFB366", // ส้มอ่อน
+      "#99FF99", // น้ำเงินอ่อน
+      "#FF99CC", // ชมอ่อน
+      "#CC99FF", // ม่วงอ่อน
+    ];
 
     setBarData({
       labels: Object.keys(vegGroups),
       datasets: [
         {
-          label: "จำนวนผลิต (กก.)",
+          label: "จำนวน (กก.)",
           data: Object.values(vegGroups),
-          backgroundColor: Array.from(
-            { length: Object.keys(vegGroups).length },
-            () => getRandomColor()
-          ),
-          borderColor: "#ffff", // สีขอบ
+          backgroundColor: colors.slice(0, Object.keys(vegGroups).length),
+          borderColor: "#ffff",
           borderWidth: 1,
         },
       ],
@@ -414,9 +459,14 @@ const AdminDashboard = () => {
       datalabels: {
         formatter: (value, context) => {
           const label = context.chart.data.labels[context.dataIndex];
-          return `${value.toLocaleString()}`;
+          const total = context.chart.data.datasets[0].data.reduce(
+            (a, b) => a + b,
+            0
+          ); // ใช้ context.chart.data แทน context.chart._data
+          const percentage = ((value / total) * 100).toFixed(1); // คำนวณเปอร์เซ็นต์
+          return `${value.toLocaleString()} กก. (${percentage}%)`; // แสดงชื่อ, จำนวน และเปอร์เซ็นต์
         },
-        color: '#000',
+        color: "#000",
       },
     },
     layout: {
@@ -461,10 +511,10 @@ const AdminDashboard = () => {
         display: false,
       },
       datalabels: {
-        anchor: 'end',
-        align: 'end',
+        anchor: "end",
+        align: "end",
         formatter: (value) => value.toLocaleString(),
-        color: '#000',
+        color: "#000",
       },
     },
   };
@@ -586,14 +636,22 @@ const AdminDashboard = () => {
                 </div>
               </div>
               <div className="bg-white border border-black rounded-lg p-4 overflow-auto">
-                <FormGroup>
-                  <FormLabel
-                    component="legend"
-                    className="mb-2 flex items-center gap-2"
-                  >
-                    <FcOvertime />
-                    เลือกช่วงเวลา
-                  </FormLabel>
+                <FormGroup className="flex flex-col gap-2">
+                  <div className="flex justify-between">
+                    <FormLabel
+                      component="legend"
+                      className="mb-2 flex items-center gap-2"
+                    >
+                      <FcOvertime />
+                      เลือกช่วงเวลา
+                    </FormLabel>
+                    <button
+                      onClick={handleClearDates}
+                      className="bg-gray-200 p-2 rounded-full"
+                    >
+                      <FcClearFilters />
+                    </button>
+                  </div>
                   <div className="flex flex-col gap-2">
                     <TextField
                       label="วันเริ่มต้น"
@@ -607,7 +665,7 @@ const AdminDashboard = () => {
                       size="small"
                     />
                     <TextField
-                      label="วันสิ้นสุด"
+                      label="สิ้นสุด"
                       type="date"
                       value={endDate}
                       onChange={handleEndDateChange}
@@ -616,6 +674,9 @@ const AdminDashboard = () => {
                       }}
                       fullWidth
                       size="small"
+                      inputProps={{
+                        min: startDate, // กำหนดค่าต่ำสุดเป็นวันเริ่มต้น
+                      }}
                     />
                   </div>
                 </FormGroup>
@@ -694,9 +755,7 @@ const AdminDashboard = () => {
                           {item.quantityDelivered}
                         </td>
                         <td className="px-6 py-4 text-gray-600">
-                          {item.dueDate
-                            ? new Date(item.dueDate).toLocaleDateString("th-TH")
-                            : "--"}
+                          {item.dueDate}
                         </td>
                         <td className="px-6 py-4 text-gray-600">
                           {item.harvestDate}
