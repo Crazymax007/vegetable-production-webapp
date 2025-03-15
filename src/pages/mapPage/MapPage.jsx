@@ -211,7 +211,7 @@ const MapPage = () => {
           </div>
         </div>
       </div>
-      <div className="bg-Green-button shadow-md h-full mb-[2%] flex justify-center items-center gap-24">
+      <div className="bg-Green-button shadow-md h-full mb-[2%] py-5 flex justify-center items-center gap-24">
         <div className="h-fullflex justify-center items-center">
           <div className="text-xl text-center text-white">
             จำนวนผลผลิต

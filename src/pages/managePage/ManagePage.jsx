@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { getUserInfo } from "../../services/authService";
+import { format } from "date-fns";
 
 // เพิ่มตัวแปรสำหรับตัวเลือกสถานะ
 const STATUS_OPTIONS = [
@@ -53,6 +54,7 @@ const ManagePage = () => {
   });
 
   const [user, setUser] = useState(null); // เพิ่ม state สำหรับเก็บข้อมูลผู้ใช้
+  const [editStatus, setEditStatus] = useState(""); // สำหรับการแก้ไข
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -70,7 +72,7 @@ const ManagePage = () => {
     if (field === "general") {
       setSearchTerm(value);
     } else if (field === "status") {
-      setSearchStatus(value);
+      setSearchStatus(value); // ค้นหาสถานะ
     } else if (field === "dateRange") {
       setDateRange((prev) => ({
         ...prev,
@@ -249,57 +251,6 @@ const ManagePage = () => {
     }
   };
 
-  const columns = [
-    {
-      header: "ลำดับ",
-      accessor: "index",
-      width: "5%",
-    },
-    { header: "ลูกสวน", accessor: "farmerId", width: "15%" },
-    { header: "ชื่อผัก", accessor: "vegetableName", width: "10%" },
-    { header: "ผู้รับซื้อ", accessor: "buyerName", width: "15%" },
-    { header: "วันที่สั่งปลูก", accessor: "orderDate", width: "10%" },
-    { header: "วันที่กำหนดส่ง", accessor: "dueDate", width: "10%" },
-    { header: "จำนวนที่สั่ง (กก.)", accessor: "quantityOrdered", width: "10%" },
-    { header: "วันที่ส่งผลิต", accessor: "deliveryDate", width: "10%" },
-    {
-      header: "จำนวนที่ส่ง (กก.)",
-      accessor: "quantityDelivered",
-      width: "10%",
-    },
-    {
-      header: "สถานะ",
-      accessor: "status",
-      width: "10%",
-      Cell: ({ value }) => <span>{getStatusThai(value)}</span>,
-    },
-    {
-      header: "จัดการข้อมูล",
-      accessor: "actions",
-      width: "15%",
-      Cell: ({ row }) => (
-        <div className="flex">
-          {user?.role !== "farmer" && ( // ตรวจสอบว่า user ไม่ใช่ farmer
-            <>
-              <button
-                className="bg-blue-500 text-black px-2 py-1 rounded mr-2 w-14"
-                onClick={() => handleEdit(row.original.id, row.original.orderId)}
-              >
-                แก้ไข
-              </button>
-              <button
-                className="bg-red-500 text-white px-2 py-1 rounded w-14"
-                onClick={() => handleDelete(row.original.id, row.original.orderId)}
-              >
-                ลบ
-              </button>
-            </>
-          )}
-        </div>
-      ),
-    },
-  ];
-
   // แก้ไขฟังก์ชัน handleEdit
   const handleEdit = async (detailId, orderId) => {
     try {
@@ -368,13 +319,14 @@ const ManagePage = () => {
       quantityOrdered: "",
       deliveryDate: null,
       quantityDelivered: "",
-      status: "",
+      status: "", // ใช้สำหรับการแก้ไข
     });
 
     useEffect(() => {
       if (order) {
         try {
           let deliveryDate = null;
+
           if (order.deliveryDate && order.deliveryDate !== "--") {
             // แยกวันที่ด้วย '/'
             const parts = order.deliveryDate.split("/");
@@ -415,11 +367,13 @@ const ManagePage = () => {
           delivery: {
             actualKg: editData.quantityDelivered,
             deliveredDate: editData.deliveryDate
-              ? editData.deliveryDate.toISOString()
+              ? format(editData.deliveryDate, "yyyy-MM-dd") // ใช้ format จาก date-fns
               : null,
             status: editData.status,
           },
         };
+
+        console.log("Detail Data to be sent:", detailData);
 
         const response = await updateOrderDetail(order.orderId, detailData);
 
@@ -463,13 +417,16 @@ const ManagePage = () => {
             </div>
             <div className="mb-4">
               <label className="block mb-2">วันที่ส่งผลิต</label>
-              <DatePicker
-                selected={editData.deliveryDate}
-                onChange={(date) =>
-                  setEditData({ ...editData, deliveryDate: date })
+              <TextField
+                type="date"
+                value={editData.deliveryDate ? format(editData.deliveryDate, "yyyy-MM-dd") : ''}
+                onChange={(e) =>
+                  setEditData({ ...editData, deliveryDate: new Date(e.target.value) })
                 }
-                className="w-full px-3 py-2 border rounded"
-                dateFormat="dd/MM/yyyy"
+                className="w-full"
+                InputLabelProps={{
+                  shrink: true,
+                }}
               />
             </div>
             <div className="mb-4">
@@ -488,21 +445,16 @@ const ManagePage = () => {
             </div>
             <div className="mb-4">
               <label className="block mb-2">สถานะ</label>
-              <Autocomplete
-                options={STATUS_OPTIONS}
-                getOptionLabel={(option) => option.label}
-                onChange={(event, newValue) =>
-                  handleSearch("status", newValue ? newValue.value : "")
+              <select
+                value={editData.status}
+                onChange={(e) =>
+                  setEditData((prev) => ({ ...prev, status: e.target.value }))
                 }
-                renderInput={(params) => (
-                  <TextField {...params} label="สถานะ" variant="outlined" />
-                )}
-                value={
-                  STATUS_OPTIONS.find(
-                    (option) => option.value === searchStatus
-                  ) || null
-                }
-              />
+                className="w-full px-3 py-2 border rounded"
+              >
+                <option value="Pending">รอดำเนินการ</option>
+                <option value="Complete">เสร็จสิ้น</option>
+              </select>
             </div>
             <div className="flex justify-end gap-2">
               <button
@@ -531,7 +483,7 @@ const ManagePage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-5 mx-20 bg-Green-Custom rounded-3xl p-6">
+    <div className="flex flex-col gap-5 mx-20 mb-[2%] bg-Green-Custom rounded-3xl p-6">
       <div className="text-xl">จัดการข้อมูล</div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-4 items-center">
@@ -566,7 +518,7 @@ const ManagePage = () => {
           {/* ปุ่มค้นหาเพิ่มเติม */}
           <button
             onClick={toggleAdvancedSearch}
-            className="px-4 py-2 bg-gray-400 hover:bg-gray-600 text-white rounded-md"
+            className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md"
           >
             เพิ่มเติม
           </button>

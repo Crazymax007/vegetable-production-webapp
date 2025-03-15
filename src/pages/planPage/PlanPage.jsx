@@ -16,7 +16,7 @@ const PlanPage = () => {
     <div>
       <div className="flex flex-col mx-20 my-6">
         {/* ทำนาย */}
-        <PredictComponent 
+        <PredictComponent
           onVegetableSelect={handleVegetableSelect}
           selectedVegetable={selectedVegetable}
         />
@@ -47,7 +47,7 @@ const PlanPage = () => {
 
           {/* แสดง Component ตามปุ่มที่กด */}
           {selectedComponent === "plantOrder" && (
-            <PlantOrderComponent 
+            <PlantOrderComponent
               selectedVegetable={selectedVegetable}
               onVegetableSelect={handleVegetableSelect}
             />
