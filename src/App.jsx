@@ -17,6 +17,7 @@ import FarmersManagement from "./pages/farmersManagement/FarmersManagement";
 import PlantManagement from "./pages/plantManagement/PlantManagement";
 import UserManagement from "./pages/UserManagement/UserManagement";
 import BuyerManagement from "./pages/buyerManagement/BuyerManagement";
+
 const App = () => {
   return (
     <Router>

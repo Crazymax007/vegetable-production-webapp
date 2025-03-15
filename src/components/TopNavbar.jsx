@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { logout, getUserInfo } from "../services/authService";
+import { useWindowSize } from "../contexts/WindowSizeContext";
+import { CgMenu } from "react-icons/cg";
 
 const TopNavbar = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [role, setRole] = useState(null); // เก็บ Role ของผู้ใช้
-  const location = useLocation(); // ใช้สำหรับตรวจสอบเส้นทางปัจจุบัน
+  const location = useLocation(); // ใช้ตรวจสอบเส้นทาง
+  const { width } = useWindowSize();
 
-  // ดึงข้อมูลผู้ใช้เมื่อ Component โหลด
+  // ข้อมูลผู้ใช้เมื่อ Component โหลด
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
@@ -29,70 +33,120 @@ const TopNavbar = () => {
     window.location.reload();
   };
 
-  // ฟังก์ชันตรวจสอบ Active
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  // ตรวจสอบ Active
   const isActive = (path) => location.pathname === path;
+
+  const NavLinks = () => (
+    <>
+      <a href="/map">
+        <div
+          className={`flex items-center rounded-[66px] p-[3px] ${
+            isActive("/map") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
+          } hover:bg-[#c8e29c]`}
+        >
+          <div className="bg-white rounded-full flex justify-center items-center p-1 w-[33px] h-[33px]">
+            <img
+              src="/assets/images/map.png"
+              className="w-[90%] h-[90%] object-contain"
+              alt=""
+            />
+          </div>
+          <span className="px-5 text-base">แผนที่</span>
+        </div>
+      </a>
+      {role !== "farmer" && (
+        <a href="/plan">
+          <div
+            className={`flex items-center rounded-[66px] p-[3px] ${
+              isActive("/plan") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
+            } hover:bg-[#c8e29c]`}
+          >
+            <div className="bg-white rounded-full flex justify-center items-center p-1 w-[33px] h-[33px]">
+              <img
+                src="/assets/images/predictive-chart.png"
+                className="w-[90%] h-[90%] object-contain"
+                alt=""
+              />
+            </div>
+            <span className="px-5 text-base">วางแผน</span>
+          </div>
+        </a>
+      )}
+      <a href="/management">
+        <div
+          className={`flex items-center rounded-[66px] p-[3px] ${
+            isActive("/management") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
+          } hover:bg-[#c8e29c]`}
+        >
+          <div className="bg-white rounded-full flex justify-center items-center p-1 w-[33px] h-[33px]">
+            <img
+              src="/assets/images/folder.png"
+              className="w-[90%] h-[90%] object-contain"
+              alt=""
+            />
+          </div>
+          <span className="px-5 text-base">ข้อมูล</span>
+        </div>
+      </a>
+      {/* Add system links for mobile view */}
+      <div className="lg:hidden">
+        {role === "admin" && (
+          <a href="/admin">
+            <div
+              className={`flex items-center rounded-[66px] p-[3px] bg-[#D9D9D9] hover:bg-[#c8e29c]`}
+            >
+              <div className="bg-white rounded-full flex justify-center items-center p-1 w-[33px] h-[33px]">
+                <img
+                  src="/assets/images/administrator.png"
+                  className="w-[90%] h-[90%] object-contain"
+                  alt=""
+                />
+              </div>
+              <span className="px-5 text-base">สำหรับผู้จัดการระบบ</span>
+            </div>
+          </a>
+        )}
+        <div
+          onClick={handleLogout}
+          className="flex items-center rounded-[66px] p-[3px] bg-[#D9D9D9] hover:bg-[#c8e29c] cursor-pointer mt-2"
+        >
+          <div className="bg-white rounded-full flex justify-center items-center p-1 w-[33px] h-[33px]">
+            <img
+              src="/assets/images/logout.png"
+              className="w-[90%] h-[90%] object-contain text-center"
+              alt=""
+            />
+          </div>
+          <span className="px-5 text-base">ออกจากระบบ</span>
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <nav className="bg-white shadow-sm border-gay-200 border-solid border mb-[2%] sticky top-0 z-50">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-[2%] py-5 px-20">
+        {/* Logo */}
         <a href="/map" className="">
           <img src="/favicon.png" className="h-[39px]" alt="Logo" />
         </a>
-        <div className="flex items-center space-x-5">
-          <a href="/map">
-            <div
-              className={`flex items-center rounded-[66px] p-[3px] ${
-                isActive("/map") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
-              } hover:bg-[#c8e29c]`}
-            >
-              <div className="bg-white rounded-full flex justify-center items-center p-1 w-[33px] h-[33px]">
-                <img
-                  src="/assets/images/map.png"
-                  className="w-[90%] h-[90%] object-contain"
-                  alt=""
-                />
-              </div>
-              <span className="px-5 text-base">แผนที่</span>
-            </div>
-          </a>
-          {/* แสดงเมนู "วางแผน" เฉพาะผู้ใช้ที่ไม่ใช่ farmer */}
-          {role !== "farmer" && (
-            <a href="/plan">
-              <div
-                className={`flex items-center rounded-[66px] p-[3px] ${
-                  isActive("/plan") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
-                } hover:bg-[#c8e29c]`}
-              >
-                <div className="bg-white rounded-full flex justify-center items-center p-1 w-[33px] h-[33px]">
-                  <img
-                    src="/assets/images/predictive-chart.png"
-                    className="w-[90%] h-[90%] object-contain"
-                    alt=""
-                  />
-                </div>
-                <span className="px-5 text-base">วางแผนการปลูกผัก</span>
-              </div>
-            </a>
-          )}
-          <a href="/management">
-            <div
-              className={`flex items-center rounded-[66px] p-[3px] ${
-                isActive("/management") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
-              } hover:bg-[#c8e29c]`}
-            >
-              <div className="bg-white rounded-full flex justify-center items-center p-1 w-[33px] h-[33px]">
-                <img
-                  src="/assets/images/folder.png"
-                  className="w-[90%] h-[90%] object-contain"
-                  alt=""
-                />
-              </div>
-              <span className="px-5 text-base">ข้อมูลผลผลิต</span>
-            </div>
-          </a>
+
+        {/* Desktop Menu */}
+        <div className="hidden lg:flex items-center space-x-5">
+          <NavLinks />
         </div>
 
-        <div className="relative">
+        {/* Mobile Menu Button */}
+        <button className="lg:hidden text-2xl" onClick={toggleMobileMenu}>
+          <CgMenu />
+        </button>
+
+        {/* Profile Menu */}
+        <div className="hidden lg:block relative">
           <button
             onClick={toggleProfileMenu}
             className="flex items-center text-gray-700 dropdown-toggle"
@@ -130,7 +184,7 @@ const TopNavbar = () => {
                       className="flex items-center gap-3 px-3 py-2 font-semibold text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100"
                       onClick={() => setIsProfileMenuOpen(false)}
                     >
-                      จัดการระบบ
+                      ระบบ
                     </a>
                   </li>
                 </ul>
@@ -161,6 +215,13 @@ const TopNavbar = () => {
           )}
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden flex flex-col space-y-4 px-20 pb-5">
+          <NavLinks />
+        </div>
+      )}
     </nav>
   );
 };
