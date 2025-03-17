@@ -183,32 +183,39 @@ const ManagePage = () => {
 
     // ค้นหาตามช่วงวันที่
     let dateMatch = true;
-    if (dateRange.start || dateRange.end) {
-      const start = dateRange.start ? new Date(dateRange.start) : null;
-      const end = dateRange.end ? new Date(dateRange.end) : null;
+    const start = dateRange.start ? new Date(dateRange.start) : null;
+    const end = dateRange.end ? new Date(dateRange.end) : null;
 
-      // แปลงวันที่จากสตริงเป็น Date object
-      const orderDate =
-        item.orderDate !== "--"
-          ? new Date(item.orderDate.split("/").reverse().join("-"))
-          : null;
-      const dueDate =
-        item.dueDate !== "--"
-          ? new Date(item.dueDate.split("/").reverse().join("-"))
-          : null;
-      const deliveryDate =
-        item.deliveryDate !== "--"
-          ? new Date(item.deliveryDate.split("/").reverse().join("-"))
-          : null;
+    // แปลงวันที่จากสตริงเป็น Date object
+    const orderDate =
+      item.orderDate !== "--"
+        ? new Date(item.orderDate.split("/").reverse().join("-"))
+        : null;
+    const dueDate =
+      item.dueDate !== "--"
+        ? new Date(item.dueDate.split("/").reverse().join("-"))
+        : null;
+    const deliveryDate =
+      item.deliveryDate !== "--"
+        ? new Date(item.deliveryDate.split("/").reverse().join("-"))
+        : null;
 
-      // ตรวจสอบว่ามีวันที่ใดๆ อยู่ในช่วงที่กำหนดหรือไม่
+    // ตรวจสอบว่ามีวันที่ใดๆ อยู่ในช่วงที่กำหนดหรือไม่
+    if (start && end) {
       dateMatch =
-        (start && orderDate && orderDate >= start) ||
-        (end && orderDate && orderDate <= end) ||
-        (start && dueDate && dueDate >= start) ||
-        (end && dueDate && dueDate <= end) ||
-        (start && deliveryDate && deliveryDate >= start) ||
-        (end && deliveryDate && deliveryDate <= end);
+        (orderDate && orderDate >= start && orderDate <= end) ||
+        (dueDate && dueDate >= start && dueDate <= end) ||
+        (deliveryDate && deliveryDate >= start && deliveryDate <= end);
+    } else if (start) {
+      dateMatch =
+        (orderDate && orderDate >= start) ||
+        (dueDate && dueDate >= start) ||
+        (deliveryDate && deliveryDate >= start);
+    } else if (end) {
+      dateMatch =
+        (orderDate && orderDate <= end) ||
+        (dueDate && dueDate <= end) ||
+        (deliveryDate && deliveryDate <= end);
     }
 
     const statusMatch = searchStatus === "" || item.status === searchStatus;
