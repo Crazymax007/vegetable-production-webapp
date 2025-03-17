@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 const LoadingSpinner = () => (
   <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-70 backdrop-blur-md">
     <motion.div
-      className="w-16 h-16 border-4 border-gray-400 border-t-gray-100 rounded-full"
+      className="w-16 h-16 border-4 border-gray-400 border-t-gray-100 rounded-full mb-10"
       initial={{ rotate: 0 }}
       animate={{ rotate: 360 }}
       transition={{
@@ -15,7 +15,7 @@ const LoadingSpinner = () => (
         ease: "linear",
       }}
     ></motion.div>
-    <p className="absolute text-white text-lg mt-20">Loading...</p>
+    <p className="absolute text-white text-lg mt-[100px]">กำลังโหลด...</p>
   </div>
 );
 

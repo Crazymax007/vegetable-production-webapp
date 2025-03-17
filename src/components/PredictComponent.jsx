@@ -118,7 +118,7 @@ const PredictComponent = ({ onVegetableSelect, selectedVegetable }) => {
                 onChange={(e) => setRequiredKg(e.target.value)}
                 variant="outlined"
                 size="small"
-                className="bg-white rounded-lg"
+                className="bg-white rounded-lg w-full"
                 label="กรอกจำนวน (กก.)"
               />
             </div>
@@ -134,8 +134,8 @@ const PredictComponent = ({ onVegetableSelect, selectedVegetable }) => {
                 }}
                 variant="outlined"
                 size="small"
-                className="bg-white rounded-lg"
-                label="กรอกจำนวนคน"
+                className="bg-white rounded-lg w-full"
+                label={`กรอกจำนวนคน (สูงสุด ${availableFarmers} คน)`}
               />
             </div>
           </>

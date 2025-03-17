@@ -96,7 +96,7 @@ const MapPage = () => {
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex flex-col lg:flex-row justify-center gap-3 md:gap-6 mx-10 md:mx-20 mb-[5%] lg:mb-[2%]">
+      <div className="flex flex-col lg:flex-row justify-center gap-3 md:gap-6 mx-10 md:mx-20 mb-[5%] lg:mb-[2%] mt-[5%] lg:mt-0">
         {/* Mini map */}
         <div className="rounded-3xl shadow-md overflow-hidden w-full lg:w-[65%]">
           <MapContainer
@@ -216,7 +216,7 @@ const MapPage = () => {
           </div>
         </div>
       </div>
-      <div className="bg-Green-button shadow-md h-full mb-[5%] lg:mb-[2%] py-5 flex flex-col lg:flex-row justify-center items-center lg:gap-24">
+      <div className="bg-Green-button shadow-md h-full py-5 flex flex-col lg:flex-row justify-center items-center lg:gap-24">
         <div className="h-full flex justify-center items-center">
           {width > 1024 ? (
             <div className="text-xl text-center text-white">
@@ -299,8 +299,6 @@ const MapPage = () => {
           </div>
         </div>
       </div>
-      <div className="flex-grow" />
-      <FooterComponent />
     </div>
   );
 };

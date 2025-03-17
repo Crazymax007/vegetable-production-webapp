@@ -65,8 +65,7 @@ const ProductDeliveryComponent = () => {
         if (!detail.delivery.actualKg || detail.delivery.actualKg <= 0) {
           return Swal.fire(
             "ผิดพลาด",
-            `กรุณากรอกจำนวนที่ส่ง (kg) สำหรับลูกสวนที่ ${i + 1}, รายการที่ ${
-              j + 1
+            `กรุณากรอกจำนวนที่ส่ง (kg) สำหรับลูกสวนที่ ${i + 1}, รายการที่ ${j + 1
             }`,
             "error"
           );
@@ -124,7 +123,7 @@ const ProductDeliveryComponent = () => {
   }, [vegetable]);
 
   return (
-    <div className="bg-Green-Custom rounded-3xl flex flex-col p-6">
+    <div className="bg-Green-Custom rounded-3xl flex flex-col md:pt-6 pb-6 px-6">
       <div className="text-xl mb-6">บันทึกการส่งผลิต</div>
       <div className="flex flex-col">
         <div className="flex space-x-5 mx-[5%] mb-6">

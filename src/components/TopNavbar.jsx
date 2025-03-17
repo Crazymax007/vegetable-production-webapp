@@ -131,7 +131,7 @@ const TopNavbar = () => {
   );
 
   return (
-    <nav className="bg-white shadow-sm border-gay-200 border-solid border mb-[5%] lg:mb-[2%] sticky top-0 z-50">
+    <nav className="bg-white shadow-sm border-gay-200 border-solid border lg:mb-[2%] sticky top-0 z-50">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-[2%] py-5 px-10 md:px-20">
         {/* Logo */}
         <a href="/map" className="">

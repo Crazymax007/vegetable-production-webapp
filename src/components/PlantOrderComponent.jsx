@@ -173,13 +173,13 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
   };
 
   return (
-    <div className="bg-Green-Custom md:rounded-3xl flex flex-col p-6">
+    <div className="bg-Green-Custom md:rounded-3xl flex flex-col md:pt-6 pb-6 px-6">
       <div className="text-xl mb-6">มอบหมายการปลูก</div>
       <div className="flex flex-col">
-        <div className="flex justify-between space-x-4 mx-[5%] mb-6 ">
-          <div className="flex items-center space-x-4 w-[80%]">
-            <div className="flex items-center space-x-2 w-[20%] ">
-              <span className="text-lg whitespace-nowrap">ผัก:</span>
+        <div className="flex flex-col al:flex-row justify-between space-y-4 al:space-y-0 al:space-x-4 mx-[5%] mb-6">
+          <div className="flex flex-col al:flex-row items-center space-y-4 al:space-y-0 al:space-x-4">
+            {/* เลือกผัก */}
+            <div className="w-full al:w-auto">
               <Autocomplete
                 options={vegetableList}
                 getOptionLabel={(option) => option.name}
@@ -200,7 +200,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
                     }}
                   />
                 )}
-                className="w-full rounded-lg"
+                className="w-full rounded-lg min-w-[200px]"
                 loading={loading}
                 disableClearable
                 noOptionsText={
@@ -208,8 +208,8 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
                 }
               />
             </div>
-            <div className="flex items-center space-x-2 w-[30%]">
-              <span className="text-lg whitespace-nowrap">ผู้รับซื้อ:</span>
+            {/* เลือกผู้รับซื้อ */}
+            <div className="w-full al:w-auto">
               <Autocomplete
                 options={buyerList}
                 getOptionLabel={(option) => option.name}
@@ -228,7 +228,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
                     }}
                   />
                 )}
-                className="w-full rounded-lg"
+                className="w-full rounded-lg min-w-[200px]"
                 loading={loading}
                 disableClearable
                 noOptionsText={
@@ -236,45 +236,50 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
                 }
               />
             </div>
-            <div className="flex items-center space-x-2 w-[25%]">
-              <span className="whitespace-nowrap text-lg">วันที่สั่ง: </span>
+            {/* เลือกวันที่สั่ง */}
+            <div className="w-full al:w-auto">
               <TextField
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="bg-white rounded-lg"
+                className="bg-white rounded-lg w-full"
                 size="small"
-                fullWidth
+                label="วันที่สั่ง"
                 InputLabelProps={{
                   shrink: true,
                 }}
+                inputProps={{
+                  placeholder: "วว/ดด/ปปปป"
+                }}
               />
             </div>
-            <div className="flex items-center space-x-2 w-[25%]">
-              <span className="whitespace-nowrap text-lg">กำหนดส่ง: </span>
+            {/* เลือกวันที่กำหนดสั่ง */}
+            <div className="w-full al:w-auto">
               <TextField
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="bg-white rounded-lg"
+                className="bg-white rounded-lg w-full"
                 size="small"
-                fullWidth
+                label="วันที่กำหนดส่ง"
                 InputLabelProps={{
                   shrink: true,
                 }}
                 inputProps={{
                   min: selectedDate || undefined,
+                  placeholder: "วว/ดด/ปปปป"
                 }}
               />
             </div>
           </div>
           <button
-            className="bg-Green-button text-white rounded-lg w-24 text-base p-2"
+            className="bg-Green-button text-base text-white rounded-lg w-full al:w-24 p-2"
             onClick={handleAddFarmer}
           >
             เพิ่มลูกสวน
           </button>
         </div>
+        {/* ลูกสวน */}
         <div className="bg-gray-200 rounded-3xl overflow-auto max-h-44 mx-[5%] p-4 flex flex-col space-y-4 mb-6">
           {selectedFarmers.map((item, index) => (
             <div
@@ -322,9 +327,8 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
               </div>
 
               <button
-                className={`bg-red-500 text-white rounded-lg px-4 py-1 shadow-md ${
-                  index == 0 ? "opacity-0" : "opacity-100"
-                }`}
+                className={`bg-red-500 text-white rounded-lg px-4 py-1 shadow-md ${index == 0 ? "opacity-0" : "opacity-100"
+                  }`}
                 onClick={() => handleRemoveFarmer(index)}
                 disabled={index === 0}
               >
@@ -334,7 +338,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
           ))}
         </div>
         <button
-          className="bg-Green-button text-white rounded-lg w-24 text-base p-2 mx-[5%]"
+          className="bg-Green-button text-white rounded-lg w-full al:w-24 text-base p-2 al:mx-[5%]"
           onClick={handleSave}
         >
           บันทึก
