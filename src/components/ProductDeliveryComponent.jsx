@@ -126,9 +126,8 @@ const ProductDeliveryComponent = () => {
     <div className="bg-Green-Custom rounded-3xl flex flex-col md:pt-6 pb-6 px-6">
       <div className="text-xl mb-6">บันทึกการส่งผลิต</div>
       <div className="flex flex-col">
-        <div className="flex space-x-5 mx-[5%] mb-6">
-          <div className="flex items-center space-x-2 w-[20%]">
-            <span className="text-lg">ผัก:</span>
+        <div className="flex space-x-5 mx-[2%] lg:mx-[5%] mb-6">
+          <div className="flex items-center space-x-2 w-full lg:w-[20%]">
             <Autocomplete
               options={vegetableList}
               getOptionLabel={(option) => option.name}
@@ -157,87 +156,92 @@ const ProductDeliveryComponent = () => {
           </div>
         </div>
 
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg mx-[5%] mb-6">
-          <table className="w-full text-sm text-left text-gray-500">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-200">
-              <tr>
-                <th className="px-6 py-3">ลำดับ</th>
-                <th className="px-6 py-3">ลูกสวน</th>
-                <th className="px-6 py-3">ชนิดผัก</th>
-                <th className="px-6 py-3">จำนวนที่สั่ง (กก.)</th>
-                <th className="px-6 py-3">วันที่สั่ง</th>
-                <th className="px-6 py-3">วันที่กำหนด</th>
-                <th className="px-6 py-3">จำนวนที่ส่ง (กก.)</th>
-                <th className="px-6 py-3">วันที่ส่ง</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.length === 0 ? (
+        {/* Original div */}
+        <div className="relative overflow-x-auto shadow-md sm:rounded-lg mx-[2%] lg:mx-[5%] mb-6">
+          <div className="min-w-[800px]">
+            <table className="w-full text-sm text-left text-gray-500">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-200">
                 <tr>
-                  <td colSpan="8" className="text-center bg-white py-4">
-                    ไม่พบข้อมูล
-                  </td>
+                  <th className="px-6 py-3">ลำดับ</th>
+                  <th className="px-6 py-3 min-w-32">ลูกสวน</th>
+                  <th className="px-6 py-3">ชนิดผัก</th>
+                  <th className="px-6 py-3">จำนวนที่สั่ง (กก.)</th>
+                  <th className="px-6 py-3">วันที่สั่ง</th>
+                  <th className="px-6 py-3">วันที่กำหนด</th>
+                  <th className="px-6 py-3">จำนวนที่ส่ง (กก.)</th>
+                  <th className="px-6 py-3">วันที่ส่ง</th>
                 </tr>
-              ) : (
-                orders.map((order, index) =>
-                  order.details.map((detail, subIndex) => (
-                    <tr
-                      key={detail._id}
-                      className="odd:bg-white even:bg-gray-50 border-b"
-                    >
-                      <td className="px-6 py-4">{subIndex + 1}</td>
-                      <td className="px-6 py-4">
-                        {detail.farmerId.firstName} {detail.farmerId.lastName}
-                      </td>
-                      <td className="px-6 py-4">
-                        {order.vegetable?.name || "ไม่ระบุ"}
-                      </td>
-                      {/* แสดงชนิดผักจาก order.vegetable.name */}
-                      <td className="px-6 py-4">{detail.quantityKg}</td>
-                      <td className="px-6 py-4">
-                        {format(new Date(order.orderDate), 'dd/MM/yyyy')}
-                      </td>
-                      <td className="px-6 py-4">
-                        {format(new Date(order.dueDate), 'dd/MM/yyyy')}
-                      </td>
-                      <td className="px-6 py-4">
-                        <input
-                          type="number"
-                          className="border rounded-lg p-1 text-center w-20"
-                          value={detail.delivery.actualKg || ""}
-                          onChange={(e) =>
-                            handleInputChange(index, subIndex, e.target.value)
-                          }
-                        />
-                      </td>
-                      <td className="px-6 py-4">
-                        <input
-                          type="date"
-                          className="border rounded-lg p-1 text-center"
-                          value={detail.delivery.deliveredDate || format(new Date(), 'yyyy-MM-dd')}
-                          onChange={(e) =>
-                            handleDeliveryDateChange(
-                              index,
-                              subIndex,
-                              new Date(e.target.value)
-                            )
-                          }
-                        />
-                      </td>
-                    </tr>
-                  ))
-                )
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {orders.length === 0 ? (
+                  <tr>
+                    <td colSpan="8" className="text-center bg-white py-4">
+                      ไม่พบข้อมูล
+                    </td>
+                  </tr>
+                ) : (
+                  orders.map((order, index) =>
+                    order.details.map((detail, subIndex) => (
+                      <tr
+                        key={detail._id}
+                        className="odd:bg-white even:bg-gray-50 border-b"
+                      >
+                        <td className="px-6 py-4">{subIndex + 1}</td>
+                        <td className="px-6 py-4">
+                          {detail.farmerId.firstName} {detail.farmerId.lastName}
+                        </td>
+                        <td className="px-6 py-4">
+                          {order.vegetable?.name || "ไม่ระบุ"}
+                        </td>
+                        {/* แสดงชนิดผักจาก order.vegetable.name */}
+                        <td className="px-6 py-4">{detail.quantityKg}</td>
+                        <td className="px-6 py-4">
+                          {format(new Date(order.orderDate), 'dd/MM/yyyy')}
+                        </td>
+                        <td className="px-6 py-4">
+                          {format(new Date(order.dueDate), 'dd/MM/yyyy')}
+                        </td>
+                        <td className="px-6 py-4">
+                          <input
+                            type="number"
+                            className="border rounded-lg p-1 text-center w-20"
+                            value={detail.delivery.actualKg || ""}
+                            onChange={(e) =>
+                              handleInputChange(index, subIndex, e.target.value)
+                            }
+                          />
+                        </td>
+                        <td className="px-6 py-4">
+                          <input
+                            type="date"
+                            className="border rounded-lg p-1 text-center"
+                            value={detail.delivery.deliveredDate || format(new Date(), 'yyyy-MM-dd')}
+                            onChange={(e) =>
+                              handleDeliveryDateChange(
+                                index,
+                                subIndex,
+                                new Date(e.target.value)
+                              )
+                            }
+                          />
+                        </td>
+                      </tr>
+                    ))
+                  )
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <button
-          onClick={handleSave}
-          className="bg-Green-button text-white rounded-lg w-24 text-base p-2 mx-[5%]"
-        >
-          บันทึก
-        </button>
+        <div className="mx-[2%] lg:mx-[5%]">
+          <button
+            onClick={handleSave}
+            className="bg-Green-button text-white rounded-lg w-full lg:w-24 text-base p-2"
+          >
+            บันทึก
+          </button>
+        </div>
       </div>
     </div>
   );

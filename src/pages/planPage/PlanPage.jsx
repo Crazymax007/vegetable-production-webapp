@@ -20,7 +20,7 @@ const PlanPage = () => {
           selectedVegetable={selectedVegetable}
         />
         {/* สั่งปลูก */}
-        <div className="flex flex-col mt-4 bg-Green-Custom md:bg-white">
+        <div className="flex flex-col mt-4 bg-Green-Custom md:bg-transparent">
           <div className="flex gap-3 m-4">
             <button
               className={`${selectedComponent == "plantOrder"
@@ -54,7 +54,6 @@ const PlanPage = () => {
           )}
         </div>
       </div>
-      {/* <FooterComponent /> */}
     </div>
   );
 };

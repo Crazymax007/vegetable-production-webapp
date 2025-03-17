@@ -10,6 +10,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { th } from "date-fns/locale"; // ใช้ locale ภาษาไทย
 import { format } from "date-fns";
+import { useWindowSize } from "../contexts/WindowSizeContext";
 import "../pages/planPage/PlanPage.css";
 
 const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
@@ -25,6 +26,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
   );
   const [dueDate, setDueDate] = useState("");
   const [loading, setLoading] = useState(false);
+  const { width } = useWindowSize();
 
   const fetchVegetables = async () => {
     setLoading(true);
@@ -174,9 +176,17 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
 
   return (
     <div className="bg-Green-Custom md:rounded-3xl flex flex-col md:pt-6 pb-6 px-6">
-      <div className="text-xl mb-6">มอบหมายการปลูก</div>
+      <div className="flex justify-between">
+        <div className="text-xl mb-6">มอบหมายการปลูก</div>
+        <button
+          className="bg-Green-button block al:hidden text-sm sm:text-base text-white rounded-lg p-2 h-1/4 sm:h-1/2"
+          onClick={handleAddFarmer}
+        >
+          เพิ่มลูกสวน
+        </button>
+      </div>
       <div className="flex flex-col">
-        <div className="flex flex-col al:flex-row justify-between space-y-4 al:space-y-0 al:space-x-4 mx-[5%] mb-6">
+        <div className="flex flex-col al:flex-row justify-between space-y-4 al:space-y-0 al:space-x-4 mx-[2%] lg:mx-[5%] mb-6">
           <div className="flex flex-col al:flex-row items-center space-y-4 al:space-y-0 al:space-x-4">
             {/* เลือกผัก */}
             <div className="w-full al:w-auto">
@@ -273,7 +283,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
             </div>
           </div>
           <button
-            className="bg-Green-button text-base text-white rounded-lg w-full al:w-24 p-2"
+            className="bg-Green-button hidden al:block text-base text-white rounded-lg w-full al:w-24 p-2"
             onClick={handleAddFarmer}
           >
             เพิ่มลูกสวน
@@ -284,9 +294,10 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
           {selectedFarmers.map((item, index) => (
             <div
               key={index}
-              className="flex items-center justify-center space-x-4"
+              className="flex flex-col sm:flex-row items-start sm:items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 p-2"
+              style={{ borderBottom: width < 640 ? "1px solid #ccc" : "" }}
             >
-              <span className="whitespace-nowrap">
+              <span className="whitespace-nowrap text-sm sm:text-base">
                 ลูกสวนคนที่ {index + 1}:{" "}
               </span>
               <Autocomplete
@@ -307,27 +318,27 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
                     className="rounded-lg"
                   />
                 )}
-                className="w-1/3 bg-white rounded-lg"
+                className="w-full sm:w-1/3 bg-white rounded-lg"
                 disablePortal
                 loading={loading}
                 noOptionsText={
                   loading ? <CircularProgress size={24} /> : "ไม่พบลูกสวน"
                 }
               />
-
-              <div>
-                <span className="whitespace-nowrap">จำนวน(กก.): </span>
+              {/* จำนวน */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
+                <span className="whitespace-nowrap text-sm sm:text-base">จำนวน(กก.): </span>
                 <input
                   type="text"
                   value={item.amount}
                   onChange={(e) => handleAmountChange(index, e.target.value)}
-                  className="border p-1 w-32 text-center rounded-lg"
+                  className="border p-1 w-full sm:w-32 text-center rounded-lg"
                   placeholder="กรอกจำนวน"
                 />
               </div>
-
+              {/* ปุ่มลบ */}
               <button
-                className={`bg-red-500 text-white rounded-lg px-4 py-1 shadow-md ${index == 0 ? "opacity-0" : "opacity-100"
+                className={`bg-red-500 text-white rounded-lg px-4 py-1 shadow-md w-full sm:w-auto ${index == 0 ? "opacity-0" : "opacity-100"
                   }`}
                 onClick={() => handleRemoveFarmer(index)}
                 disabled={index === 0}
@@ -337,12 +348,13 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
             </div>
           ))}
         </div>
-        <button
-          className="bg-Green-button text-white rounded-lg w-full al:w-24 text-base p-2 al:mx-[5%]"
-          onClick={handleSave}
-        >
-          บันทึก
-        </button>
+        <div className="mx-[2%] lg:mx-[5%]">
+          <button
+            className="bg-Green-button text-white rounded-lg w-full al:w-24 text-base p-2"
+            onClick={handleSave}
+          >
+            บันทึก
+          </button></div>
       </div>
     </div>
   );

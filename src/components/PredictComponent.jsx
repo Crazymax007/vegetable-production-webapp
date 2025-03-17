@@ -151,45 +151,47 @@ const PredictComponent = ({ onVegetableSelect, selectedVegetable }) => {
 
       {/* แสดงตาราง */}
       <div className="relative overflow-x-auto sm:rounded-lg mx-[3%] md:mx-[5%] mb-6">
-        <table className="w-full text-sm text-left text-gray-500">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-200">
-            <tr>
-              <th className="px-6 py-3">ลำดับ</th>
-              <th className="px-6 py-3">ชื่อลูกสวน</th>
-              <th className="px-6 py-3">จำนวนที่ทำได้สูงสุด</th>
-              <th className="px-6 py-3">จำนวนที่ควรสั่งให้ปลูก</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
+        <div className="min-w-[800px]">
+          <table className="w-full text-sm text-left text-gray-500">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-200">
               <tr>
-                <td colSpan="4" className="text-center bg-white py-8">
-                  <CircularProgress sx={{ color: "#4CAF50" }} />
-                </td>
+                <th className="px-6 py-3">ลำดับ</th>
+                <th className="px-6 py-3">ชื่อลูกสวน</th>
+                <th className="px-6 py-3">จำนวนที่ทำได้สูงสุด</th>
+                <th className="px-6 py-3">จำนวนที่ควรสั่งให้ปลูก</th>
               </tr>
-            ) : predictionData.length === 0 ? (
-              <tr>
-                <td colSpan="4" className="text-center bg-white py-4">
-                  ไม่มีข้อมูลการทำนาย
-                </td>
-              </tr>
-            ) : (
-              predictionData.map((item, index) => (
-                <tr
-                  key={item.ID}
-                  className="odd:bg-white even:bg-gray-50 border-b"
-                >
-                  <td className="px-6 py-4">{index + 1}</td>
-                  <td className="px-6 py-4">
-                    {item.firstname} {item.lastname}
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <tr>
+                  <td colSpan="4" className="text-center bg-white py-8">
+                    <CircularProgress sx={{ color: "#4CAF50" }} />
                   </td>
-                  <td className="px-6 py-4">{item.Max_Actual_KG}</td>
-                  <td className="px-6 py-4">{item.Adjusted_Predicted_KG}</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : predictionData.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="text-center bg-white py-4">
+                    ไม่มีข้อมูลการทำนาย
+                  </td>
+                </tr>
+              ) : (
+                predictionData.map((item, index) => (
+                  <tr
+                    key={item.ID}
+                    className="odd:bg-white even:bg-gray-50 border-b"
+                  >
+                    <td className="px-6 py-4">{index + 1}</td>
+                    <td className="px-6 py-4">
+                      {item.firstname} {item.lastname}
+                    </td>
+                    <td className="px-6 py-4">{item.Max_Actual_KG}</td>
+                    <td className="px-6 py-4">{item.Adjusted_Predicted_KG}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
