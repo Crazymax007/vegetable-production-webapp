@@ -483,12 +483,12 @@ const ManagePage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-5 mx-20 mb-[2%] bg-Green-Custom rounded-3xl p-6">
+    <div className="flex flex-col gap-5 mx-0 lg:mx-20 lg:mb-[2%] bg-Green-Custom lg:rounded-3xl p-6">
       <div className="text-xl">จัดการข้อมูล</div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-4 items-center">
           {/* ช่องค้นหาทั่วไป */}
-          <div className="relative w-[30%]">
+          <div className="relative w-full sm:w-[50%] lg:w-[30%]">
             <span className="absolute -translate-y-1/2 pointer-events-none left-4 top-1/2">
               <svg
                 className="fill-gray-500"
@@ -518,49 +518,56 @@ const ManagePage = () => {
           {/* ปุ่มค้นหาเพิ่มเติม */}
           <button
             onClick={toggleAdvancedSearch}
-            className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md"
+            className="w-full sm:w-[120px] px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md"
           >
-            เพิ่มเติม
+            {showAdvancedSearch ? "ปิด" : "ค้นหาเพิ่มเติม"}
           </button>
         </div>
 
         {/* แสดงช่องค้นหาขั้นสูงเมื่อ showAdvancedSearch เป็น true */}
-        {showAdvancedSearch && (
-          <div className="flex gap-2 items-center">
-            {/* ช่วงวันที่ */}
-            <span className="text-sm text-gray-600">ช่วงวันที่:</span>
-            <div className="relative">
-              <input
-                type="date"
-                className="px-4 py-2 border rounded-lg text-gray-600"
-                value={dateRange.start}
-                onChange={(e) => {
-                  handleSearch("dateRange", { start: e.target.value });
-                  // ตั้งค่าวันที่สิ้นสุดให้เป็นวันที่มากกว่าหรือเท่ากับวันที่เริ่มต้น
-                  if (new Date(e.target.value) > new Date(dateRange.end)) {
-                    setDateRange((prev) => ({ ...prev, end: e.target.value }));
+        <div
+          className={`flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-2 items-start sm:items-center p-2 overflow-hidden transition-all duration-300 ease-in-out ${
+            showAdvancedSearch ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          {/* ช่วงวันที่ */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+            <span className="text-sm text-gray-600 whitespace-nowrap self-center">ช่วงวันที่:</span>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <div className="relative w-full sm:w-auto">
+                <input
+                  type="date"
+                  className="w-full sm:w-auto px-4 py-2 border rounded-lg text-gray-600"
+                  value={dateRange.start}
+                  onChange={(e) => {
+                    handleSearch("dateRange", { start: e.target.value });
+                    if (new Date(e.target.value) > new Date(dateRange.end)) {
+                      setDateRange((prev) => ({ ...prev, end: e.target.value }));
+                    }
+                  }}
+                />
+              </div>
+              <span className="text-sm text-gray-600 self-center">ถึง</span>
+              <div className="relative w-full sm:w-auto">
+                <input
+                  type="date"
+                  className="w-full sm:w-auto px-4 py-2 border rounded-lg text-gray-600"
+                  value={dateRange.end}
+                  onChange={(e) =>
+                    handleSearch("dateRange", { end: e.target.value })
                   }
-                }}
-              />
+                  min={dateRange.start}
+                />
+              </div>
             </div>
-            <span className="text-sm text-gray-600">ถึง</span>
-            <div className="relative">
-              <input
-                type="date"
-                className="px-4 py-2 border rounded-lg text-gray-600"
-                value={dateRange.end}
-                onChange={(e) =>
-                  handleSearch("dateRange", { end: e.target.value })
-                }
-                min={dateRange.start}
-              />
-            </div>
+          </div>
 
-            {/* สถานะ */}
+          {/* สถานะ */}
+          <div className="w-full sm:w-auto">
             <select
               value={searchStatus}
               onChange={(e) => handleSearch("status", e.target.value)}
-              className="px-2 py-2 border rounded-lg bg-white text-gray-600"
+              className="w-full sm:w-auto px-4 py-2 border rounded-lg bg-white text-gray-600"
             >
               <option value="">สถานะทั้งหมด</option>
               {STATUS_OPTIONS.map((option) => (
@@ -570,7 +577,7 @@ const ManagePage = () => {
               ))}
             </select>
           </div>
-        )}
+        </div>
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm">แสดง</span>
@@ -591,8 +598,9 @@ const ManagePage = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-        <div className="overflow-x-auto">
-          <div className="overflow-hidden rounded-lg">
+        {/* Add max-width and overflow control to table container */}
+        <div className="max-w-full overflow-x-auto">
+          <div className="min-w-[1200px]"> {/* Add minimum width to ensure table doesn't compress too much */}
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="bg-gray-200">
@@ -723,74 +731,84 @@ const ManagePage = () => {
           </div>
         </div>
 
-        {/* เพิ่ม Pagination */}
-        <div className="flex justify-center gap-2 mt-4 mb-4">
-          <button
-            onClick={() => setCurrentPage(1)}
-            disabled={currentPage === 1}
-            className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
-          >
-            หน้าแรก
-          </button>
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
-          >
-            ก่อนหน้า
-          </button>
+        {/* Pagination section */}
+        <div className="flex flex-wrap justify-center items-center gap-2 mt-4 mb-4 px-4">
+          {/* First and Previous buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              className="hidden sm:block px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+            >
+              หน้าแรก
+            </button>
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+            >
+              ก่อนหน้า
+            </button>
+          </div>
 
-          {[...Array(totalPages)].map((_, index) => {
-            const pageNumber = index + 1;
-            // แสดงเฉพาะ 5 หน้ารอบๆ หน้าปัจจุบัน
-            if (
-              pageNumber === 1 ||
-              pageNumber === totalPages ||
-              (pageNumber >= currentPage - 2 && pageNumber <= currentPage + 2)
-            ) {
-              return (
-                <button
-                  key={pageNumber}
-                  onClick={() => setCurrentPage(pageNumber)}
-                  className={`px-4 py-2 text-sm rounded-lg ${
-                    currentPage === pageNumber
+          {/* Page numbers */}
+          <div className="flex flex-wrap justify-center gap-2">
+            {[...Array(totalPages)].map((_, index) => {
+              const pageNumber = index + 1;
+              // Show fewer pages on mobile
+              const mobileRange = window.innerWidth < 640 ? 1 : 2;
+
+              if (
+                pageNumber === 1 ||
+                pageNumber === totalPages ||
+                (pageNumber >= currentPage - mobileRange && pageNumber <= currentPage + mobileRange)
+              ) {
+                return (
+                  <button
+                    key={pageNumber}
+                    onClick={() => setCurrentPage(pageNumber)}
+                    className={`px-3 sm:px-4 py-2 text-sm rounded-lg ${currentPage === pageNumber
                       ? "bg-Green-button text-white"
                       : "text-gray-600 bg-gray-100 hover:bg-gray-200"
-                  }`}
-                >
-                  {pageNumber}
-                </button>
-              );
-            } else if (
-              pageNumber === currentPage - 3 ||
-              pageNumber === currentPage + 3
-            ) {
-              return (
-                <span
-                  key={pageNumber}
-                  className="px-4 py-2 text-sm text-gray-600"
-                >
-                  ...
-                </span>
-              );
-            }
-            return null;
-          })}
+                      }`}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              } else if (
+                pageNumber === currentPage - (mobileRange + 1) ||
+                pageNumber === currentPage + (mobileRange + 1)
+              ) {
+                return (
+                  <span
+                    key={pageNumber}
+                    className="hidden sm:inline-block px-2 py-2 text-sm text-gray-600"
+                  >
+                    ...
+                  </span>
+                );
+              }
+              return null;
+            })}
+          </div>
 
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
-          >
-            ถัดไป
-          </button>
-          <button
-            onClick={() => setCurrentPage(totalPages)}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
-          >
-            หน้าสุดท้าย
-          </button>
+          {/* Next and Last buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+            >
+              ถัดไป
+            </button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              className="hidden sm:block px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+            >
+              หน้าสุดท้าย
+            </button>
+          </div>
         </div>
       </div>
       <EditModal

@@ -186,7 +186,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
         </button>
       </div>
       <div className="flex flex-col">
-        <div className="flex flex-col al:flex-row justify-between space-y-4 al:space-y-0 al:space-x-4 mx-[2%] lg:mx-[5%] mb-6">
+        <div className="flex flex-col al:flex-row justify-between space-y-4 al:space-y-0 al:space-x-4 mx-[2%] md:mx-[3%] lg:mx-[5%] mb-6">
           <div className="flex flex-col al:flex-row items-center space-y-4 al:space-y-0 al:space-x-4">
             {/* เลือกผัก */}
             <div className="w-full al:w-auto">
@@ -290,7 +290,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
           </button>
         </div>
         {/* ลูกสวน */}
-        <div className="bg-gray-200 rounded-3xl overflow-auto max-h-44 mx-[5%] p-4 flex flex-col space-y-4 mb-6">
+        <div className="bg-gray-200 rounded-3xl overflow-auto max-h-44 mx-[2%] md:mx-[3%] lg:mx-[5%] p-4 flex flex-col space-y-4 mb-6">
           {selectedFarmers.map((item, index) => (
             <div
               key={index}
@@ -332,7 +332,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
                   type="text"
                   value={item.amount}
                   onChange={(e) => handleAmountChange(index, e.target.value)}
-                  className="border p-1 w-full sm:w-32 text-center rounded-lg"
+                  className="border p-1 w-full sm:w-32 text-center rounded-lg bg-white"
                   placeholder="กรอกจำนวน"
                 />
               </div>

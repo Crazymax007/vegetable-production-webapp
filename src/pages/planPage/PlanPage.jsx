@@ -13,7 +13,7 @@ const PlanPage = () => {
 
   return (
     <div>
-      <div className="flex flex-col mx-0 md:mx-20 md:my-6">
+      <div className="flex flex-col mx-0 md:mx-10 lg:mx-20 md:my-6">
         {/* ทำนาย */}
         <PredictComponent
           onVegetableSelect={handleVegetableSelect}

@@ -71,7 +71,7 @@ const PredictComponent = ({ onVegetableSelect, selectedVegetable }) => {
   return (
     <div className="bg-Green-Custom md:rounded-3xl flex flex-col p-6">
       <div className="text-xl mb-6">ทำนาย</div>
-      <div className="flex flex-col lg:flex-row lg:items-center space-x-0 lg:space-x-4 mx-[3%] md:mx-[5%] mb-6">
+      <div className="flex flex-col lg:flex-row lg:items-center space-x-0 lg:space-x-4 mx-[2%] md:mx-[3%] lg:mx-[5%] mb-6">
         <div className="flex items-center min-w-[200px] mb-4 lg:mb-0">
           {/* <span className="text-lg mr-2">ผัก:</span> */}
           <Autocomplete
@@ -150,7 +150,7 @@ const PredictComponent = ({ onVegetableSelect, selectedVegetable }) => {
       </div>
 
       {/* แสดงตาราง */}
-      <div className="relative overflow-x-auto sm:rounded-lg mx-[3%] md:mx-[5%] mb-6">
+      <div className="relative overflow-x-auto sm:rounded-lg mx-[2%] md:mx-[3%] lg:mx-[5%] mb-6">
         <div className="min-w-[800px]">
           <table className="w-full text-sm text-left text-gray-500">
             <thead className="text-xs text-gray-700 uppercase bg-gray-200">

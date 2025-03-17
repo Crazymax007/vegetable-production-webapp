@@ -46,9 +46,8 @@ const TopNavbar = () => {
       <div className="flex flex-col lg:flex-row gap-2 lg:gap-3">
         <a href="/map">
           <div
-            className={`flex items-center rounded-[66px] p-[3px] ${
-              isActive("/map") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
-            } hover:bg-[#c8e29c]`}
+            className={`flex items-center rounded-[66px] p-[3px] ${isActive("/map") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
+              } hover:bg-[#c8e29c]`}
           >
             <div className="bg-white rounded-full flex justify-center items-center p-1 w-[33px] h-[33px]">
               <img
@@ -63,9 +62,8 @@ const TopNavbar = () => {
         {role !== "farmer" && (
           <a href="/plan">
             <div
-              className={`flex items-center rounded-[66px] p-[3px] ${
-                isActive("/plan") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
-              } hover:bg-[#c8e29c]`}
+              className={`flex items-center rounded-[66px] p-[3px] ${isActive("/plan") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
+                } hover:bg-[#c8e29c]`}
             >
               <div className="bg-white rounded-full flex justify-center items-center p-1 w-[33px] h-[33px]">
                 <img
@@ -80,9 +78,8 @@ const TopNavbar = () => {
         )}
         <a href="/management">
           <div
-            className={`flex items-center rounded-[66px] p-[3px] ${
-              isActive("/management") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
-            } hover:bg-[#c8e29c]`}
+            className={`flex items-center rounded-[66px] p-[3px] ${isActive("/management") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
+              } hover:bg-[#c8e29c]`}
           >
             <div className="bg-white rounded-full flex justify-center items-center p-1 w-[33px] h-[33px]">
               <img
@@ -95,8 +92,9 @@ const TopNavbar = () => {
           </div>
         </a>
       </div>
+      <div style={{ borderBottom: "solid 1px gray" }} className="my-3"></div>
       {/* Add system links for mobile view */}
-      <div className="lg:hidden mt-2 lg:mt-0">
+      <div className="lg:hidden ">
         {role === "admin" && (
           <a href="/admin">
             <div
@@ -162,9 +160,8 @@ const TopNavbar = () => {
               <img src="/assets/images/profile.png" alt="User" />
             </span>
             <svg
-              className={`stroke-gray-500 transition-transform duration-200 ${
-                isProfileMenuOpen ? "rotate-180" : ""
-              }`}
+              className={`stroke-gray-500 transition-transform duration-200 ${isProfileMenuOpen ? "rotate-180" : ""
+                }`}
               width="18"
               height="20"
               viewBox="0 0 18 20"
@@ -225,9 +222,8 @@ const TopNavbar = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`lg:hidden flex flex-col space-y-4 px-10 md:px-20 overflow-hidden transition-all duration-300 ease-in-out ${
-          isMobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-        }`}
+        className={`lg:hidden flex flex-col space-y-4 px-10 md:px-20 overflow-hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+          }`}
       >
         <div className="py-5">
           <NavLinks />
