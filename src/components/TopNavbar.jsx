@@ -131,8 +131,8 @@ const TopNavbar = () => {
   );
 
   return (
-    <nav className="bg-white shadow-sm border-gay-200 border-solid border mb-[2%] sticky top-0 z-50">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-[2%] py-5 px-20">
+    <nav className="bg-white shadow-sm border-gay-200 border-solid border mb-[5%] lg:mb-[2%] sticky top-0 z-50">
+      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-[2%] py-5 px-10 md:px-20">
         {/* Logo */}
         <a href="/map" className="">
           <img src="/favicon.png" className="h-[39px]" alt="Logo" />
@@ -225,7 +225,7 @@ const TopNavbar = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`lg:hidden flex flex-col space-y-4 px-20 overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`lg:hidden flex flex-col space-y-4 px-10 md:px-20 overflow-hidden transition-all duration-300 ease-in-out ${
           isMobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >

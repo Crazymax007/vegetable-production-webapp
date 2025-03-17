@@ -173,7 +173,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
   };
 
   return (
-    <div className="bg-Green-Custom rounded-3xl flex flex-col p-6">
+    <div className="bg-Green-Custom md:rounded-3xl flex flex-col p-6">
       <div className="text-xl mb-6">มอบหมายการปลูก</div>
       <div className="flex flex-col">
         <div className="flex justify-between space-x-4 mx-[5%] mb-6 ">

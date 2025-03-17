@@ -69,11 +69,11 @@ const PredictComponent = ({ onVegetableSelect, selectedVegetable }) => {
   }, []);
 
   return (
-    <div className="bg-Green-Custom rounded-3xl flex flex-col p-6">
+    <div className="bg-Green-Custom md:rounded-3xl flex flex-col p-6">
       <div className="text-xl mb-6">ทำนาย</div>
-      <div className="flex space-x-4 mx-[5%] mb-6">
-        <div className="flex items-center min-w-[200px]">
-          <span className="text-lg mr-2">ผัก:</span>
+      <div className="flex flex-col lg:flex-row lg:items-center space-x-0 lg:space-x-4 mx-[3%] md:mx-[5%] mb-6">
+        <div className="flex items-center min-w-[200px] mb-4 lg:mb-0">
+          {/* <span className="text-lg mr-2">ผัก:</span> */}
           <Autocomplete
             options={vegetableList}
             getOptionLabel={(option) => option.name}
@@ -110,8 +110,8 @@ const PredictComponent = ({ onVegetableSelect, selectedVegetable }) => {
 
         {isFarmersChecked && (
           <>
-            <div className="flex items-center min-w-[220px]">
-              <span className="text-lg mr-2">จำนวนที่ต้องการ (กก.):</span>
+            <div className="flex items-center min-w-[220px] mb-4 lg:mb-0">
+              {/* <span className="text-lg mr-2">จำนวนที่ต้องการ  :</span> */}
               <TextField
                 type="number"
                 value={requiredKg}
@@ -123,10 +123,8 @@ const PredictComponent = ({ onVegetableSelect, selectedVegetable }) => {
               />
             </div>
 
-            <div className="flex items-center min-w-[220px]">
-              <span className="text-lg mr-2">
-                จำนวนคน (สูงสุด: {availableFarmers}):
-              </span>
+            <div className="flex items-center min-w-[220px] mb-4 lg:mb-0">
+              {/* <span className="text-lg mr-2">จำนวนคน (สูงสุด: {availableFarmers}):</span> */}
               <TextField
                 type="number"
                 value={numFarmers}
@@ -145,14 +143,14 @@ const PredictComponent = ({ onVegetableSelect, selectedVegetable }) => {
         <button
           onClick={prediction}
           disabled={isLoading}
-          className="bg-Green-button text-white rounded-lg w-24 text-base p-2 mx-auto disabled:opacity-50"
+          className="bg-Green-button text-white rounded-lg w-full lg:w-24 text-base p-2 mx-auto disabled:opacity-50 h-10"
         >
           {isLoading ? <CircularProgress size={20} color="inherit" /> : "ทำนาย"}
         </button>
       </div>
 
       {/* แสดงตาราง */}
-      <div className="relative overflow-x-auto sm:rounded-lg mx-[5%] mb-6">
+      <div className="relative overflow-x-auto sm:rounded-lg mx-[3%] md:mx-[5%] mb-6">
         <table className="w-full text-sm text-left text-gray-500">
           <thead className="text-xs text-gray-700 uppercase bg-gray-200">
             <tr>

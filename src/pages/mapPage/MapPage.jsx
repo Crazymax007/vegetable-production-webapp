@@ -96,7 +96,7 @@ const MapPage = () => {
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex flex-col lg:flex-row justify-center gap-6 mx-10 md:mx-20 mb-[5%] lg:mb-[2%]">
+      <div className="flex flex-col lg:flex-row justify-center gap-3 md:gap-6 mx-10 md:mx-20 mb-[5%] lg:mb-[2%]">
         {/* Mini map */}
         <div className="rounded-3xl shadow-md overflow-hidden w-full lg:w-[65%]">
           <MapContainer
@@ -219,7 +219,7 @@ const MapPage = () => {
       <div className="bg-Green-button shadow-md h-full mb-[5%] lg:mb-[2%] py-5 flex flex-col lg:flex-row justify-center items-center lg:gap-24">
         <div className="h-full flex justify-center items-center">
           {width > 1024 ? (
-            <div className="text-xl text-center text-black">
+            <div className="text-xl text-center text-white">
               จำนวนผลผลิต
               <br />
               แต่ละชนิดของกลุ่มวิสาหกิจ
@@ -227,7 +227,7 @@ const MapPage = () => {
               ในปี {currentYear}
             </div>
           ) : (
-            <div className="text-xl text-center px-2 mb-2">
+            <div className="text-xl text-white text-center px-2 mb-2">
               จำนวนผลผลิตแต่ละชนิดของกลุ่มวิสาหกิจในปี {currentYear}
             </div>
           )}
@@ -244,7 +244,7 @@ const MapPage = () => {
                 slidesToShow={5}
                 slidesToScroll={1}
                 autoplay={true}
-                autoplaySpeed={3000}
+                autoplaySpeed={2000}
                 arrows={false}
                 responsive={[
                   {

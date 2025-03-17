@@ -14,14 +14,14 @@ const PlanPage = () => {
 
   return (
     <div>
-      <div className="flex flex-col mx-20 my-6">
+      <div className="flex flex-col mx-0 md:mx-20 my-6">
         {/* ทำนาย */}
         <PredictComponent
           onVegetableSelect={handleVegetableSelect}
           selectedVegetable={selectedVegetable}
         />
         {/* สั่งปลูก */}
-        <div className="flex flex-col">
+        <div className="flex flex-col mt-4">
           <div className="flex gap-3 m-4">
             <button
               className={`${
