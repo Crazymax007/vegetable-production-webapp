@@ -5,6 +5,10 @@ import L from "leaflet";
 import { getFarmers } from "../../services/farmerService";
 import { getTopVegetables, getTopYear } from "../../services/orderService";
 import { FooterComponent } from "../../components/FooterComponent";
+import { useWindowSize } from "../../contexts/WindowSizeContext";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 // 🔹 สร้างไอคอน Marker แบบกำหนดเอง
 const customIcon = L.icon({
@@ -31,6 +35,7 @@ const MapPage = () => {
   const [topYear, setTopYear] = useState([]);
   const API_BASE_URL = "http://localhost:5000";
   const currentYear = new Date().getFullYear();
+  const { width } = useWindowSize();
 
   const fetchData = async () => {
     try {
@@ -91,9 +96,9 @@ const MapPage = () => {
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex justify-center gap-6 mx-20 mb-[2%]">
+      <div className="flex flex-col lg:flex-row justify-center gap-6 mx-10 md:mx-20 mb-[5%] lg:mb-[2%]">
         {/* Mini map */}
-        <div className="rounded-3xl shadow-md overflow-hidden w-[65%]">
+        <div className="rounded-3xl shadow-md overflow-hidden w-full lg:w-[65%]">
           <MapContainer
             center={[9.08598, 99.229071]}
             zoom={13}
@@ -162,7 +167,7 @@ const MapPage = () => {
           </MapContainer>
         </div>
         {/* details */}
-        <div className="bg-Green-Custom shadow-md w-[35%] flex flex-col p-6 rounded-3xl">
+        <div className="bg-Green-Custom shadow-md w-full lg:w-[35%] flex flex-col p-6 rounded-3xl">
           <div className="flex flex-col">
             <span className="text-center p-2 text-2xl">รายละเอียด</span>
             {selectedFarmer ? (
@@ -211,36 +216,83 @@ const MapPage = () => {
           </div>
         </div>
       </div>
-      <div className="bg-Green-button shadow-md h-full mb-[2%] py-5 flex justify-center items-center gap-24">
-        <div className="h-fullflex justify-center items-center">
-          <div className="text-xl text-center text-white">
-            จำนวนผลผลิต
-            <br />
-            แต่ละชนิดของกลุ่มวิสาหกิจ
-            <br />
-            ในปี {currentYear}
-          </div>
+      <div className="bg-Green-button shadow-md h-full mb-[5%] lg:mb-[2%] py-5 flex flex-col lg:flex-row justify-center items-center lg:gap-24">
+        <div className="h-full flex justify-center items-center">
+          {width > 1024 ? (
+            <div className="text-xl text-center text-black">
+              จำนวนผลผลิต
+              <br />
+              แต่ละชนิดของกลุ่มวิสาหกิจ
+              <br />
+              ในปี {currentYear}
+            </div>
+          ) : (
+            <div className="text-xl text-center px-2 mb-2">
+              จำนวนผลผลิตแต่ละชนิดของกลุ่มวิสาหกิจในปี {currentYear}
+            </div>
+          )}
         </div>
         <div className="h-full flex justify-center items-center p-2">
-          <div className="flex items-center gap-5 overflow-y-auto">
+          <div className="w-[250px] ss:w-[350px] sm:w-[400px] md:w-[500px] lg:w-[800px]">
+            {" "}
+            {/* ความกว้างตามต้องการ */}
             {topYear.length > 0 ? (
-              topYear.map((item, index) => (
-                <div key={index} className="flex flex-col items-center gap-2">
-                  <img
-                    src={API_BASE_URL + item.imageUrl}
-                    alt=""
-                    className="w-[120px] h-[130px] rounded-lg border border-black"
-                  />
-                  <div className="flex flex-col justify-center items-center">
-                    <span className="text-sm text-white font-medium">
-                      {index + 1}. {item.name}
-                    </span>
-                    <span className="text-sm text-white font-medium">
-                      {item.quantity} กิโลกรัม
-                    </span>
+              <Slider
+                dots={false}
+                infinite={true}
+                speed={500}
+                slidesToShow={5}
+                slidesToScroll={1}
+                autoplay={true}
+                autoplaySpeed={3000}
+                arrows={false}
+                responsive={[
+                  {
+                    breakpoint: 1280,
+                    settings: {
+                      slidesToShow: 4,
+                    },
+                  },
+                  {
+                    breakpoint: 1024,
+                    settings: {
+                      slidesToShow: 3,
+                    },
+                  },
+                  {
+                    breakpoint: 600,
+                    settings: {
+                      slidesToShow: 2,
+                    },
+                  },
+                  {
+                    breakpoint: 480,
+                    settings: {
+                      slidesToShow: 1,
+                    },
+                  },
+                ]}
+              >
+                {topYear.map((item, index) => (
+                  <div key={index} className="px-2">
+                    <div className="flex flex-col items-center gap-2">
+                      <img
+                        src={API_BASE_URL + item.imageUrl}
+                        alt=""
+                        className="w-[120px] h-[130px] rounded-lg "
+                      />
+                      <div className="flex flex-col justify-center items-center">
+                        <span className="text-sm sm:text-base text-white font-medium text-center">
+                          {index + 1}. {item.name}
+                        </span>
+                        <span className="text-sm sm:text-base text-white font-medium">
+                          {item.quantity} โล
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </Slider>
             ) : (
               <div className="text-center text-red-500">ไม่มีข้อมูล</div>
             )}

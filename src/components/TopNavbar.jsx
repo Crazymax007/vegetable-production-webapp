@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { logout, getUserInfo } from "../services/authService";
 import { useWindowSize } from "../contexts/WindowSizeContext";
 import { CgMenu } from "react-icons/cg";
+import { AiOutlineClose } from "react-icons/ai";
 
 const TopNavbar = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -42,58 +43,60 @@ const TopNavbar = () => {
 
   const NavLinks = () => (
     <>
-      <a href="/map">
-        <div
-          className={`flex items-center rounded-[66px] p-[3px] ${
-            isActive("/map") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
-          } hover:bg-[#c8e29c]`}
-        >
-          <div className="bg-white rounded-full flex justify-center items-center p-1 w-[33px] h-[33px]">
-            <img
-              src="/assets/images/map.png"
-              className="w-[90%] h-[90%] object-contain"
-              alt=""
-            />
-          </div>
-          <span className="px-5 text-base">แผนที่</span>
-        </div>
-      </a>
-      {role !== "farmer" && (
-        <a href="/plan">
+      <div className="flex flex-col lg:flex-row gap-2 lg:gap-3">
+        <a href="/map">
           <div
             className={`flex items-center rounded-[66px] p-[3px] ${
-              isActive("/plan") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
+              isActive("/map") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
             } hover:bg-[#c8e29c]`}
           >
             <div className="bg-white rounded-full flex justify-center items-center p-1 w-[33px] h-[33px]">
               <img
-                src="/assets/images/predictive-chart.png"
+                src="/assets/images/map.png"
                 className="w-[90%] h-[90%] object-contain"
                 alt=""
               />
             </div>
-            <span className="px-5 text-base">วางแผน</span>
+            <span className="px-5 text-base">แผนที่</span>
           </div>
         </a>
-      )}
-      <a href="/management">
-        <div
-          className={`flex items-center rounded-[66px] p-[3px] ${
-            isActive("/management") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
-          } hover:bg-[#c8e29c]`}
-        >
-          <div className="bg-white rounded-full flex justify-center items-center p-1 w-[33px] h-[33px]">
-            <img
-              src="/assets/images/folder.png"
-              className="w-[90%] h-[90%] object-contain"
-              alt=""
-            />
+        {role !== "farmer" && (
+          <a href="/plan">
+            <div
+              className={`flex items-center rounded-[66px] p-[3px] ${
+                isActive("/plan") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
+              } hover:bg-[#c8e29c]`}
+            >
+              <div className="bg-white rounded-full flex justify-center items-center p-1 w-[33px] h-[33px]">
+                <img
+                  src="/assets/images/predictive-chart.png"
+                  className="w-[90%] h-[90%] object-contain"
+                  alt=""
+                />
+              </div>
+              <span className="px-5 text-base">วางแผนการปลูกผัก</span>
+            </div>
+          </a>
+        )}
+        <a href="/management">
+          <div
+            className={`flex items-center rounded-[66px] p-[3px] ${
+              isActive("/management") ? "bg-[#c8e29c]" : "bg-[#D9D9D9]"
+            } hover:bg-[#c8e29c]`}
+          >
+            <div className="bg-white rounded-full flex justify-center items-center p-1 w-[33px] h-[33px]">
+              <img
+                src="/assets/images/folder.png"
+                className="w-[90%] h-[90%] object-contain"
+                alt=""
+              />
+            </div>
+            <span className="px-5 text-base">ข้อมูลผลผลิต</span>
           </div>
-          <span className="px-5 text-base">ข้อมูล</span>
-        </div>
-      </a>
+        </a>
+      </div>
       {/* Add system links for mobile view */}
-      <div className="lg:hidden">
+      <div className="lg:hidden mt-2 lg:mt-0">
         {role === "admin" && (
           <a href="/admin">
             <div
@@ -142,7 +145,11 @@ const TopNavbar = () => {
 
         {/* Mobile Menu Button */}
         <button className="lg:hidden text-2xl" onClick={toggleMobileMenu}>
-          <CgMenu />
+          {isMobileMenuOpen ? (
+            <AiOutlineClose className="transform rotate-90 transition-all duration-300" />
+          ) : (
+            <CgMenu className="transform scale-100 transition-all duration-300" />
+          )}
         </button>
 
         {/* Profile Menu */}
@@ -217,11 +224,15 @@ const TopNavbar = () => {
       </div>
 
       {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden flex flex-col space-y-4 px-20 pb-5">
+      <div
+        className={`lg:hidden flex flex-col space-y-4 px-20 overflow-hidden transition-all duration-300 ease-in-out ${
+          isMobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="py-5">
           <NavLinks />
         </div>
-      )}
+      </div>
     </nav>
   );
 };

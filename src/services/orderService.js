@@ -110,7 +110,7 @@ export const getDashboardOrder = async () => {
   }
 };
 
-export const getTopYear = async ({ limit = 0 } = {}) => {
+export const getTopYear = async ({ limit = 10 } = {}) => {
   try {
     // สร้าง query string สำหรับการค้นหา
     const params = new URLSearchParams();
