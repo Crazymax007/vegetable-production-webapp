@@ -14,6 +14,7 @@ import {
   FcOvertime,
   FcClearFilters,
 } from "react-icons/fc";
+import { useWindowSize } from "../../contexts/WindowSizeContext";
 
 // 📌 ข้อมูล API
 import { getVegetables } from "../../services/vegatableService";
@@ -440,21 +441,23 @@ const AdminDashboard = () => {
   });
 
   // เล่ม options Pie Chart
+  const { width } = useWindowSize();
+
   const pieOptions = {
     plugins: {
       legend: {
-        position: "right",
-        align: "start",
+        position: width < 1024 ? 'top' : 'right',
+        align: width < 1024 ? 'center' : 'start',
         labels: {
           boxWidth: 15,
-          padding: 15,
+          padding: width < 1024 ? 10 : 15,
           font: {
             size: 12,
           },
         },
         display: true,
         overflow: "scroll",
-        maxHeight: 350,
+        maxHeight: width < 1024 ? 150 : 350,
       },
       datalabels: {
         formatter: (value, context) => {
@@ -573,7 +576,7 @@ const AdminDashboard = () => {
         <div className="flex flex-col lg:flex-row gap-2">
           {/* เลือกผัก */}
           <div className="bg-white w-full lg:w-[25%] border border-black rounded-lg p-4 min-w-0">
-            <div className="h-[50vh] overflow-y-auto">
+            <div className="h-[30vh] sm:h-[40vh] md:h-[50vh] overflow-y-auto">
               <FormGroup className="">
                 <FormLabel
                   component="legend"
@@ -611,7 +614,7 @@ const AdminDashboard = () => {
             <div className="flex flex-row lg:flex-col gap-2">
               <div className="bg-white w-[50%] lg:w-full border border-black rounded-lg p-4">
                 <div className="h-[30vh] overflow-y-auto">
-                  <FormGroup>
+                  <FormGroup className="min-w-[200px] overflow-x-auto">
                     <FormLabel
                       component="legend"
                       className="mb-2 flex items-center gap-2"
@@ -636,7 +639,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
               <div className="bg-white w-[50%] lg:w-full border border-black rounded-lg p-4 overflow-auto">
-                <FormGroup className="flex flex-col gap-2">
+                <FormGroup className="flex flex-col gap-2 min-w-[200px] overflow-x-auto">
                   <div className="flex justify-between">
                     <FormLabel
                       component="legend"
@@ -686,13 +689,16 @@ const AdminDashboard = () => {
           <div className="bg-white w-full lg:w-[75%] border border-black rounded-lg p-4">
             <div className="text-lg mb-2">ผลผลิตรวมแยกตามชื้อ (กก.)</div>
             <div className="h-[40vh] overflow-x-auto">
-              <Bar className="" data={barData} options={barOptions} />
+              <div className="min-w-[800px]">
+                <Bar className="w-full" data={barData} options={barOptions} />
+              </div>
             </div>
           </div>
         </div>
       </div>
       {/* ตาราง 💻 */}
       <div className="flex flex-col gap-2">
+        {/* นำออกข้อมูล */}
         <div className="flex justify-end">
           <button
             onClick={exportToCSV}
@@ -701,11 +707,12 @@ const AdminDashboard = () => {
             นำออกข้อมูล CSV
           </button>
         </div>
+        {/* ตาราง */}
         <div className="w-full bg-white border border-black rounded-lg">
           <div className="overflow-x-auto">
-            <div className="overflow-hidden rounded-lg">
+            <div className="min-w-[1200px] overflow-hidden rounded-lg">
               <table className="w-full text-sm text-left">
-                <thead>
+                <thead className="">
                   <tr className="bg-gray-200">
                     <th className="px-6 py-4 font-bold text-gray-600 first:rounded-tl-lg w-[80px]">
                       ลำดับ
@@ -770,10 +777,11 @@ const AdminDashboard = () => {
         </div>
         {/* Pagination */}
         <div className="flex justify-center gap-2 mt-4 mb-4">
+          {/* Show these buttons only on md screens and up */}
           <button
             onClick={() => setCurrentPage(1)}
             disabled={currentPage === 1}
-            className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+            className="hidden md:block px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
           >
             หน้าแรก
           </button>
@@ -785,40 +793,43 @@ const AdminDashboard = () => {
             ก่อนหน้า
           </button>
 
-          {[...Array(totalPages)].map((_, index) => {
-            const pageNumber = index + 1;
-            if (
-              pageNumber === 1 ||
-              pageNumber === totalPages ||
-              (pageNumber >= currentPage - 2 && pageNumber <= currentPage + 2)
-            ) {
-              return (
-                <button
-                  key={pageNumber}
-                  onClick={() => setCurrentPage(pageNumber)}
-                  className={`px-4 py-2 text-sm rounded-lg ${currentPage === pageNumber
-                    ? "bg-green-500 text-white"
-                    : "text-gray-600 bg-gray-100 hover:bg-gray-200"
-                    }`}
-                >
-                  {pageNumber}
-                </button>
-              );
-            } else if (
-              pageNumber === currentPage - 3 ||
-              pageNumber === currentPage + 3
-            ) {
-              return (
-                <span
-                  key={pageNumber}
-                  className="px-4 py-2 text-sm text-gray-600"
-                >
-                  ...
-                </span>
-              );
-            }
-            return null;
-          })}
+          {/* Show page numbers only on md screens and up */}
+          <div className="hidden md:flex gap-2">
+            {[...Array(totalPages)].map((_, index) => {
+              const pageNumber = index + 1;
+              if (
+                pageNumber === 1 ||
+                pageNumber === totalPages ||
+                (pageNumber >= currentPage - 2 && pageNumber <= currentPage + 2)
+              ) {
+                return (
+                  <button
+                    key={pageNumber}
+                    onClick={() => setCurrentPage(pageNumber)}
+                    className={`px-4 py-2 text-sm rounded-lg ${currentPage === pageNumber
+                      ? "bg-green-500 text-white"
+                      : "text-gray-600 bg-gray-100 hover:bg-gray-200"
+                      }`}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              } else if (
+                pageNumber === currentPage - 3 ||
+                pageNumber === currentPage + 3
+              ) {
+                return (
+                  <span
+                    key={pageNumber}
+                    className="px-4 py-2 text-sm text-gray-600"
+                  >
+                    ...
+                  </span>
+                );
+              }
+              return null;
+            })}
+          </div>
 
           <button
             onClick={() => setCurrentPage(currentPage + 1)}
@@ -830,7 +841,7 @@ const AdminDashboard = () => {
           <button
             onClick={() => setCurrentPage(totalPages)}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+            className="hidden md:block px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
           >
             หน้าสุดท้าย
           </button>
