@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { Outlet } from "react-router-dom";
@@ -7,6 +7,20 @@ import { logout } from "../../services/authService";
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+      if (window.innerWidth < 1024) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -19,15 +33,25 @@ const AdminLayout = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50 relative">
+      {/* Overlay for mobile */}
+      {isMobile && isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-[70]"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       <div 
-        onMouseEnter={() => !isSidebarOpen && setIsHovered(true)}
-        onMouseLeave={() => !isSidebarOpen && setIsHovered(false)}
+        className={`${isMobile ? 'fixed z-[80]' : ''}`}
+        onMouseEnter={() => !isSidebarOpen && !isMobile && setIsHovered(true)}
+        onMouseLeave={() => !isSidebarOpen && !isMobile && setIsHovered(false)}
       >
-        <Sidebar isSidebarOpen={isSidebarOpen} />
+        <Sidebar isSidebarOpen={isSidebarOpen} isMobile={isMobile} />
       </div>
+
       <div 
         className={`flex-1 flex flex-col transition-all duration-300 ${
-          isSidebarOpen || isHovered ? "ml-64" : "ml-20"
+          !isMobile && (isSidebarOpen || isHovered) ? "lg:ml-64" : "lg:ml-20"
         }`}
       >
         <Header

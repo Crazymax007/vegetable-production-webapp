@@ -136,22 +136,22 @@ const AdminDashboard = () => {
               harvestDate:
                 detail.delivery && detail.delivery.deliveredDate
                   ? new Date(detail.delivery.deliveredDate).toLocaleDateString(
-                      "en-GB",
-                      {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      }
-                    )
+                    "en-GB",
+                    {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    }
+                  )
                   : "--",
               buyerId: order.buyer ? order.buyer._id : null, // เก็บ buyerId
               buyerName: order.buyer ? order.buyer.name : "-", // เก็บชื่อผู้ซื้อ
               dueDate: order.dueDate
                 ? new Date(order.dueDate).toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                  })
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                })
                 : "--",
             }));
           })
@@ -570,9 +570,9 @@ const AdminDashboard = () => {
     <div className="flex flex-col gap-4">
       {/* ข้างบน */}
       <div className="flex flex-col gap-2">
-        <div className="flex gap-2">
+        <div className="flex flex-col lg:flex-row gap-2">
           {/* เลือกผัก */}
-          <div className="bg-white w-[25%] border border-black rounded-lg p-4">
+          <div className="bg-white w-full lg:w-[25%] border border-black rounded-lg p-4">
             <div className="h-[50vh] overflow-y-auto">
               <FormGroup className="">
                 <FormLabel
@@ -599,17 +599,17 @@ const AdminDashboard = () => {
             </div>
           </div>
           {/* Pie chart */}
-          <div className="bg-white w-[75%] flex flex-col border border-black rounded-lg p-4">
+          <div className="bg-white w-full lg:w-[75%] flex flex-col border border-black rounded-lg p-4">
             <div>ผลผลิตรวมแยกตามผู้ซื้อ (กก.)</div>
             <div style={{ height: "300px" }}>
               <Pie data={pieData} options={pieOptions} />
             </div>
           </div>
         </div>
-        <div className="flex gap-2">
-          <div className="w-[25%]">
-            <div className="flex flex-col gap-2">
-              <div className="bg-white border border-black rounded-lg p-4">
+        <div className="flex flex-col lg:flex-row gap-2">
+          <div className="w-full lg:w-[25%] ">
+            <div className="flex flex-row lg:flex-col gap-2">
+              <div className="bg-white w-[50%] lg:w-full border border-black rounded-lg p-4">
                 <div className="h-[30vh] overflow-y-auto">
                   <FormGroup>
                     <FormLabel
@@ -635,7 +635,7 @@ const AdminDashboard = () => {
                   </FormGroup>
                 </div>
               </div>
-              <div className="bg-white border border-black rounded-lg p-4 overflow-auto">
+              <div className="bg-white w-[50%] lg:w-full border border-black rounded-lg p-4 overflow-auto">
                 <FormGroup className="flex flex-col gap-2">
                   <div className="flex justify-between">
                     <FormLabel
@@ -683,7 +683,7 @@ const AdminDashboard = () => {
               </div>
             </div>
           </div>
-          <div className="bg-white w-[75%] border border-black rounded-lg p-4">
+          <div className="bg-white w-full lg:w-[75%] border border-black rounded-lg p-4">
             <div className="text-lg mb-2">ผลผลิตรวมแยกตามชื้อ (กก.)</div>
             <div className="h-[40vh] overflow-x-auto">
               <Bar className="" data={barData} options={barOptions} />
@@ -796,11 +796,10 @@ const AdminDashboard = () => {
                 <button
                   key={pageNumber}
                   onClick={() => setCurrentPage(pageNumber)}
-                  className={`px-4 py-2 text-sm rounded-lg ${
-                    currentPage === pageNumber
-                      ? "bg-green-500 text-white"
-                      : "text-gray-600 bg-gray-100 hover:bg-gray-200"
-                  }`}
+                  className={`px-4 py-2 text-sm rounded-lg ${currentPage === pageNumber
+                    ? "bg-green-500 text-white"
+                    : "text-gray-600 bg-gray-100 hover:bg-gray-200"
+                    }`}
                 >
                   {pageNumber}
                 </button>

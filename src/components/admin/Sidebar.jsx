@@ -1,22 +1,28 @@
 import { RxDashboard } from "react-icons/rx";
 import { BsPeople } from "react-icons/bs";
 import { GiPlantSeed } from "react-icons/gi";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";  // Fix the import
 import { PiUserCircleGearLight } from "react-icons/pi";
 import { FaStore } from "react-icons/fa";
 
-const Sidebar = ({ isSidebarOpen }) => {
-  const location = useLocation();
+const Sidebar = ({ isSidebarOpen, isMobile }) => {
+  const location = useLocation();  // Add this
 
-  const isActive = (path) => {
+  const isActive = (path) => {  // Add this function
     return location.pathname === path;
   };
 
   return (
     <div
       className={`${
-        isSidebarOpen ? "w-64" : "w-20 hover:w-64"
-      } fixed top-0 left-0 h-screen bg-white text-black p-6 border-r border-gray-200 transition-all duration-300 md:block group`}
+        isSidebarOpen ? "w-64" : isMobile ? "w-0" : "w-20 hover:w-64"
+      } ${
+        isMobile ? 
+        `fixed top-0 left-0 h-screen bg-white transform transition-transform duration-300 ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }` :
+        'fixed top-0 left-0 h-screen bg-white'
+      } text-black p-6 border-r border-gray-200 transition-all duration-300 md:block group`}
     >
       <div
         className={`flex justify-center items-center mb-8 ${

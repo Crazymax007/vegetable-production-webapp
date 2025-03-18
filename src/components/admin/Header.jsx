@@ -13,7 +13,7 @@ const Header = ({ toggleSidebar, handleLogout }) => {
   }
 
   return (
-    <header className="bg-white sticky top-0 z-[60] px-6 py-3 shadow-sm flex justify-between items-center border-b border-gray-200">
+    <header className="bg-white sticky top-0 z-[60] px-4 lg:px-6 py-3 shadow-sm flex justify-between items-center border-b border-gray-200">
       <button
         className="p-2 flex items-center justify-center w-10 h-10 text-gray-500 bg-white border border-gray-200 rounded"
         onClick={toggleSidebar}
@@ -45,9 +45,8 @@ const Header = ({ toggleSidebar, handleLogout }) => {
           </span>
           <span className="block mr-1 font-bold">Admin</span>
           <svg
-            className={`stroke-gray-500 transition-transform duration-200 ${
-              isOpen ? "rotate-180" : ""
-            }`}
+            className={`stroke-gray-500 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
+              }`}
             width="18"
             height="20"
             viewBox="0 0 18 20"

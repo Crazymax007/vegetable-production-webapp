@@ -132,9 +132,9 @@ const TopNavbar = () => {
     <nav className="bg-white shadow-sm border-gay-200 border-solid border lg:mb-[2%] sticky top-0 z-50">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-[2%] py-5 px-10 md:px-20">
         {/* Logo */}
-        <a href="/map" className="">
-          <img src="/favicon.png" className="h-[39px]" alt="Logo" />
-        </a>
+          <a href="/map" className="">
+            <img src="/favicon.png" className="h-[39px]" alt="Logo" />
+          </a>
 
         {/* Desktop Menu */}
         <div className="hidden lg:flex items-center space-x-5">

@@ -533,9 +533,8 @@ const ManagePage = () => {
 
         {/* แสดงช่องค้นหาขั้นสูงเมื่อ showAdvancedSearch เป็น true */}
         <div
-          className={`flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-2 items-start sm:items-center p-2 overflow-hidden transition-all duration-300 ease-in-out ${
-            showAdvancedSearch ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-          }`}
+          className={`flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-2 items-start sm:items-center p-2 overflow-hidden transition-all duration-300 ease-in-out ${showAdvancedSearch ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+            }`}
         >
           {/* ช่วงวันที่ */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
@@ -711,7 +710,11 @@ const ManagePage = () => {
                       {item.quantityDelivered}
                     </td>
                     <td className="px-6 py-4 text-gray-600">
-                      {getStatusThai(item.status)}
+                      <span className={`rounded-xl px-2 py-1 ${
+                        item.status === "Pending" ? "bg-yellow-200" : "bg-green-200"
+                      }`}>
+                        {getStatusThai(item.status)}
+                      </span>
                     </td>
                     {user?.role !== "farmer" && ( // ตรวจสอบว่า user ไม่ใช่ farmer
                       <td className="px-6 py-4">

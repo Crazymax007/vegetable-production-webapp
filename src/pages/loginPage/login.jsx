@@ -32,15 +32,17 @@ const Login = () => {
   };
 
   return (
-    <div className="bg-login">
-      <div className="bg-white w-4/5 h-4/5 rounded-[36px] flex shadow-lg">
-        {/* ส่วนข้อความ (ซ้าย) */}
-        <div className="flex-1 flex justify-center items-center">
-          <div className="flex flex-col items-center">
-            <span className="text-4xl pb-3">เข้าสู่ระบบ</span>
-            {/* ฟอร์ม */}
+    <div className="bg-login min-h-screen flex items-center justify-center p-4">
+      <div className="bg-white w-full max-w-6xl h-auto md:h-4/5 rounded-[36px] flex flex-col md:flex-row shadow-lg">
+        {/* Left section */}
+        <div className="flex-1 flex justify-center items-center p-6 md:p-8">
+          <div className="flex flex-col items-center w-full">
+            <h2 className="text-lg md:text-2xl text-center mb-4 md:mb-8 px-4">
+              ระบบทำนายผลผลิต<br />ของกลุ่มวิสาหกิจชุมชนบ้านบางท่าข้าม
+            </h2>
+            {/* Form */}
             <form
-              className="flex flex-col items-center w-[450px] max-w-[450px]"
+              className="flex flex-col items-center w-full max-w-[450px] px-4"
               onSubmit={handleSubmit}
             >
               <TextField
@@ -83,12 +85,12 @@ const Login = () => {
             </form>
           </div>
         </div>
-        {/* ส่วนรูปภาพ (ขวา) */}
-        <div className="flex-1 flex justify-center items-center">
+        {/* Right section - Image */}
+        <div className="flex-1 hidden md:flex justify-center items-center">
           <img
             src={logoLogin}
             alt="Login"
-            className="w-full rounded-tr-[36px] rounded-br-[36px] h-full object-cover"
+            className="w-full h-full rounded-none md:rounded-tr-[36px] md:rounded-br-[36px] object-cover"
           />
         </div>
       </div>
