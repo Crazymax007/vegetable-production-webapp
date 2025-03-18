@@ -110,7 +110,12 @@ const ManagePage = () => {
           const orders = response.data.data
             .map((order) => {
               if (!order.details) return null;
-              return order.details.map((detail) => {
+              // Filter details for farmer role
+              const relevantDetails = user?.role === "farmer"
+                ? order.details.filter(detail => detail?.farmerId?._id === user.farmerId)
+                : order.details;
+
+              return relevantDetails.map((detail) => {
                 if (!detail || !detail.farmerId) return null;
                 return {
                   id: detail._id,
@@ -768,7 +773,7 @@ const ManagePage = () => {
                     <td className="px-6 py-4 text-gray-600">
                       {item.quantityDelivered}
                     </td>
-                    <td className="px-6 py-4 text-gray-600">
+                    <td className="px-6 py-4 text-gray-600 min-w-[130px]">
                       <span className={`rounded-xl px-2 py-1 ${item.status === "Pending" ? "bg-yellow-200" : "bg-green-200"
                         }`}>
                         {getStatusThai(item.status)}
