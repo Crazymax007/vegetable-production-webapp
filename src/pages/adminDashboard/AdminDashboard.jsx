@@ -567,12 +567,12 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 min-w-0">
       {/* ข้างบน */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 min-w-0">
         <div className="flex flex-col lg:flex-row gap-2">
           {/* เลือกผัก */}
-          <div className="bg-white w-full lg:w-[25%] border border-black rounded-lg p-4">
+          <div className="bg-white w-full lg:w-[25%] border border-black rounded-lg p-4 min-w-0">
             <div className="h-[50vh] overflow-y-auto">
               <FormGroup className="">
                 <FormLabel
@@ -599,7 +599,7 @@ const AdminDashboard = () => {
             </div>
           </div>
           {/* Pie chart */}
-          <div className="bg-white w-full lg:w-[75%] flex flex-col border border-black rounded-lg p-4">
+          <div className="bg-white w-full lg:w-[75%] flex flex-col border border-black rounded-lg p-4 min-w-0">
             <div>ผลผลิตรวมแยกตามผู้ซื้อ (กก.)</div>
             <div style={{ height: "300px" }}>
               <Pie data={pieData} options={pieOptions} />
