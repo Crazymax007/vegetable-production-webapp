@@ -367,6 +367,51 @@ const ManagePage = () => {
 
     const handleSubmit = async (e) => {
       e.preventDefault();
+
+      // Add validation checks
+      if (!editData.quantityOrdered || editData.quantityOrdered <= 0) {
+        Swal.fire({
+          title: "ข้อผิดพลาด!",
+          text: "กรุณาระบุจำนวนที่สั่งให้ถูกต้อง",
+          icon: "error"
+        });
+        return;
+      }
+
+      if (!editData.deliveryDate) {
+        Swal.fire({
+          title: "ข้อผิดพลาด!",
+          text: "กรุณาระบุวันที่ส่งผลิต",
+          icon: "error"
+        });
+        return;
+      }
+
+      if (!editData.quantityDelivered || editData.quantityDelivered < 0) {
+        Swal.fire({
+          title: "ข้อผิดพลาด!",
+          text: "กรุณาระบุจำนวนที่ส่งให้ถูกต้อง",
+          icon: "error"
+        });
+        return;
+      }
+
+      // Add confirmation dialog before submitting
+      const confirmResult = await Swal.fire({
+        title: "ยืนยันการแก้ไข",
+        text: "คุณต้องการบันทึกการเปลี่ยนแปลงหรือไม่?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "ยืนยัน",
+        cancelButtonText: "ยกเลิก"
+      });
+
+      if (!confirmResult.isConfirmed) {
+        return;
+      }
+
       try {
         const detailData = {
           _id: order.detailId,
@@ -374,25 +419,38 @@ const ManagePage = () => {
           delivery: {
             actualKg: editData.quantityDelivered,
             deliveredDate: editData.deliveryDate
-              ? format(editData.deliveryDate, "yyyy-MM-dd") // ใช้ format จาก date-fns
+              ? format(editData.deliveryDate, "yyyy-MM-dd")
               : null,
             status: editData.status,
           },
         };
 
-        console.log("Detail Data to be sent:", detailData);
-
         const response = await updateOrderDetail(order.orderId, detailData);
 
         if (response.status === 200) {
-          Swal.fire({
+          // Update the data state with new values
+          setData(prevData =>
+            prevData.map(item =>
+              item.id === order.detailId
+                ? {
+                  ...item,
+                  quantityOrdered: editData.quantityOrdered,
+                  deliveryDate: format(editData.deliveryDate, "dd/MM/yyyy"),
+                  quantityDelivered: editData.quantityDelivered,
+                  status: editData.status
+                }
+                : item
+            )
+          );
+
+          await Swal.fire({
             title: "สำเร็จ!",
             text: "แก้ไขข้อมูลเรียบร้อยแล้ว",
             icon: "success",
             timer: 1500,
+            showConfirmButton: false
           });
           onClose();
-          window.location.reload();
         }
       } catch (error) {
         console.error("Error updating order:", error);
@@ -400,6 +458,7 @@ const ManagePage = () => {
           title: "เกิดข้อผิดพลาด!",
           text: "ไม่สามารถแก้ไขข้อมูลได้",
           icon: "error",
+          confirmButtonText: "ตกลง"
         });
       }
     };
@@ -710,9 +769,8 @@ const ManagePage = () => {
                       {item.quantityDelivered}
                     </td>
                     <td className="px-6 py-4 text-gray-600">
-                      <span className={`rounded-xl px-2 py-1 ${
-                        item.status === "Pending" ? "bg-yellow-200" : "bg-green-200"
-                      }`}>
+                      <span className={`rounded-xl px-2 py-1 ${item.status === "Pending" ? "bg-yellow-200" : "bg-green-200"
+                        }`}>
                         {getStatusThai(item.status)}
                       </span>
                     </td>
