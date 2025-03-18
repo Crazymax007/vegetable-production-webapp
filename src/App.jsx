@@ -17,60 +17,63 @@ import FarmersManagement from "./pages/farmersManagement/FarmersManagement";
 import PlantManagement from "./pages/plantManagement/PlantManagement";
 import UserManagement from "./pages/UserManagement/UserManagement";
 import BuyerManagement from "./pages/buyerManagement/BuyerManagement";
+import { SnackbarProvider } from 'notistack';
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
+    <SnackbarProvider maxSnack={3}>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
 
-        {/* Admin */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<AdminDashboard />} />
-          <Route path="farmers" element={<FarmersManagement />} />
-          <Route path="users" element={<UserManagement />} />
-          <Route path="plants" element={<PlantManagement />} />
-          <Route path="buyer" element={<BuyerManagement />} />
-        </Route>
+          {/* Admin */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="farmers" element={<FarmersManagement />} />
+            <Route path="users" element={<UserManagement />} />
+            <Route path="plants" element={<PlantManagement />} />
+            <Route path="buyer" element={<BuyerManagement />} />
+          </Route>
 
-        <Route
-          path="/map"
-          element={
-            <ProtectedRoute allowedRoles={["farmer", "manager", "admin"]}>
-              <TopNavbar />
-              <MapPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/plan"
-          element={
-            <ProtectedRoute allowedRoles={["manager", "admin"]}>
-              <TopNavbar />
-              <PlanPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/management"
-          element={
-            <ProtectedRoute allowedRoles={["farmer", "manager", "admin"]}>
-              <TopNavbar />
-              <ManagePage />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/map"
+            element={
+              <ProtectedRoute allowedRoles={["farmer", "manager", "admin"]}>
+                <TopNavbar />
+                <MapPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plan"
+            element={
+              <ProtectedRoute allowedRoles={["manager", "admin"]}>
+                <TopNavbar />
+                <PlanPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/management"
+            element={
+              <ProtectedRoute allowedRoles={["farmer", "manager", "admin"]}>
+                <TopNavbar />
+                <ManagePage />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </Router>
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Router>
+    </SnackbarProvider>
   );
 };
 

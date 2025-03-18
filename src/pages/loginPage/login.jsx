@@ -3,31 +3,55 @@ import { useNavigate } from "react-router-dom";
 import { login } from "../../services/authService";
 import "./login.css";
 import logoLogin from "../../assets/images/test1.webp";
-import { TextField, Typography } from "@mui/material";
+import { TextField } from "@mui/material";
+import { useSnackbar } from 'notistack';
 
 const Login = () => {
   const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("admin");
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
+  // Remove this line
+  // const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
+    if (e) e.preventDefault();
+
+    if (!username || !password) {
+      enqueueSnackbar('กรุณากรอก Username และ Password', {
+        variant: 'warning',
+        anchorOrigin: {
+          vertical: 'bottom',
+          horizontal: 'left',
+        },
+      });
+      return false;
+    }
 
     try {
-      const data = await login(username, password); // เรียก API login
-
-      // Redirect ตาม Role
-      if (data.user.role === "admin") {
-        navigate("/map");
-      } else if (["manager", "farmer"].includes(data.user.role)) {
-        navigate("/map");
+      const data = await login(username, password);
+      
+      if (data?.user?.role === "admin" || ["manager", "farmer"].includes(data?.user?.role)) {
+        navigate("/map", { replace: true });
       } else {
-        throw new Error("Invalid role");
+        enqueueSnackbar('ไม่มีสิทธิ์ในการเข้าถึง', {
+          variant: 'error',
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'left',
+          },
+        });
       }
     } catch (err) {
-      setError(err.message || "Login failed");
+      console.error(err);
+      enqueueSnackbar('Username หรือ Password ไม่ถูกต้อง', {
+        variant: 'error',
+        anchorOrigin: {
+          vertical: 'bottom',
+          horizontal: 'left',
+        },
+      });
+      return false;
     }
   };
 
@@ -44,6 +68,7 @@ const Login = () => {
             <form
               className="flex flex-col items-center w-full max-w-[450px] px-4"
               onSubmit={handleSubmit}
+              noValidate
             >
               <TextField
                 fullWidth
@@ -74,14 +99,19 @@ const Login = () => {
                   },
                 }}
               />
-              <button type="submit" className="login-button mt-4">
+              <button
+                type="button"
+                className="login-button mt-4"
+                onClick={handleSubmit}
+              >
                 เข้าสู่ระบบ
               </button>
-              {error && (
+              {/* Remove these lines since we're using Notistack now */}
+              {/* {error && (
                 <Typography color="error" variant="body2" sx={{ marginTop: 1 }}>
                   {error}
                 </Typography>
-              )}
+              )} */}
             </form>
           </div>
         </div>

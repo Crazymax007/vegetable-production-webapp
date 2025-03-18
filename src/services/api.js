@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 // สร้าง Axios Instance
 const api = axios.create({
@@ -16,7 +17,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       console.error("Unauthorized: Please log in again.");
-      window.location.href = "/login"; 
+      // ลบบรรทัดนี้: window.location.href = "/login";
     }
     return Promise.reject(error.response ? error.response.data : error.message);
   }
