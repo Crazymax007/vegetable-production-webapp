@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 // สร้าง Axios Instance
 const api = axios.create({
-  baseURL: "http://localhost:5000/api", // Base URL ของ API
-  timeout: 5000, // กำหนด Timeout (5 วินาที)
+  baseURL: "http://localhost:8080/api", // Base URL ของ API
+  timeout: 30000, // กำหนด Timeout (5 วินาที)
   headers: {
     "Content-Type": "application/json", // กำหนดว่า API ใช้ JSON
   },
