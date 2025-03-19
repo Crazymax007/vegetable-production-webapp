@@ -33,7 +33,7 @@ const MapPage = () => {
   const [selectedFarmer, setSelectedFarmer] = useState(null);
   const [topVegetables, setTopVegetables] = useState([]);
   const [topYear, setTopYear] = useState([]);
-  const API_BASE_URL = "http://localhost:5000";
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const currentYear = new Date().getFullYear();
   const { width } = useWindowSize();
 

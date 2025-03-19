@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 
 // สร้าง Axios Instance
 const api = axios.create({
-  baseURL: "http://localhost:8080/api", // Base URL ของ API
-  timeout: 30000, // กำหนด Timeout (5 วินาที)
+  baseURL: `${import.meta.env.VITE_API_BASE_URL}/api`,
+  timeout: 30000,
   headers: {
-    "Content-Type": "application/json", // กำหนดว่า API ใช้ JSON
+    "Content-Type": "application/json",
   },
-  withCredentials: true, // ให้ส่ง Cookie ในทุกคำขอ
+  withCredentials: true,
 });
 
 // Interceptor สำหรับจัดการ Error
