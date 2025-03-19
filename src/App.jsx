@@ -15,7 +15,7 @@ import ManagePage from "./pages/managePage/ManagePage";
 import AdminLayout from "./components/admin/AdminLayout";
 import FarmersManagement from "./pages/farmersManagement/FarmersManagement";
 import PlantManagement from "./pages/plantManagement/PlantManagement";
-import UserManagement from "./pages/UserManagement/UserManagement";
+import UserManagement from "./pages/userManagement/UserManagement";
 import BuyerManagement from "./pages/buyerManagement/BuyerManagement";
 import { SnackbarProvider } from 'notistack';
 
