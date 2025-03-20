@@ -188,7 +188,7 @@ const TopNavbar = () => {
                       className="flex items-center gap-3 px-3 py-2 font-semibold text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100"
                       onClick={() => setIsProfileMenuOpen(false)}
                     >
-                      ระบบ
+                      สำหรับผู้จัดการระบบ
                     </a>
                   </li>
                 </ul>

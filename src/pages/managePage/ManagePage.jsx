@@ -694,7 +694,7 @@ const ManagePage = () => {
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[100px]"
+                    className="px-6 py-4 font-bold text-gray-600 w-[150px]"
                   >
                     ผู้รับซื้อ
                   </th>

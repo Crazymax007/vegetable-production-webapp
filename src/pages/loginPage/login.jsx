@@ -18,7 +18,7 @@ const Login = () => {
     if (e) e.preventDefault();
 
     if (!username || !password) {
-      enqueueSnackbar('กรุณากรอก Username และ Password', {
+      enqueueSnackbar('กรุณากรอก ชื่อผู้ใช้ และ รหัสผ่าน', {
         variant: 'warning',
         anchorOrigin: {
           vertical: 'bottom',
@@ -44,7 +44,7 @@ const Login = () => {
       }
     } catch (err) {
       console.error(err);
-      enqueueSnackbar('Username หรือ Password ไม่ถูกต้อง', {
+      enqueueSnackbar('ชื่อผู้ใช้ หรือ รหัสผ่าน ไม่ถูกต้อง', {
         variant: 'error',
         anchorOrigin: {
           vertical: 'bottom',

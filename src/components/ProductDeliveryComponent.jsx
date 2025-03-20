@@ -45,7 +45,7 @@ const ProductDeliveryComponent = () => {
   const handleInputChange = (orderIndex, detailIndex, value) => {
     const updatedOrders = [...orders];
     updatedOrders[orderIndex].details[detailIndex].delivery.actualKg =
-      parseFloat(value);
+      value ? parseFloat(value) : 0;
     setOrders(updatedOrders);
   };
 
@@ -58,37 +58,39 @@ const ProductDeliveryComponent = () => {
   };
 
   const handleSave = async () => {
-    // ตรวจสอบว่ามีการกรอก actualKg หรือไม่
+    // สร้าง payload สำหรับการบันทึก
+    const detailsToUpdate = [];
+
     for (let i = 0; i < orders.length; i++) {
       for (let j = 0; j < orders[i].details.length; j++) {
         const detail = orders[i].details[j];
-        if (!detail.delivery.actualKg || detail.delivery.actualKg <= 0) {
-          return Swal.fire(
-            "ผิดพลาด",
-            `กรุณากรอกจำนวนที่ส่ง (kg) สำหรับลูกสวนที่ ${i + 1}, รายการที่ ${j + 1
-            }`,
-            "error"
-          );
+        // ตรวจสอบว่ามีการกรอก actualKg หรือไม่
+        if (detail.delivery.actualKg > 0) {
+          detailsToUpdate.push({
+            _id: detail._id,
+            farmerId: detail.farmerId._id,
+            quantityKg: detail.quantityKg,
+            delivery: {
+              actualKg: parseFloat(detail.delivery.actualKg) || 0,
+              deliveredDate: detail.delivery.deliveredDate || format(new Date(), "yyyy-MM-dd"),
+              status: "Complete",
+            },
+          });
         }
       }
     }
 
-    // หากผ่านการตรวจสอบแล้วจะทำการสร้าง payload และบันทึก
+    // หากไม่มีการกรอกข้อมูลเลย
+    if (detailsToUpdate.length === 0) {
+      Swal.fire("ไม่มีข้อมูลที่จะบันทึก!", "กรุณากรอกข้อมูลก่อนบันทึก.", "warning");
+      return;
+    }
+
+    // หากมีการกรอกข้อมูล จะทำการสร้าง payload และบันทึก
     const payload = {
       orderDate: orders[0]?.orderDate,
       season: "Summer",
-      details: orders.flatMap((order) =>
-        order.details.map((detail) => ({
-          _id: detail._id,
-          farmerId: detail.farmerId._id,
-          quantityKg: detail.quantityKg,
-          delivery: {
-            actualKg: parseFloat(detail.delivery.actualKg) || 0,
-            deliveredDate: detail.delivery.deliveredDate || format(new Date(), "yyyy-MM-dd"),
-            status: "Complete",
-          },
-        }))
-      ),
+      details: detailsToUpdate,
     };
 
     const result = await Swal.fire({
@@ -105,6 +107,7 @@ const ProductDeliveryComponent = () => {
         await updateOrder(orders[0]._id, payload);
         Swal.fire("สำเร็จ!", "ข้อมูลการบันทึกสำเร็จ.", "success");
         setOrders([]); // รีเซ็ตค่าหลังจากบันทึกสำเร็จ
+        setVegetable(null);
       } catch (error) {
         console.error("Error updating order:", error);
         Swal.fire("เกิดข้อผิดพลาด!", "ไม่สามารถบันทึกข้อมูลได้.", "error");
@@ -180,54 +183,66 @@ const ProductDeliveryComponent = () => {
                     </td>
                   </tr>
                 ) : (
-                  orders.map((order, index) =>
-                    order.details.map((detail, subIndex) => (
-                      <tr
-                        key={detail._id}
-                        className="odd:bg-white even:bg-gray-50 border-b"
-                      >
-                        <td className="px-6 py-4">{subIndex + 1}</td>
-                        <td className="px-6 py-4">
-                          {detail.farmerId.firstName} {detail.farmerId.lastName}
-                        </td>
-                        <td className="px-6 py-4">
-                          {order.vegetable?.name || "ไม่ระบุ"}
-                        </td>
-                        {/* แสดงชนิดผักจาก order.vegetable.name */}
-                        <td className="px-6 py-4">{detail.quantityKg}</td>
-                        <td className="px-6 py-4">
-                          {format(new Date(order.orderDate), 'dd/MM/yyyy')}
-                        </td>
-                        <td className="px-6 py-4">
-                          {format(new Date(order.dueDate), 'dd/MM/yyyy')}
-                        </td>
-                        <td className="px-6 py-4">
-                          <input
-                            type="number"
-                            className="border rounded-lg p-1 text-center w-20"
-                            value={detail.delivery.actualKg || ""}
-                            onChange={(e) =>
-                              handleInputChange(index, subIndex, e.target.value)
-                            }
-                          />
-                        </td>
-                        <td className="px-6 py-4">
-                          <input
-                            type="date"
-                            className="border rounded-lg p-1 text-center"
-                            value={detail.delivery.deliveredDate || format(new Date(), 'yyyy-MM-dd')}
-                            onChange={(e) =>
-                              handleDeliveryDateChange(
-                                index,
-                                subIndex,
-                                new Date(e.target.value)
-                              )
-                            }
-                          />
-                        </td>
-                      </tr>
-                    ))
-                  )
+                  orders.map((order, index) => {
+                    const pendingDetails = order.details.filter(detail => detail.delivery.status !== "Complete");
+                    return pendingDetails.length > 0 ? (
+                      <React.Fragment key={order._id}>
+                        {pendingDetails.map((detail, subIndex) => (
+                          <tr
+                            key={detail._id}
+                            className="odd:bg-white even:bg-gray-50 border-b"
+                          >
+                            <td className="px-6 py-4">{subIndex + 1}</td>
+                            <td className="px-6 py-4">
+                              {detail.farmerId.firstName} {detail.farmerId.lastName}
+                            </td>
+                            <td className="px-6 py-4">
+                              {order.vegetable?.name || "ไม่ระบุ"}
+                            </td>
+                            <td className="px-6 py-4">{detail.quantityKg}</td>
+                            <td className="px-6 py-4">
+                              {format(new Date(order.orderDate), "dd/MM/yyyy")}
+                            </td>
+                            <td className="px-6 py-4">
+                              {format(new Date(order.dueDate), "dd/MM/yyyy")}
+                            </td>
+                            <td className="px-6 py-4">
+                              <input
+                                type="number"
+                                className="border rounded-lg p-1 text-center w-20"
+                                value={detail.delivery.actualKg || ""}
+                                onChange={(e) =>
+                                  handleInputChange(index, subIndex, e.target.value)
+                                }
+                              />
+                            </td>
+                            <td className="px-6 py-4">
+                              <input
+                                type="date"
+                                className="border rounded-lg p-1 text-center"
+                                value={
+                                  detail.delivery.deliveredDate ||
+                                  format(new Date(), "yyyy-MM-dd")
+                                }
+                                onChange={(e) =>
+                                  handleDeliveryDateChange(
+                                    index,
+                                    subIndex,
+                                    new Date(e.target.value)
+                                  )
+                                }
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                        {index < orders.length - 1 && (
+                          <tr>
+                            <td colSpan="8" className="py-2"></td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    ) : null;
+                  })
                 )}
               </tbody>
             </table>
