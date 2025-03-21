@@ -205,7 +205,7 @@ const ManagePage = () => {
         ? new Date(item.deliveryDate.split("/").reverse().join("-"))
         : null;
 
-    // ตรวจสอบว่ามีวันที่ใดๆ อยู่ในช่วงที่กำหนดหรือไม่
+    // ตรวจสอบว่ามีวันที่ใดๆ อยู่ในช่วงที่กำหนดหรือไม่อะ?
     if (start && end) {
       dateMatch =
         (orderDate && orderDate >= start && orderDate <= end) ||
@@ -246,10 +246,23 @@ const ManagePage = () => {
   }, [filteredData, sortConfig]);
 
   // ฟังก์ชันจัดการการแบ่งหน้า
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = sortedData.slice(indexOfFirstItem, indexOfLastItem);
+  const groupedOrders = React.useMemo(() => {
+    // Group items by orderId
+    const orderGroups = {};
+    sortedData.forEach(item => {
+      if (!orderGroups[item.orderId]) {
+        orderGroups[item.orderId] = [];
+      }
+      orderGroups[item.orderId].push(item);
+    });
+    return Object.values(orderGroups);
+  }, [sortedData]);
+
+  const totalPages = Math.ceil(groupedOrders.length / itemsPerPage);
+  const indexOfLastOrder = currentPage * itemsPerPage;
+  const indexOfFirstOrder = indexOfLastOrder - itemsPerPage;
+  const currentOrders = groupedOrders.slice(indexOfFirstOrder, indexOfLastOrder);
+  const currentItems = currentOrders.flat();
 
   // เพิ่มฟังก์ชันแปลงสถานะเป็นภาษาไทย
   const getStatusThai = (status) => {
@@ -659,12 +672,11 @@ const ManagePage = () => {
             setCurrentPage(1);
           }}
         >
-          <option value={10}>10</option>
-          <option value={25}>25</option>
-          <option value={50}>50</option>
-          <option value={100}>100</option>
+          <option value={5}>5 รายการ</option>
+          <option value={10}>10 รายการ</option>
+          <option value={25}>25 รายการ</option>
+          <option value={50}>50 รายการ</option>
         </select>
-        <span className="text-sm">รายการ</span>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-100">
