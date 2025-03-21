@@ -110,7 +110,7 @@ const ManagePage = () => {
           const orders = response.data.data
             .map((order) => {
               if (!order.details) return null;
-              // Filter details for farmer role
+
               const relevantDetails = user?.role === "farmer"
                 ? order.details.filter(detail => detail?.farmerId?._id === user.farmerId)
                 : order.details;
@@ -676,68 +676,68 @@ const ManagePage = () => {
                 <tr className="bg-gray-200">
                   <th
                     scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 first:rounded-tl-lg w-[50px]"
+                    className="px-6 py-4 font-bold text-gray-800 first:rounded-tl-lg w-[50px]"
                   >
                     ลำดับ
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[200px]"
+                    className="px-6 py-4 font-bold text-gray-800 w-[200px]"
                   >
                     ลูกสวน
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[150px]"
+                    className="px-6 py-4 font-bold text-gray-800 w-[150px]"
                   >
                     ชื่อผัก
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[150px]"
+                    className="px-6 py-4 font-bold text-gray-800 w-[150px]"
                   >
                     ผู้รับซื้อ
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[120px]"
+                    className="px-6 py-4 font-bold text-gray-800 w-[120px]"
                   >
                     วันที่สั่งปลูก
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[120px]"
+                    className="px-6 py-4 font-bold text-gray-800 w-[120px]"
                   >
                     วันที่กำหนดส่ง
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[120px]"
+                    className="px-6 py-4 font-bold text-gray-800 w-[120px]"
                   >
                     จำนวนที่สั่ง (กก.)
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[120px]"
+                    className="px-6 py-4 font-bold text-gray-800 w-[120px]"
                   >
                     วันที่ส่งผลิต
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[120px]"
+                    className="px-6 py-4 font-bold text-gray-800 w-[120px]"
                   >
                     จำนวนที่ส่ง (กก.)
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-4 font-bold text-gray-600 w-[150px]"
+                    className="px-6 py-4 font-bold text-gray-800 w-[150px]"
                   >
                     สถานะ
                   </th>
                   {user?.role !== "farmer" && ( // ตรวจสอบว่า user ไม่ใช่ farmer
                     <th
                       scope="col"
-                      className="px-6 py-4 font-bold text-gray-600 last:rounded-tr-lg text-center w-[150px]"
+                      className="px-6 py-4 font-bold text-gray-800 last:rounded-tr-lg text-center w-[150px]"
                     >
                       จัดการข้อมูล
                     </th>
@@ -745,60 +745,92 @@ const ManagePage = () => {
                 </tr>
               </thead>
               <tbody>
-                {currentItems.map((item, index) => (
-                  <tr
-                    key={item.id}
-                    className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="px-6 py-4 text-gray-600">
-                      {indexOfFirstItem + index + 1}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">{item.farmerId}</td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {item.vegetableName}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {item.buyerName}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {item.orderDate}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">{item.dueDate}</td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {item.quantityOrdered}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {item.deliveryDate}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {item.quantityDelivered}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600 min-w-[130px]">
-                      <span className={`rounded-xl px-2 py-1 ${item.status === "Pending" ? "bg-yellow-200" : "bg-green-200"
-                        }`}>
-                        {getStatusThai(item.status)}
-                      </span>
-                    </td>
-                    {user?.role !== "farmer" && ( // ตรวจสอบว่า user ไม่ใช่ farmer
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => handleEdit(item.id, item.orderId)}
-                            className="bg-Green-button hover:bg-green-600 text-white shadow-md px-4 py-2 rounded-lg transition-colors"
-                          >
-                            แก้ไข
-                          </button>
-                          <button
-                            onClick={() => handleDelete(item.id, item.orderId)}
-                            className="bg-red-600 hover:bg-red-700 text-white shadow-md px-4 py-2 rounded-lg transition-colors"
-                          >
-                            ลบ
-                          </button>
-                        </div>
+                {currentItems.reduce((acc, item, index) => {
+                  const isNewOrder = index === 0 || item.orderId !== currentItems[index - 1]?.orderId;
+
+                  if (isNewOrder) {
+                    // Calculate the order number and total quantity
+                    const orderNumber = filteredData
+                      .filter((dataItem, dataIndex) => {
+                        return dataIndex === 0 ||
+                          dataItem.orderId !== filteredData[dataIndex - 1]?.orderId;
+                      })
+                      .findIndex(dataItem => dataItem.orderId === item.orderId) + 1;
+
+                    // Calculate total quantity for this order
+                    const totalQuantity = currentItems
+                      .filter(orderItem => orderItem.orderId === item.orderId)
+                      .reduce((sum, orderItem) => sum + orderItem.quantityOrdered, 0);
+
+                    acc.push(
+                      <tr key={`order-${item.orderId}`} className="bg-gray-100">
+                        <td colSpan={user?.role !== "farmer" ? 11 : 10} className="px-6 py-3 text-gray-600 font-semibold">
+                          รายการที่ {orderNumber} จำนวนรวม: {totalQuantity} กก.
+                        </td>
+                      </tr>
+                    );
+                  }
+
+                  acc.push(
+                    <tr
+                      key={item.id}
+                      className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="px-6 py-4 text-gray-600">
+                        {/* Reset numbering for each order */}
+                        {currentItems
+                          .slice(0, index)
+                          .filter(i => i.orderId === item.orderId)
+                          .length + 1}
                       </td>
-                    )}
-                  </tr>
-                ))}
+                      <td className="px-6 py-4 text-gray-600">{item.farmerId}</td>
+                      <td className="px-6 py-4 text-gray-600">
+                        {item.vegetableName}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        {item.buyerName}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        {item.orderDate}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">{item.dueDate}</td>
+                      <td className="px-6 py-4 text-gray-600">
+                        {item.quantityOrdered}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        {item.deliveryDate}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        {item.quantityDelivered}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600 min-w-[130px]">
+                        <span className={`rounded-xl px-2 py-1 ${item.status === "Pending" ? "bg-yellow-200" : "bg-green-200"
+                          }`}>
+                          {getStatusThai(item.status)}
+                        </span>
+                      </td>
+                      {user?.role !== "farmer" && (
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => handleEdit(item.id, item.orderId)}
+                              className="bg-Green-button hover:bg-green-600 text-white shadow-md px-4 py-2 rounded-lg transition-colors"
+                            >
+                              แก้ไข
+                            </button>
+                            <button
+                              onClick={() => handleDelete(item.id, item.orderId)}
+                              className="bg-red-600 hover:bg-red-700 text-white shadow-md px-4 py-2 rounded-lg transition-colors"
+                            >
+                              ลบ
+                            </button>
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  );
+                  return acc;
+                }, [])}
               </tbody>
             </table>
           </div>
