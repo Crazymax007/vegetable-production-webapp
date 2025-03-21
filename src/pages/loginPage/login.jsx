@@ -30,7 +30,7 @@ const Login = () => {
 
     try {
       const data = await login(username, password);
-      
+
       if (data?.user?.role === "admin" || ["manager", "farmer"].includes(data?.user?.role)) {
         navigate("/map", { replace: true });
       } else {
@@ -57,7 +57,7 @@ const Login = () => {
 
   return (
     <div className="bg-login min-h-screen flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-6xl h-auto md:h-4/5 rounded-[36px] flex flex-col md:flex-row shadow-lg">
+      <div className="bg-white w-full max-w-[80%] h-auto md:h-4/5 rounded-[36px] flex flex-col md:flex-row shadow-lg">
         {/* Left section */}
         <div className="flex-1 flex justify-center items-center p-6 md:p-8">
           <div className="flex flex-col items-center w-full">
@@ -66,7 +66,7 @@ const Login = () => {
             </h2>
             {/* Form */}
             <form
-              className="flex flex-col items-center w-full max-w-[450px] px-4"
+              className="flex flex-col items-center w-full max-w-[80%] px-4"
               onSubmit={handleSubmit}
               noValidate
             >

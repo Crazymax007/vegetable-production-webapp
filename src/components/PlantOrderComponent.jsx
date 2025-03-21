@@ -12,6 +12,7 @@ import { th } from "date-fns/locale"; // ใช้ locale ภาษาไทย
 import { format } from "date-fns";
 import { useWindowSize } from "../contexts/WindowSizeContext";
 import "../pages/planPage/PlanPage.css";
+import Popper from '@mui/material/Popper'; // นำเข้า Popper
 
 const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
   const [vegetableList, setVegetableList] = useState([]);
@@ -324,6 +325,7 @@ const PlantOrderComponent = ({ selectedVegetable, onVegetableSelect }) => {
                 noOptionsText={
                   loading ? <CircularProgress size={24} /> : "ไม่พบลูกสวน"
                 }
+                PopperComponent={(props) => <Popper {...props} placement="top" />}
               />
               {/* จำนวน */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
