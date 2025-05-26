@@ -1,68 +1,56 @@
 ## 🖼️ Screenshots
 
-### 🧑‍🌾 หน้า Dashboard (แดชบอร์ดผู้ดูแล)
-![Dashboard](./screenshots/1.Login.png)
-
-หน้านี้เป็นการLoginเข้าระบบ
+### 🧑‍🌾 Login Page  
+![Dashboard](./screenshots/1.Login.png)  
+This is the login interface for accessing the system.
 
 ---
 
-### 📝 หน้าแรก (หน้าแรก)
+### 📝 Home Page  
 <p float="left">
   <img src="./screenshots/2.index.png" width="45%" />
   <img src="./screenshots/3.index_onClick.png" width="45%" />
-</p>
-
-หน้าแรก แสดงว่าลูกสวนอยู่ที่ไหน และเมื่อกดจะแสดงผลผลิตของลูกส่วนคนนั้นๆ top 3
-
----
-
-### 👩‍🌾 หน้าทำนายและจัดการสั่งปลูก (predict&manage)
-![Prediction](./screenshots/4.predict&manage.png)
-
-ทำนายว่าผลผลิตที่ต้องการ ใครบ้างที่ควรปลูกและต้องปลูกคนละกี่กิโลกรัม
+</p>  
+Displays the locations of farmers. When clicked, it shows the top 3 crops they are producing.
 
 ---
 
-### 👩‍🌾 หน้าจัดการข้อมูลOrder (Management)
-![Management](./screenshots/5.manage_order.png)
-
-จัดข้อมูลOrderการสั่งปลูก
-
----
-
-### 👩‍🌾 หน้าdashboardของเจ้าหน้าที่ (Admin_dashboard)
-![admin_dashboard](./screenshots/6.admin_dashboard.png)
-
-แสดงข้อมูลต่างๆ เช่น ผลผลิต จำนวนลูกสวน ผู้รับซื้อ รายการการสั่งผลผลิต
+### 🌱 Prediction & Planting Management  
+![Prediction](./screenshots/4.predict&manage.png)  
+Predicts which farmers should grow a specific crop and how many kilograms each should plant.
 
 ---
 
-### 👩‍🌾 หน้าจัดการลูกสวนของเจ้าหน้าที่ (Admin_farmer)
-![admin_farmer](./screenshots/7.admin_farmer.png)
-
-แสดงข้อมูลของลูกสวน และ สามารถแก้ไข ลบได้
-
----
-
-### 👩‍🌾 หน้าจัดการผู้ใช้ของเจ้าหน้าที่ (Admin_user)
-![admin_user](./screenshots/8.admin_user.png)
-
-แสดงข้อมูลของผู้ใช้ และ สามารถแก้ไข ลบได้
+### 📦 Order Management  
+![Management](./screenshots/5.manage_order.png)  
+Manage planting orders and related data.
 
 ---
 
-### 👩‍🌾 หน้าจัดการผักของเจ้าหน้าที่ (Admin_vegetable)
-![admin_vegetable](./screenshots/9.admin_vegetable.png)
-
-แสดงข้อมูลของผัก และ สามารถแก้ไข ลบได้
+### 📊 Admin Dashboard  
+![admin_dashboard](./screenshots/6.admin_dashboard.png)  
+Displays key information such as crop statistics, number of farmers, buyers, and orders.
 
 ---
 
-### 👩‍🌾 หน้าจัดการผักของเจ้าหน้าที่ (Admin_buyer)
-![admin_buyer](./screenshots/10.admin_buyer.png)
+### 👨‍🌾 Farmer Management (Admin)  
+![admin_farmer](./screenshots/7.admin_farmer.png)  
+View, edit, and delete farmer profiles.
 
-แสดงข้อมูลของผู้รับซื้อ และ สามารถแก้ไข ลบได้
+---
 
+### 👤 User Management (Admin)  
+![admin_user](./screenshots/8.admin_user.png)  
+Manage user accounts with options to edit or delete.
 
+---
 
+### 🥬 Vegetable Management (Admin)  
+![admin_vegetable](./screenshots/9.admin_vegetable.png)  
+View and manage information about crops and vegetables.
+
+---
+
+### 🛒 Buyer Management (Admin)  
+![admin_buyer](./screenshots/10.admin_buyer.png)  
+View and manage buyer details with editing and deletion options.
